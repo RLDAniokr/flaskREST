@@ -61,9 +61,8 @@ def getStatus():
     args = ['wpa_cli', '-i', 'wlan0', 'status']
     try:
         statusOutput = str(sbp.check_output(args)).split("\n")
-        statusOutput.remove(len(statusOutput))
         status = {}
-        for line in statusOutput:
+        for line in statusOutput[:len(statusOutput)]:
             prop, val = line.split("=")
             status[prop] = val
     	response = {
@@ -90,10 +89,10 @@ def scan():
         scanListArgs = ['wpa_cli', '-i', 'wlan0', "scan_results"]
         if (sbp.call(scanCommandArgs) == 0):
             sleep(1)
-            tmp = str(sbp.check_output(scanListArgs)).split("\n")[1:len(tmp)]
+            tmp = str(sbp.check_output(scanListArgs)).split("\n")
 
             listNetworks = {}
-            for line in tmp:
+            for line in tmp[1:len(tmp)]:
                 div_line = line.split("\t")
                 props = {
                     "bssid": div_line[0],
