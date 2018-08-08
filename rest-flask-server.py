@@ -161,8 +161,12 @@ def connect():
 @cross_origin()
 def execute():
     LOG.info("Got exec")
-    args = ['nslookup', 'rlda.ru']
-    ex = str(subprocess.check_output(args))
+    args = ['assoc', '.API']
+    try:
+        ex = str(subprocess.check_output(args, shell=True))
+    except Exception as e:
+        ex = "FCK"
+        LOG.error(e)
 
     return jsonify({'ex': ex})
 
