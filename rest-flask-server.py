@@ -4,7 +4,8 @@
 
 from flask import Flask, jsonify, abort, request, make_response, url_for
 from flask_cors import CORS, cross_origin
-import subprocess
+import subprocess as sbp
+from time import sleep
 
 # ============================= LOGS ============================= #
 # Модуль для определения абсолютного пути
@@ -52,78 +53,53 @@ def not_found(error):
 def not_found(error):
     return make_response(jsonify( { 'error': 'Not found' } ), 404)
 
+
 @app.route('/status', methods=['GET'])
 @cross_origin()
-def get_status():
+def getStatus():
     LOG.info("Got status")
-    status = {
-        "status":"OK",
-        "message":"status",
-        "payload": {
-                "address":"b8:27:eb:c4:c4:fd",
-                "bssid":"08:60:6e:ba:82:f9",
-                "freq":"2412",
-                "group_cipher":"CCMP",
-                "id":"0",
-                "ip_address":"10.10.11.201",
-                "key_mgmt":"WPA2-PSK",
-                "mode":"station",
-                "p2p_device_address":"fe:65:c3:f2:86:eb",
-                "pairwise_cipher":"CCMP",
-                "ssid":"ASUS_Guest1",
-                "uuid":"f84b0928-9870-5917-bc6a-8d0a57ba4350",
-                "wpa_state":"COMPLETED"
-                }
-            }
-    return jsonify({'status': status})
+    args = ['wpa_cli', '-i', 'wlan0', 'status']
+    try:
+        statusOutput = str(sbp.check_output(args)).split("\n")
+    	response = {
+            "status": "OK",
+            "message": "Status service.",
+            "payload": statusOutput
+        }
+    except Exception as e:
+        LOG.error("Error occured during status check")
+        LOG.error(e)
+    	response = {
+            "status": "FAIL",
+            "message": "Status service.",
+            "payload": None
+        }
+    return jsonify(response)
 
 @app.route('/scan', methods=['GET'])
 @cross_origin()
 def scan():
     LOG.info("Got scan")
-    networks = {
-        "status":"OK",
-        "message":"Networks",
-        "payload":{
-            "ASUS 10":
-                {"bssid":"08:60:6e:ba:82:f8",
-                "frequency":"2462",
-                "signal_level":"-74",
-                "flags":"[WPA2-PSK-CCMP][ESS]",
-                "ssid":"ASUS 10"},
-            "ASUS2":
-                {"bssid":"08:60:6e:cc:47:68",
-                "frequency":"2427",
-                "signal_level":"-79",
-                "flags":"[WPA2-PSK-CCMP][ESS]",
-                "ssid":"ASUS2"},
-            "ASUS_Guest1":
-                {"bssid":"08:60:6e:ba:82:f9",
-                "frequency":"2462",
-                "signal_level":"-74",
-                "flags":"[WPA2-PSK-CCMP][ESS]",
-                "ssid":"ASUS_Guest1"},
-            "CityHall":
-                {"bssid":"2c:ab:25:78:a4:d6",
-                "frequency":"2437",
-                "signal_level":"-90",
-                "flags":"[WPA-PSK-CCMP+TKIP][WPA2-PSK-CCMP+TKIP][ESS]",
-                "ssid":"CityHall"},
-            "CityHall_2":
-                {"bssid":"48:5b:39:e7:45:13",
-                "frequency":"2437",
-                "signal_level":"-94",
-                "flags":"[WPA2-PSK-CCMP+TKIP][ESS]",
-                "ssid":"CityHall_2"},
-            "DENISENKO":
-                {"bssid":"98:de:d0:cd:d6:5c",
-                "frequency":"2457",
-                "signal_level":"-89",
-                "flags":"[WPA2-PSK-CCMP][WPS][ESS]",
-                "ssid":"DENISENKO"},
+    try:
+        scanCommandArgs = ['wpa_cli', '-i', 'wlan0', "scan"]
+        scanListArgs = ['wpa_cli', '-i', 'wlan0', "scan_results"]
+        if (sbp.call(scanCommandArgs) == 0):
+            sleep(1)
+            listNetworks = str(sbp.check_output(scanListArgs)).split("\n")
+        	response = {
+                "status": "OK",
+                "message": "Status service.",
+                "payload": listNetworks
             }
+    except Exception as e:
+        LOG.error("Error occured during scan")
+        LOG.error(e)
+    	response = {
+            "status": "FAIL",
+            "message": "Networks",
+            "payload": None
         }
-    return jsonify({'networks': networks})
+    return jsonify(response)
 
 @app.route('/disconnect', methods=['GET'])
 @cross_origin()
@@ -157,20 +133,6 @@ def connect():
         }
     return jsonify({'connect': connect})
 
-@app.route('/exec', methods=['GET'])
-@cross_origin()
-def execute():
-    LOG.info("Got exec")
-    args = ['wpa_cli', '-i', 'wlan0', 'status']
-    try:
-        ex = str(subprocess.check_output(args))
-	nex = ex.split("\n")
-	LOG.info("executed")
-    except Exception as e:
-        ex = "FCK"
-        LOG.error(e)
-
-    return jsonify({'ex': nex})
 
 if __name__ == '__main__':
     LOG.info("Entered main")
