@@ -161,14 +161,16 @@ def connect():
 @cross_origin()
 def execute():
     LOG.info("Got exec")
-    args = ['assoc', '.API']
+    args = ['wpa_cli', '-i', 'wlan0', 'status']
     try:
-        ex = str(subprocess.check_output(args, shell=True))
+        ex = str(subprocess.check_output(args))
+	nex = ex.split("\n")
+	LOG.info("executed")
     except Exception as e:
         ex = "FCK"
         LOG.error(e)
 
-    return jsonify({'ex': ex})
+    return jsonify({'ex': nex})
 
 if __name__ == '__main__':
     LOG.info("Entered main")

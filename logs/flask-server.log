@@ -1,0 +1,73 @@
+2018-08-08 12:53:49,778 - MainThread - INFO - Entered main
+2018-08-08 12:53:49,815 - MainThread - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2018-08-08 12:53:49,818 - MainThread - INFO -  * Restarting with stat
+2018-08-08 12:53:50,377 - MainThread - INFO - Entered main
+2018-08-08 12:53:50,401 - MainThread - WARNING -  * Debugger is active!
+2018-08-08 12:53:50,403 - MainThread - INFO -  * Debugger PIN: 425-301-104
+2018-08-08 12:56:00,400 - Thread-2 - INFO - Got status
+2018-08-08 12:56:00,406 - Thread-2 - INFO - 127.0.0.1 - - [08/Aug/2018 12:56:00] "GET /status HTTP/1.1" 200 -
+2018-08-08 12:56:04,021 - Thread-3 - INFO - 127.0.0.1 - - [08/Aug/2018 12:56:04] "GET /ex HTTP/1.1" 404 -
+2018-08-08 12:56:07,807 - Thread-4 - INFO - Got exec
+2018-08-08 12:56:07,822 - Thread-4 - ERROR - Command '['assoc', '.API']' returned non-zero exit status 127
+2018-08-08 12:56:07,828 - Thread-4 - INFO - 127.0.0.1 - - [08/Aug/2018 12:56:07] "GET /exec HTTP/1.1" 200 -
+2018-08-08 12:57:42,861 - MainThread - INFO -  * Detected change in '/home/pi/flaskREST/rest-flask-server.py', reloading
+2018-08-08 12:57:42,957 - MainThread - INFO -  * Restarting with stat
+2018-08-08 12:57:43,518 - MainThread - INFO - Entered main
+2018-08-08 12:57:43,542 - MainThread - WARNING -  * Debugger is active!
+2018-08-08 12:57:43,544 - MainThread - INFO -  * Debugger PIN: 425-301-104
+2018-08-08 12:57:46,765 - Thread-2 - INFO - Got exec
+2018-08-08 12:58:31,292 - MainThread - INFO - Entered main
+2018-08-08 12:58:31,320 - MainThread - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2018-08-08 12:58:31,322 - MainThread - INFO -  * Restarting with stat
+2018-08-08 12:58:31,882 - MainThread - INFO - Entered main
+2018-08-08 12:58:31,907 - MainThread - WARNING -  * Debugger is active!
+2018-08-08 12:58:31,908 - MainThread - INFO -  * Debugger PIN: 425-301-104
+2018-08-08 12:58:38,830 - Thread-2 - INFO - Got exec
+2018-08-08 13:00:04,469 - MainThread - INFO -  * Detected change in '/home/pi/flaskREST/rest-flask-server.py', reloading
+2018-08-08 13:00:04,548 - MainThread - INFO -  * Restarting with stat
+2018-08-08 13:00:05,108 - MainThread - INFO - Entered main
+2018-08-08 13:00:05,133 - MainThread - WARNING -  * Debugger is active!
+2018-08-08 13:00:05,134 - MainThread - INFO -  * Debugger PIN: 425-301-104
+2018-08-08 13:00:08,903 - Thread-2 - INFO - Got exec
+2018-08-08 13:00:59,650 - MainThread - INFO -  * Detected change in '/home/pi/flaskREST/rest-flask-server.py', reloading
+2018-08-08 13:00:59,742 - MainThread - INFO -  * Restarting with stat
+2018-08-08 13:01:00,293 - MainThread - INFO - Entered main
+2018-08-08 13:01:00,317 - MainThread - WARNING -  * Debugger is active!
+2018-08-08 13:01:00,319 - MainThread - INFO -  * Debugger PIN: 425-301-104
+2018-08-08 13:01:06,633 - Thread-2 - INFO - Got exec
+2018-08-08 13:01:06,653 - Thread-2 - INFO - executed
+2018-08-08 13:01:06,661 - Thread-2 - INFO - 127.0.0.1 - - [08/Aug/2018 13:01:06] "GET /exec HTTP/1.1" 200 -
+2018-08-08 13:18:58,951 - Thread-3 - INFO - Got exec
+2018-08-08 13:18:58,969 - Thread-3 - INFO - executed
+2018-08-08 13:18:58,975 - Thread-3 - INFO - 127.0.0.1 - - [08/Aug/2018 13:18:58] "GET /exec HTTP/1.1" 200 -
+2018-08-08 13:19:42,509 - Thread-4 - INFO - Got exec
+2018-08-08 13:19:42,528 - Thread-4 - INFO - executed
+2018-08-08 13:19:42,534 - Thread-4 - INFO - 127.0.0.1 - - [08/Aug/2018 13:19:42] "GET /exec HTTP/1.1" 200 -
+2018-08-08 13:19:53,298 - Thread-5 - INFO - Got exec
+2018-08-08 13:19:53,308 - Thread-5 - INFO - executed
+2018-08-08 13:19:53,311 - Thread-5 - INFO - 127.0.0.1 - - [08/Aug/2018 13:19:53] "GET /exec HTTP/1.1" 200 -
+2018-08-08 13:21:23,202 - MainThread - INFO -  * Detected change in '/home/pi/flaskREST/rest-flask-server.py', reloading
+2018-08-08 13:21:23,291 - MainThread - INFO -  * Restarting with stat
+2018-08-08 13:21:23,841 - MainThread - INFO - Entered main
+2018-08-08 13:21:23,864 - MainThread - WARNING -  * Debugger is active!
+2018-08-08 13:21:23,866 - MainThread - INFO -  * Debugger PIN: 425-301-104
+2018-08-08 13:21:25,119 - Thread-2 - INFO - Got exec
+2018-08-08 13:21:25,130 - Thread-2 - INFO - executed
+2018-08-08 13:21:25,134 - Thread-2 - INFO - 127.0.0.1 - - [08/Aug/2018 13:21:25] "GET /exec HTTP/1.1" 200 -
+2018-08-08 13:21:39,311 - MainThread - INFO -  * Detected change in '/home/pi/flaskREST/rest-flask-server.py', reloading
+2018-08-08 13:21:39,402 - MainThread - INFO -  * Restarting with stat
+2018-08-08 13:21:39,960 - MainThread - INFO - Entered main
+2018-08-08 13:21:39,984 - MainThread - WARNING -  * Debugger is active!
+2018-08-08 13:21:39,986 - MainThread - INFO -  * Debugger PIN: 425-301-104
+2018-08-08 13:21:42,194 - Thread-2 - INFO - Got exec
+2018-08-08 13:21:42,215 - Thread-2 - INFO - executed
+2018-08-08 13:21:42,221 - Thread-2 - INFO - 127.0.0.1 - - [08/Aug/2018 13:21:42] "GET /exec HTTP/1.1" 200 -
+2018-08-08 13:24:14,236 - Thread-3 - INFO - 127.0.0.1 - - [08/Aug/2018 13:24:14] "GET /connect HTTP/1.1" 404 -
+2018-08-08 13:24:31,186 - Thread-4 - INFO - 127.0.0.1 - - [08/Aug/2018 13:24:31] "GET /connect HTTP/1.1" 404 -
+2018-08-08 13:24:43,789 - Thread-5 - INFO - Got status
+2018-08-08 13:24:43,795 - Thread-5 - INFO - 127.0.0.1 - - [08/Aug/2018 13:24:43] "GET /status HTTP/1.1" 200 -
+2018-08-08 13:24:49,990 - Thread-6 - INFO - Got disconnect
+2018-08-08 13:24:49,995 - Thread-6 - INFO - 127.0.0.1 - - [08/Aug/2018 13:24:49] "GET /disconnect HTTP/1.1" 200 -
+2018-08-08 13:24:54,617 - Thread-7 - INFO - 127.0.0.1 - - [08/Aug/2018 13:24:54] "GET /connect HTTP/1.1" 404 -
+2018-08-08 13:25:07,117 - Thread-8 - INFO - Got connect
+2018-08-08 13:25:07,123 - Thread-8 - INFO - 127.0.0.1 - - [08/Aug/2018 13:25:07] "POST /connect HTTP/1.1" 400 -
