@@ -61,10 +61,15 @@ def getStatus():
     args = ['wpa_cli', '-i', 'wlan0', 'status']
     try:
         statusOutput = str(sbp.check_output(args)).split("\n")
+        statusOutput.remove(len(statusOutput))
+        status = {}
+        for line in statusOutput:
+            prop, val = line.split("=")
+            status[prop] = val
     	response = {
             "status": "OK",
             "message": "Status service.",
-            "payload": statusOutput
+            "payload": status
         }
     except Exception as e:
         LOG.error("Error occured during status check")
@@ -85,7 +90,19 @@ def scan():
         scanListArgs = ['wpa_cli', '-i', 'wlan0', "scan_results"]
         if (sbp.call(scanCommandArgs) == 0):
             sleep(1)
-            listNetworks = str(sbp.check_output(scanListArgs)).split("\n")
+            tmp = str(sbp.check_output(scanListArgs)).split("\n")[1:len(tmp)]
+
+            listNetworks = {}
+            for line in tmp:
+                div_line = line.split("\t")
+                props = {
+                    "bssid": div_line[0],
+                    "frequency": div_line[1],
+                    "SignalLevel": div_line[2],
+                    "Flags": div_line[3],
+                    "Ssid": div_line[4],
+                }
+                listNetworks[props[4]] = props
             response = {
                 "status": "OK",
                 "message": "Status service.",
