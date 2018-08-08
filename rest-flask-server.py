@@ -62,7 +62,7 @@ def getStatus():
     try:
         statusOutput = str(sbp.check_output(args)).split("\n")
         status = {}
-        for line in statusOutput[:len(statusOutput)]:
+        for line in statusOutput[:len(statusOutput)-1]:
             prop, val = line.split("=")
             status[prop] = val
     	response = {
@@ -92,7 +92,7 @@ def scan():
             tmp = str(sbp.check_output(scanListArgs)).split("\n")
 
             listNetworks = {}
-            for line in tmp[1:len(tmp)]:
+            for line in tmp[1:len(tmp)-1]:
                 div_line = line.split("\t")
                 props = {
                     "bssid": div_line[0],
