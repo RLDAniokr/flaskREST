@@ -86,7 +86,7 @@ def scan():
         if (sbp.call(scanCommandArgs) == 0):
             sleep(1)
             listNetworks = str(sbp.check_output(scanListArgs)).split("\n")
-        	response = {
+            response = {
                 "status": "OK",
                 "message": "Status service.",
                 "payload": listNetworks

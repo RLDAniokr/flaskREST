@@ -71,3 +71,13 @@
 2018-08-08 13:24:54,617 - Thread-7 - INFO - 127.0.0.1 - - [08/Aug/2018 13:24:54] "GET /connect HTTP/1.1" 404 -
 2018-08-08 13:25:07,117 - Thread-8 - INFO - Got connect
 2018-08-08 13:25:07,123 - Thread-8 - INFO - 127.0.0.1 - - [08/Aug/2018 13:25:07] "POST /connect HTTP/1.1" 400 -
+2018-08-08 13:56:06,727 - MainThread - INFO -  * Detected change in '/home/pi/flaskREST/rest-flask-server.py', reloading
+2018-08-08 13:56:06,785 - MainThread - INFO -  * Restarting with stat
+2018-08-08 13:59:12,091 - MainThread - INFO - Entered main
+2018-08-08 13:59:12,117 - MainThread - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2018-08-08 13:59:12,119 - MainThread - INFO -  * Restarting with stat
+2018-08-08 13:59:12,678 - MainThread - INFO - Entered main
+2018-08-08 13:59:12,702 - MainThread - WARNING -  * Debugger is active!
+2018-08-08 13:59:12,704 - MainThread - INFO -  * Debugger PIN: 425-301-104
+2018-08-08 13:59:44,875 - Thread-2 - INFO - Got scan
+2018-08-08 13:59:45,921 - Thread-2 - INFO - 127.0.0.1 - - [08/Aug/2018 13:59:45] "GET /scan HTTP/1.1" 200 -
