@@ -140,6 +140,8 @@ def wpa_disconnect():
 
 def wpa_connect(ssid, psk):
     output = {}
+    state = ""
+    ip = ""
     try:
         addArgs = ['wpa_cli', '-i', 'wlan0', 'add_network']
         net = str(sbp.check_output(addArgs))
