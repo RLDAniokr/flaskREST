@@ -132,25 +132,101 @@ def disconnect():
         }
     return jsonify({'disconnect': disconnect})
 
+class ConnectionError(Exception):
+    """docstring for ConnectionError."""
+    def __init__(self):
+        super(ConnectionError, self).__init__()
+        self.msg = "Error during establishing connection"
+    def __str__(self):
+        return self.msg
+
 
 @app.route('/connect', methods=['POST'])
 @cross_origin()
 def connect():
     LOG.info("Got connect")
-    if not request.json or 'title' not in request.json:
+    if not request.json or 'ssid' not in request.json:
         abort(400)
-    LOG.debug(request)
-    LOG.info("POST: ssid = ")
-    connect = {
-        "status": "OK",
-        "message": "Connection",
-        "payload":
-            {
-                "ssid": "ASUS_Guest1",
-                "state": "COMPLETED",
-                "ip": "10.10.11.201",
-                "message": ""
-            }
+    creds = request.get_json()
+    ssid = creds['ssid'].encode('utf-8')
+    psk = creds['psk'].encode('utf-8')
+    connect = {}
+    state = ""
+    ip = ""
+
+    try:
+        addArgs = ['wpa_cli', '-i', 'wlan0', 'add_network']
+        net = str(sbp.check_output(addArgs))
+
+        addSsidArgs = ['wpa_cli', '-i', 'wlan0',
+                        'set_network', net, 'ssid', "\""+ssid+"\""]
+        if (sbp.check_output(addSsidArgs) != "OK"):
+            LOG.error("Error occured during ssid set")
+            raise ConnectionError
+
+        addPskArgs = ['wpa_cli', '-i', 'wlan0',
+                        'set_network', net, 'psk', "\""+psk+"\""]
+        if (sbp.check_output(addPskArgs) != "OK"):
+            LOG.error("Error occured during psk set")
+            raise ConnectionError
+
+        enableArgs = ['wpa_cli', '-i', 'wlan0', 'enable_network', net]
+        if (sbp.check_output(enableArgs) != "OK"):
+            LOG.error("Error occured during network enable")
+            raise ConnectionError
+
+        regState = re.compile('\nwpa_state=(\w+)\n')
+        regIp = re.compile('\nip_address=(\w+)\n')
+
+        for i in range(0, 5):
+            LOG.info("Check state:")
+            statusArgs = ['wpa_cli', '-i', 'wlan0', 'status']
+            statusOutput = sbp.check_output(statusArgs)
+
+            state = regState.search(statusOutput).group(1)
+
+            if state == "COMPLETED":
+                for j in range(0, 10):
+                    statusOutput = sbp.check_output(statusArgs)
+                    if regIp.search(statusOutput) != None:
+                        ip = regState.search(statusOutput).group(1)
+                        break
+                    if (j == 9):
+                        LOG.error("Error occured during ip check")
+                        raise ConnectionError
+                    saveArgs = ['wpa_cli', '-i', 'wlan0', 'save_config']
+                    saveOut = sbp.check_output(saveArgs)
+                    if saveOut == "OK":
+                        connect = {
+                            "status": "OK",
+                            "message": "Connection",
+                            "payload":
+                                {
+                                    "ssid": ssid,
+                                    "state": state,
+                                    "ip": ip,
+                                    "message": ""
+                                }
+                        }
+                        break
+                    else:
+                        LOG.error("Error occured during config save")
+                        raise ConnectionError
+                    sleep(1)
+
+            if i == 4:
+                LOG.error("Error occured during status check")
+                raise ConnectionError
+            sleep(3)
+
+        #
+    except Exception as e:
+        LOG.error("Error during add_network")
+        raise(e)
+        connect = {
+            "status": "FAIL",
+            "message": "Connection",
+            "payload": None
         }
     return jsonify({'connect': connect})
 
