@@ -184,36 +184,41 @@ def connect():
             statusArgs = ['wpa_cli', '-i', 'wlan0', 'status']
             statusOutput = sbp.check_output(statusArgs)
 
-            state = regState.search(statusOutput).group(1)
+            match = regState.search(statusOutput)
+
+            if match != None:
+                status = match.group(1)
 
             if state == "COMPLETED":
                 for j in range(0, 10):
                     statusOutput = sbp.check_output(statusArgs)
-                    if regIp.search(statusOutput) != None:
-                        ip = regState.search(statusOutput).group(1)
+                    match = regIp.search(statusOutput)
+                    if match != None:
+                        ip = match.group(1)
                         break
                     if (j == 9):
                         LOG.error("Error occured during ip check")
                         raise ConnectionError
-                    saveArgs = ['wpa_cli', '-i', 'wlan0', 'save_config']
-                    saveOut = sbp.check_output(saveArgs)
-                    if saveOut == "OK\n":
-                        connect = {
-                            "status": "OK",
-                            "message": "Connection",
-                            "payload":
-                                {
-                                    "ssid": ssid,
-                                    "state": state,
-                                    "ip": ip,
-                                    "message": ""
-                                }
-                        }
-                        break
-                    else:
-                        LOG.error("Error occured during config save")
-                        raise ConnectionError
-                    sleep(1)
+                        
+                saveArgs = ['wpa_cli', '-i', 'wlan0', 'save_config']
+                saveOut = sbp.check_output(saveArgs)
+                if saveOut == "OK\n":
+                    connect = {
+                        "status": "OK",
+                        "message": "Connection",
+                        "payload":
+                            {
+                                "ssid": ssid,
+                                "state": state,
+                                "ip": ip,
+                                "message": ""
+                            }
+                    }
+                    break
+                else:
+                    LOG.error("Error occured during config save")
+                    raise ConnectionError
+                sleep(1)
 
             if i == 4:
                 LOG.error("Error occured during status check")
