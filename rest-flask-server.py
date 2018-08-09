@@ -199,6 +199,7 @@ def connect():
                     if (j == 9):
                         LOG.error("Error occured during ip check")
                         raise ConnectionError
+                    sleep(1)
 
                 saveArgs = ['wpa_cli', '-i', 'wlan0', 'save_config']
                 saveOut = sbp.check_output(saveArgs)
@@ -218,7 +219,6 @@ def connect():
                 else:
                     LOG.error("Error occured during config save")
                     raise ConnectionError
-                sleep(1)
 
             if i == 4:
                 LOG.error("Error occured during status check")
@@ -228,7 +228,7 @@ def connect():
         #
     except Exception as e:
         LOG.error("Error during add_network")
-        raise(e)
+        LOG.error(e)
         connect = {
             "status": "FAIL",
             "message": "Connection",
