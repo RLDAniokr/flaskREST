@@ -41,17 +41,19 @@ LOG.addHandler(SH)
 LOG.addHandler(RFH)
 
 # ============================= FLASK ============================= #
-app = Flask(__name__, static_url_path = "")
+app = Flask(__name__, static_url_path="")
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+
 @app.errorhandler(400)
 def not_found(error):
-    return make_response(jsonify( { 'error': 'Bad request' } ), 400)
+    return make_response(jsonify({'error': 'Bad request'}), 400)
+
 
 @app.errorhandler(404)
 def not_found(error):
-    return make_response(jsonify( { 'error': 'Not found' } ), 404)
+    return make_response(jsonify({'error': 'Not found'}), 404)
 
 
 @app.route('/status', methods=['GET'])
@@ -65,7 +67,7 @@ def getStatus():
         for line in statusOutput[:len(statusOutput)-1]:
             prop, val = line.split("=")
             status[prop] = val
-    	response = {
+        response = {
             "status": "OK",
             "message": "Status service.",
             "payload": status
@@ -73,12 +75,13 @@ def getStatus():
     except Exception as e:
         LOG.error("Error occured during status check")
         LOG.error(e)
-    	response = {
+        response = {
             "status": "FAIL",
             "message": "Status service.",
             "payload": None
         }
     return jsonify(response)
+
 
 @app.route('/scan', methods=['GET'])
 @cross_origin()
@@ -110,41 +113,43 @@ def scan():
     except Exception as e:
         LOG.error("Error occured during scan")
         LOG.error(e)
-    	response = {
+        response = {
             "status": "FAIL",
             "message": "Networks",
             "payload": None
         }
     return jsonify(response)
 
+
 @app.route('/disconnect', methods=['GET'])
 @cross_origin()
 def disconnect():
     LOG.info("Got disconnect")
     disconnect = {
-        "status":"OK",
-        "message":"Disconnect service.",
+        "status": "OK",
+        "message": "Disconnect service.",
         "payload": ""
         }
     return jsonify({'disconnect': disconnect})
+
 
 @app.route('/connect', methods=['POST'])
 @cross_origin()
 def connect():
     LOG.info("Got connect")
-    if not request.json or not 'title' in request.json:
+    if not request.json or 'title' not in request.json:
         abort(400)
     LOG.debug(request)
     LOG.info("POST: ssid = ")
     connect = {
-        "status":"OK",
-        "message":"Connection",
+        "status": "OK",
+        "message": "Connection",
         "payload":
             {
-                "ssid":"ASUS_Guest1",
-                "state":"COMPLETED",
-                "ip":"10.10.11.201",
-                "message":""
+                "ssid": "ASUS_Guest1",
+                "state": "COMPLETED",
+                "ip": "10.10.11.201",
+                "message": ""
             }
         }
     return jsonify({'connect': connect})
