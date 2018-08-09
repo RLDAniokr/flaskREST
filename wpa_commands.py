@@ -23,6 +23,7 @@ class ConnectionError(Exception):
     def __init__(self):
         super(ConnectionError, self).__init__()
         self.msg = "Error during establishing connection"
+
     def __str__(self):
         return self.msg
 
@@ -32,6 +33,7 @@ class DisconnectionError(Exception):
     def __init__(self):
         super(DisconnectionError, self).__init__()
         self.msg = "Error during disconnect"
+
     def __str__(self):
         return self.msg
 
@@ -59,6 +61,7 @@ def wpa_status():
             "payload": None
         }
     return output
+
 
 def wpa_scan():
     output = {}
@@ -94,6 +97,7 @@ def wpa_scan():
             "payload": None
         }
     return output
+
 
 def wpa_disconnect():
     output = {}
@@ -138,6 +142,7 @@ def wpa_disconnect():
         }
     return output
 
+
 def wpa_connect(ssid, psk):
     output = {}
     state = ""
@@ -147,14 +152,14 @@ def wpa_connect(ssid, psk):
         addArgs = ['wpa_cli', '-i', 'wlan0', 'add_network']
         net = str(sbp.check_output(addArgs))
 
-        addSsidArgs = ['wpa_cli', '-i', 'wlan0',
-                        'set_network', net, 'ssid', "\""+ssid+"\""]
+        addSsidArgs = ['wpa_cli', '-i', 'wlan0', 'set_network', net,
+                       'ssid', "\""+ssid+"\""]
         if (sbp.check_output(addSsidArgs) != "OK\n"):
             LOG.error("Error occured during ssid set")
             raise ConnectionError
 
         addPskArgs = ['wpa_cli', '-i', 'wlan0',
-                        'set_network', net, 'psk', "\""+psk+"\""]
+                      'set_network', net, 'psk', "\""+psk+"\""]
         if (sbp.check_output(addPskArgs) != "OK\n"):
             LOG.error("Error occured during psk set")
             raise ConnectionError
@@ -174,14 +179,14 @@ def wpa_connect(ssid, psk):
 
             match = regState.search(statusOutput)
 
-            if match != None:
+            if match is not None:
                 state = match.group(1)
 
             if state == "COMPLETED":
                 for j in range(0, 10):
                     statusOutput = sbp.check_output(statusArgs)
                     match = regIp.search(statusOutput)
-                    if match != None:
+                    if match is not None:
                         ip = match.group(1)
                         break
                     if (j == 9):

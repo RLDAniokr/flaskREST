@@ -34,7 +34,7 @@ RFH.setLevel(logging.DEBUG)
 SH = logging.StreamHandler()
 SH.setLevel(logging.DEBUG)
 
-FORMATTER = logging.Formatter('%(asctime)s - %(threadName)s - %(levelname)s - %(message)s')
+FORMATTER = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 RFH.setFormatter(FORMATTER)
 SH.setFormatter(FORMATTER)
 
@@ -75,8 +75,6 @@ def scan():
     return jsonify(response)
 
 
-
-
 @app.route('/disconnect', methods=['GET'])
 @cross_origin()
 def disconnect():
@@ -85,8 +83,6 @@ def disconnect():
     response = wpa_disconnect()
 
     return jsonify(response)
-
-
 
 
 @app.route('/connect', methods=['POST'])
