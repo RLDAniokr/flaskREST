@@ -187,7 +187,7 @@ def connect():
             match = regState.search(statusOutput)
 
             if match != None:
-                status = match.group(1)
+                state = match.group(1)
 
             if state == "COMPLETED":
                 for j in range(0, 10):
