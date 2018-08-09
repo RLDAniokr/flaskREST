@@ -177,7 +177,7 @@ def connect():
             raise ConnectionError
 
         regState = re.compile('\nwpa_state=(\w+)\n')
-        regIp = re.compile('\nip_address=(\w+)\n')
+        regIp = re.compile('\nip_address=(\S+)\n')
 
         for i in range(0, 5):
             LOG.info("Check state:")
@@ -199,7 +199,7 @@ def connect():
                     if (j == 9):
                         LOG.error("Error occured during ip check")
                         raise ConnectionError
-                        
+
                 saveArgs = ['wpa_cli', '-i', 'wlan0', 'save_config']
                 saveOut = sbp.check_output(saveArgs)
                 if saveOut == "OK\n":
