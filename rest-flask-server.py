@@ -101,7 +101,7 @@ def scan():
                     "Flags": div_line[3],
                     "Ssid": div_line[4],
                 }
-                listNetworks[props[4]] = props
+                listNetworks[div_line[4]] = props
             response = {
                 "status": "OK",
                 "message": "Status service.",
