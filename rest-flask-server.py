@@ -88,6 +88,7 @@ def getStatus():
 @cross_origin()
 def scan():
     LOG.info("Got scan")
+    response = {}
     try:
         scanCommandArgs = ['wpa_cli', '-i', 'wlan0', "scan"]
         scanListArgs = ['wpa_cli', '-i', 'wlan0', "scan_results"]
@@ -122,16 +123,61 @@ def scan():
     return jsonify(response)
 
 
+class DisconnectionError(Exception):
+    """docstring for ConnectionError."""
+    def __init__(self):
+        super(ConnectionError, self).__init__()
+        self.msg = "Error during disconnect"
+    def __str__(self):
+        return self.msg
+
+
 @app.route('/disconnect', methods=['GET'])
 @cross_origin()
 def disconnect():
     LOG.info("Got disconnect")
-    disconnect = {
-        "status": "OK",
-        "message": "Disconnect service.",
-        "payload": ""
+    response = {}
+    try:
+        dcArgs = ['wpa_cli', '-i', 'wlan0', 'disconnect']
+        dcStatus = sbp.check_output(dcArgs)
+        if dcStatus != "OK\n":
+            LOG.error("Error during disconnect")
+            raise DisconnectionError
+
+        listArgs = ['wpa_cli', '-i', 'wlan0', 'list_networks']
+        listNetworks = sbp.check_output(listArgs).split("\n")
+
+        for network in listNetworks[1:len(listNetworks)]:
+            networkId, _ = network.split("\t", 1)
+            rmNetArgs = ['wpa_cli', '-i', 'wlan0', 'remove_network', networkId]
+            rmNetOut = sbp.check_output(rmNetArgs)
+            if rmNetOut != "OK\n":
+                LOG.error("Error occured during network removal")
+                LOG.error("Network id: %s" % networkId)
+                raise DisconnectionError
+
+        reasArgs = ['wpa_cli', '-i', 'wlan0', 'reassociate']
+        reasStatus = sbp.check_output(reasArgs)
+        if reasStatus != "OK\n":
+            LOG.error("Error occured during network reassociate")
+            raise DisconnectionError
+
+        response = {
+            "status": "OK",
+            "message": "Disconnect service.",
+            "payload": ""
         }
-    return jsonify({'disconnect': disconnect})
+
+    except Exception as e:
+        raise e
+        response = {
+            "status": "FAIL",
+            "message": "Disconnect service.",
+            "payload": ""
+        }
+
+    return jsonify(response)
+
 
 class ConnectionError(Exception):
     """docstring for ConnectionError."""
@@ -151,7 +197,7 @@ def connect():
     creds = request.get_json()
     ssid = creds['ssid'].encode('utf-8')
     psk = creds['psk'].encode('utf-8')
-    connect = {}
+    response = {}
     state = ""
     ip = ""
 
@@ -204,7 +250,7 @@ def connect():
                 saveArgs = ['wpa_cli', '-i', 'wlan0', 'save_config']
                 saveOut = sbp.check_output(saveArgs)
                 if saveOut == "OK\n":
-                    connect = {
+                    response = {
                         "status": "OK",
                         "message": "Connection",
                         "payload":
@@ -229,12 +275,12 @@ def connect():
     except Exception as e:
         LOG.error("Error during add_network")
         LOG.error(e)
-        connect = {
+        response = {
             "status": "FAIL",
             "message": "Connection",
             "payload": None
         }
-    return jsonify({'connect': connect})
+    return jsonify(response)
 
 
 if __name__ == '__main__':
