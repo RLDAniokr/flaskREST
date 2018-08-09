@@ -147,7 +147,7 @@ def disconnect():
         listArgs = ['wpa_cli', '-i', 'wlan0', 'list_networks']
         listNetworks = sbp.check_output(listArgs).split("\n")
 
-        for network in listNetworks[1:len(listNetworks)]:
+        for network in listNetworks[1:len(listNetworks)-1]:
             networkId, _ = network.split("\t", 1)
             rmNetArgs = ['wpa_cli', '-i', 'wlan0', 'remove_network', networkId]
             rmNetOut = sbp.check_output(rmNetArgs)
