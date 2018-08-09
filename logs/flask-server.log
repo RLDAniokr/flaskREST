@@ -81,3 +81,76 @@
 2018-08-08 13:59:12,704 - MainThread - INFO -  * Debugger PIN: 425-301-104
 2018-08-08 13:59:44,875 - Thread-2 - INFO - Got scan
 2018-08-08 13:59:45,921 - Thread-2 - INFO - 127.0.0.1 - - [08/Aug/2018 13:59:45] "GET /scan HTTP/1.1" 200 -
+2018-08-09 15:53:13,652 - MainThread - INFO - Entered main
+2018-08-09 15:53:17,093 - MainThread - INFO -  * Restarting with stat
+2018-08-09 15:53:17,813 - MainThread - INFO - Entered main
+2018-08-09 15:53:18,624 - MainThread - WARNING -  * Debugger is active!
+2018-08-09 15:53:19,120 - MainThread - INFO -  * Debugger PIN: 198-050-504
+2018-08-09 15:53:19,584 - Thread-1 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2018-08-09 15:53:23,488 - Thread-2 - INFO - Got status
+2018-08-09 15:53:23,793 - Thread-2 - INFO - 127.0.0.1 - - [09/Aug/2018 15:53:23] "GET /status HTTP/1.1" 500 -
+2018-08-09 15:57:23,792 - MainThread - INFO -  * Detected change in 'C:\\Users\\Antipin\\Desktop\\flaskREST\\rest-flask-server.py', reloading
+2018-08-09 15:57:25,819 - MainThread - INFO -  * Restarting with stat
+2018-08-09 15:57:29,825 - MainThread - INFO - Entered main
+2018-08-09 15:57:30,631 - MainThread - WARNING -  * Debugger is active!
+2018-08-09 15:57:30,691 - MainThread - INFO -  * Debugger PIN: 198-050-504
+2018-08-09 15:57:30,806 - Thread-1 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2018-08-09 15:57:37,755 - Thread-2 - INFO - Got status
+2018-08-09 15:57:37,932 - Thread-2 - INFO - 127.0.0.1 - - [09/Aug/2018 15:57:37] "GET /status HTTP/1.1" 500 -
+2018-08-09 15:58:20,330 - MainThread - INFO -  * Detected change in 'C:\\Users\\Antipin\\Desktop\\flaskREST\\rest-flask-server.py', reloading
+2018-08-09 15:58:22,523 - MainThread - INFO -  * Restarting with stat
+2018-08-09 16:00:08,942 - MainThread - INFO - Entered main
+2018-08-09 16:00:09,235 - MainThread - INFO -  * Restarting with stat
+2018-08-09 16:00:09,829 - MainThread - INFO - Entered main
+2018-08-09 16:00:10,066 - MainThread - WARNING -  * Debugger is active!
+2018-08-09 16:00:10,075 - MainThread - INFO -  * Debugger PIN: 198-050-504
+2018-08-09 16:00:10,095 - Thread-1 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2018-08-09 16:00:12,710 - Thread-2 - INFO - Got status
+2018-08-09 16:00:12,734 - Thread-2 - ERROR - Error occured during status check
+2018-08-09 16:00:12,735 - Thread-2 - ERROR - [WinError 2] Не удается найти указанный файл
+2018-08-09 16:00:12,773 - Thread-2 - INFO - 127.0.0.1 - - [09/Aug/2018 16:00:12] "GET /status HTTP/1.1" 200 -
+2018-08-09 16:00:48,491 - MainThread - INFO -  * Detected change in 'C:\\Users\\Antipin\\Desktop\\flaskREST\\wpa_commands.py', reloading
+2018-08-09 16:00:50,275 - MainThread - INFO -  * Restarting with stat
+2018-08-09 16:00:50,934 - MainThread - INFO - Entered main
+2018-08-09 16:00:51,202 - MainThread - WARNING -  * Debugger is active!
+2018-08-09 16:00:51,211 - MainThread - INFO -  * Debugger PIN: 198-050-504
+2018-08-09 16:00:51,239 - Thread-1 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2018-08-09 16:00:57,941 - Thread-2 - INFO - Got status
+2018-08-09 16:00:57,942 - Thread-2 - INFO - CHECK
+2018-08-09 16:00:57,959 - Thread-2 - ERROR - Error occured during status check
+2018-08-09 16:00:57,960 - Thread-2 - ERROR - [WinError 2] Не удается найти указанный файл
+2018-08-09 16:00:57,967 - Thread-2 - INFO - 127.0.0.1 - - [09/Aug/2018 16:00:57] "GET /status HTTP/1.1" 200 -
+2018-08-09 16:10:46,014 - MainThread - INFO - Entered main
+2018-08-09 16:10:47,657 - MainThread - INFO -  * Restarting with stat
+2018-08-09 16:10:48,252 - MainThread - INFO - Entered main
+2018-08-09 16:10:48,550 - MainThread - WARNING -  * Debugger is active!
+2018-08-09 16:10:48,749 - MainThread - INFO -  * Debugger PIN: 198-050-504
+2018-08-09 16:10:48,896 - Thread-1 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2018-08-09 16:11:14,534 - Thread-2 - INFO - Got scan
+2018-08-09 16:11:14,560 - Thread-2 - ERROR - Error occured during scan
+2018-08-09 16:11:14,561 - Thread-2 - ERROR - [WinError 2] Не удается найти указанный файл
+2018-08-09 16:11:14,566 - Thread-2 - INFO - 127.0.0.1 - - [09/Aug/2018 16:11:14] "GET /scan HTTP/1.1" 200 -
+2018-08-09 16:11:21,981 - Thread-3 - INFO - Got status
+2018-08-09 16:11:21,995 - Thread-3 - ERROR - Error occured during status check
+2018-08-09 16:11:21,996 - Thread-3 - ERROR - [WinError 2] Не удается найти указанный файл
+2018-08-09 16:11:21,999 - Thread-3 - INFO - 127.0.0.1 - - [09/Aug/2018 16:11:21] "GET /status HTTP/1.1" 200 -
+2018-08-09 16:11:28,226 - Thread-4 - INFO - Got disconnect
+2018-08-09 16:11:28,400 - Thread-4 - INFO - 127.0.0.1 - - [09/Aug/2018 16:11:28] "GET /disconnect HTTP/1.1" 500 -
+2018-08-09 16:11:39,004 - MainThread - INFO -  * Detected change in 'C:\\Users\\Antipin\\Desktop\\flaskREST\\rest-flask-server.py', reloading
+2018-08-09 16:11:41,292 - MainThread - INFO -  * Restarting with stat
+2018-08-09 16:11:42,021 - MainThread - INFO - Entered main
+2018-08-09 16:11:42,357 - MainThread - WARNING -  * Debugger is active!
+2018-08-09 16:11:42,370 - MainThread - INFO -  * Debugger PIN: 198-050-504
+2018-08-09 16:11:42,409 - Thread-1 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2018-08-09 16:11:46,436 - Thread-2 - INFO - Got disconnect
+2018-08-09 16:11:46,573 - Thread-2 - INFO - 127.0.0.1 - - [09/Aug/2018 16:11:46] "GET /disconnect HTTP/1.1" 500 -
+2018-08-09 16:12:43,977 - MainThread - INFO -  * Detected change in 'C:\\Users\\Antipin\\Desktop\\flaskREST\\wpa_commands.py', reloading
+2018-08-09 16:12:46,341 - MainThread - INFO -  * Restarting with stat
+2018-08-09 16:12:47,292 - MainThread - INFO - Entered main
+2018-08-09 16:12:47,680 - MainThread - WARNING -  * Debugger is active!
+2018-08-09 16:12:47,692 - MainThread - INFO -  * Debugger PIN: 198-050-504
+2018-08-09 16:12:47,729 - Thread-1 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2018-08-09 16:12:51,255 - Thread-2 - INFO - Got disconnect
+2018-08-09 16:12:51,263 - Thread-2 - ERROR - Error occured while disconnect
+2018-08-09 16:12:51,263 - Thread-2 - ERROR - [WinError 2] Не удается найти указанный файл
+2018-08-09 16:12:51,266 - Thread-2 - INFO - 127.0.0.1 - - [09/Aug/2018 16:12:51] "GET /disconnect HTTP/1.1" 200 -
