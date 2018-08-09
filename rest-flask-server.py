@@ -160,18 +160,18 @@ def connect():
 
         addSsidArgs = ['wpa_cli', '-i', 'wlan0',
                         'set_network', net, 'ssid', "\""+ssid+"\""]
-        if (sbp.check_output(addSsidArgs) != "OK"):
+        if (sbp.check_output(addSsidArgs) != "OK\n"):
             LOG.error("Error occured during ssid set")
             raise ConnectionError
 
         addPskArgs = ['wpa_cli', '-i', 'wlan0',
                         'set_network', net, 'psk', "\""+psk+"\""]
-        if (sbp.check_output(addPskArgs) != "OK"):
+        if (sbp.check_output(addPskArgs) != "OK\n"):
             LOG.error("Error occured during psk set")
             raise ConnectionError
 
         enableArgs = ['wpa_cli', '-i', 'wlan0', 'enable_network', net]
-        if (sbp.check_output(enableArgs) != "OK"):
+        if (sbp.check_output(enableArgs) != "OK\n"):
             LOG.error("Error occured during network enable")
             raise ConnectionError
 
@@ -196,7 +196,7 @@ def connect():
                         raise ConnectionError
                     saveArgs = ['wpa_cli', '-i', 'wlan0', 'save_config']
                     saveOut = sbp.check_output(saveArgs)
-                    if saveOut == "OK":
+                    if saveOut == "OK\n":
                         connect = {
                             "status": "OK",
                             "message": "Connection",
