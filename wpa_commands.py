@@ -79,8 +79,8 @@ def wpa_scan():
                     "bssid": div_line[0],
                     "frequency": div_line[1],
                     "SignalLevel": div_line[2],
-                    "Flags": div_line[3],
-                    "Ssid": div_line[4],
+                    "flags": div_line[3],
+                    "ssid": div_line[4],
                 }
                 listNetworks[div_line[4]] = props
             output = {
