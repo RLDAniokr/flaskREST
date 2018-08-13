@@ -60,6 +60,7 @@ def not_found(error):
 @app.route('/status', methods=['GET'])
 @cross_origin()
 def getStatus():
+    """ Запрос статуса подключений """
     LOG.info("Got status")
     response = {}
     response = wpa_status()
@@ -69,6 +70,7 @@ def getStatus():
 @app.route('/scan', methods=['GET'])
 @cross_origin()
 def scan():
+    """ Сканирование сети """
     LOG.info("Got scan")
     response = {}
     response = wpa_scan()
@@ -78,6 +80,7 @@ def scan():
 @app.route('/disconnect', methods=['GET'])
 @cross_origin()
 def disconnect():
+    """ Разрыв соединения """
     LOG.info("Got disconnect")
     response = {}
     response = wpa_disconnect()
@@ -88,17 +91,24 @@ def disconnect():
 @app.route('/connect', methods=['POST'])
 @cross_origin()
 def connect():
+    """ Подключение к заданной сети """
     LOG.info("Got connect")
+    # Если тело не является json или нет ключа ssid вернуть 400
     if not request.json or 'ssid' not in request.json:
         abort(400)
+    # Забрать json
     creds = request.get_json()
+    # Выделение ssid
     ssid = creds['ssid'].encode('utf-8')
+    # Выделение psk
     psk = creds['psk'].encode('utf-8')
+
     response = {}
     response = wpa_connect(ssid, psk)
     return jsonify(response)
 
 
+# Точка входа main
 if __name__ == '__main__':
     LOG.info("Entered main")
     app.run(debug=True)
