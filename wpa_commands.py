@@ -290,7 +290,7 @@ def wpa_connect(ssid, psk):
             if i == 4:
                 LOG.error("Error occured during status check")
                 raise ConnectionError
-            sleep(3)
+            sleep(5)
 
     # Обработка исключений
     except Exception as e:
