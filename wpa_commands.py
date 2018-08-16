@@ -269,6 +269,8 @@ def wpa_connect(ssid, psk):
                 saveArgs = ['wpa_cli', '-i', 'wlan0', 'save_config']
                 saveOut = sbp.check_output(saveArgs)
                 if saveOut == "OK\n":
+                    LOG.info("Successufully connected with %s, ip: %s"
+                             % (ssid, ip))
                     # Если все прошло успешно вывести ответ
                     output = {
                         "status": "OK",
