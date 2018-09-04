@@ -5,12 +5,17 @@
 # TODO: import stuff
 # import sql
 import threading
-from time import sleep
+from time import sleep, time
 
 from sencors import *
 from devices import *
+from firebase import fireBase
 
 import logging
+
+# TEMP: debug with another entrypoint
+FORMATTER = '%(asctime)s - %(threadName)s - %(levelname)s - %(message)s'
+logging.basicConfig(level=logging.INFO, format=FORMATTER)
 
 log = logging.getLogger(__name__)
 
@@ -22,6 +27,7 @@ class rpiHub(object):
         # TODO: add get devices from db
         self.dvc_list = []
         # TODO: init firebase
+	self.firebase = fireBase()
         self.init_read_sencors()
 
     def read_sencors_from_db(self):
@@ -29,12 +35,20 @@ class rpiHub(object):
         pass
 
     def read(self):
+        # TEMP
         try:
             while(True):
-                for snc in self.snc_list:
-                    snc.get_random_state()
-                    print("Sencor %s:%s" % (snc.name, snc.value))
-                    # TODO: send value to firebase
+		__start = time()
+		print(len(self.snc_list))
+		__idx = randint(0, len(self.snc_list)-1)
+                snc = self.snc_list[__idx]
+                snc.get_random_state()
+                log.info("Sencor %s:%s" % (snc.name, snc.value))
+                self.firebase.upd_token()
+                self.firebase.update_sencor_value(snc)
+                # TODO: send value to firebase
+                log.critical("===ITER===")
+		log.critical("TIEM: %s" %(time()-__start))
                 sleep(5)
         except Exception as e:
             raise

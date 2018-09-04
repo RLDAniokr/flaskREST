@@ -7,40 +7,39 @@ import logging
 log = logging.getLogger(__name__)
 
 
-class LocalDB(object):
-    def __init__():
-        self.db = sqlite3.connect('rlda.db')
-        self.cursor = self.db.cursor()
-
-    def getFirebaseCredentials(self):
+def getFirebaseCredentials():
+    with sqlite3.connect('rlda.db') as db:
+        cursor = db.cursor()
         __getEmailSQL = "SELECT * FROM fbSettings WHERE keyName='email'"
-        c.execute(__getEmailSQL)
-        email = c.fetchone()[1]
+        cursor.execute(__getEmailSQL)
+        email = cursor.fetchone()[1]
 
         __getPasswordSQL = "SELECT * FROM fbSettings WHERE keyName='password'"
-        c.execute(__getPasswordSQL)
-        password = c.fetchone()[1]
+        cursor.execute(__getPasswordSQL)
+        password = cursor.fetchone()[1]
 
         creds = {'email': email, 'password': password}
         return creds
 
-    def getFirebaseConfig(self):
+def getFirebaseConfig():
+    with sqlite3.connect('rlda.db') as db:
+        cursor = db.cursor()
         __getFBconfSQL = "SELECT * FROM fbSettings WHERE keyName!='email' AND keyName!='password'"
-        c.execute(__getFBconfSQL)
-        __confTuple = c.fetchall()
+        cursor.execute(__getFBconfSQL)
+        __confTuple = cursor.fetchall()
         settings = {}
         for line in __confTuple:
-                settings[line[0]] = line[1]
+            settings[line[0]] = line[1]
         return settings
 
-    def getSencorsSettings(self):
-        pass
+def getSencorsSettings(self):
+    pass
 
-    def getDevicesSettings(self):
-        pass
+def getDevicesSettings(self):
+    pass
 
-    def editSencor(self, sencor):
-        pass
+def editSencor(self, sencor):
+    pass
 
-    def editDevice(self, device):
-        pass
+def editDevice(self, device):
+    pass

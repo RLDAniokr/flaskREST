@@ -1,156 +1,82 @@
-2018-08-08 12:53:49,778 - MainThread - INFO - Entered main
-2018-08-08 12:53:49,815 - MainThread - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
-2018-08-08 12:53:49,818 - MainThread - INFO -  * Restarting with stat
-2018-08-08 12:53:50,377 - MainThread - INFO - Entered main
-2018-08-08 12:53:50,401 - MainThread - WARNING -  * Debugger is active!
-2018-08-08 12:53:50,403 - MainThread - INFO -  * Debugger PIN: 425-301-104
-2018-08-08 12:56:00,400 - Thread-2 - INFO - Got status
-2018-08-08 12:56:00,406 - Thread-2 - INFO - 127.0.0.1 - - [08/Aug/2018 12:56:00] "GET /status HTTP/1.1" 200 -
-2018-08-08 12:56:04,021 - Thread-3 - INFO - 127.0.0.1 - - [08/Aug/2018 12:56:04] "GET /ex HTTP/1.1" 404 -
-2018-08-08 12:56:07,807 - Thread-4 - INFO - Got exec
-2018-08-08 12:56:07,822 - Thread-4 - ERROR - Command '['assoc', '.API']' returned non-zero exit status 127
-2018-08-08 12:56:07,828 - Thread-4 - INFO - 127.0.0.1 - - [08/Aug/2018 12:56:07] "GET /exec HTTP/1.1" 200 -
-2018-08-08 12:57:42,861 - MainThread - INFO -  * Detected change in '/home/pi/flaskREST/rest-flask-server.py', reloading
-2018-08-08 12:57:42,957 - MainThread - INFO -  * Restarting with stat
-2018-08-08 12:57:43,518 - MainThread - INFO - Entered main
-2018-08-08 12:57:43,542 - MainThread - WARNING -  * Debugger is active!
-2018-08-08 12:57:43,544 - MainThread - INFO -  * Debugger PIN: 425-301-104
-2018-08-08 12:57:46,765 - Thread-2 - INFO - Got exec
-2018-08-08 12:58:31,292 - MainThread - INFO - Entered main
-2018-08-08 12:58:31,320 - MainThread - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
-2018-08-08 12:58:31,322 - MainThread - INFO -  * Restarting with stat
-2018-08-08 12:58:31,882 - MainThread - INFO - Entered main
-2018-08-08 12:58:31,907 - MainThread - WARNING -  * Debugger is active!
-2018-08-08 12:58:31,908 - MainThread - INFO -  * Debugger PIN: 425-301-104
-2018-08-08 12:58:38,830 - Thread-2 - INFO - Got exec
-2018-08-08 13:00:04,469 - MainThread - INFO -  * Detected change in '/home/pi/flaskREST/rest-flask-server.py', reloading
-2018-08-08 13:00:04,548 - MainThread - INFO -  * Restarting with stat
-2018-08-08 13:00:05,108 - MainThread - INFO - Entered main
-2018-08-08 13:00:05,133 - MainThread - WARNING -  * Debugger is active!
-2018-08-08 13:00:05,134 - MainThread - INFO -  * Debugger PIN: 425-301-104
-2018-08-08 13:00:08,903 - Thread-2 - INFO - Got exec
-2018-08-08 13:00:59,650 - MainThread - INFO -  * Detected change in '/home/pi/flaskREST/rest-flask-server.py', reloading
-2018-08-08 13:00:59,742 - MainThread - INFO -  * Restarting with stat
-2018-08-08 13:01:00,293 - MainThread - INFO - Entered main
-2018-08-08 13:01:00,317 - MainThread - WARNING -  * Debugger is active!
-2018-08-08 13:01:00,319 - MainThread - INFO -  * Debugger PIN: 425-301-104
-2018-08-08 13:01:06,633 - Thread-2 - INFO - Got exec
-2018-08-08 13:01:06,653 - Thread-2 - INFO - executed
-2018-08-08 13:01:06,661 - Thread-2 - INFO - 127.0.0.1 - - [08/Aug/2018 13:01:06] "GET /exec HTTP/1.1" 200 -
-2018-08-08 13:18:58,951 - Thread-3 - INFO - Got exec
-2018-08-08 13:18:58,969 - Thread-3 - INFO - executed
-2018-08-08 13:18:58,975 - Thread-3 - INFO - 127.0.0.1 - - [08/Aug/2018 13:18:58] "GET /exec HTTP/1.1" 200 -
-2018-08-08 13:19:42,509 - Thread-4 - INFO - Got exec
-2018-08-08 13:19:42,528 - Thread-4 - INFO - executed
-2018-08-08 13:19:42,534 - Thread-4 - INFO - 127.0.0.1 - - [08/Aug/2018 13:19:42] "GET /exec HTTP/1.1" 200 -
-2018-08-08 13:19:53,298 - Thread-5 - INFO - Got exec
-2018-08-08 13:19:53,308 - Thread-5 - INFO - executed
-2018-08-08 13:19:53,311 - Thread-5 - INFO - 127.0.0.1 - - [08/Aug/2018 13:19:53] "GET /exec HTTP/1.1" 200 -
-2018-08-08 13:21:23,202 - MainThread - INFO -  * Detected change in '/home/pi/flaskREST/rest-flask-server.py', reloading
-2018-08-08 13:21:23,291 - MainThread - INFO -  * Restarting with stat
-2018-08-08 13:21:23,841 - MainThread - INFO - Entered main
-2018-08-08 13:21:23,864 - MainThread - WARNING -  * Debugger is active!
-2018-08-08 13:21:23,866 - MainThread - INFO -  * Debugger PIN: 425-301-104
-2018-08-08 13:21:25,119 - Thread-2 - INFO - Got exec
-2018-08-08 13:21:25,130 - Thread-2 - INFO - executed
-2018-08-08 13:21:25,134 - Thread-2 - INFO - 127.0.0.1 - - [08/Aug/2018 13:21:25] "GET /exec HTTP/1.1" 200 -
-2018-08-08 13:21:39,311 - MainThread - INFO -  * Detected change in '/home/pi/flaskREST/rest-flask-server.py', reloading
-2018-08-08 13:21:39,402 - MainThread - INFO -  * Restarting with stat
-2018-08-08 13:21:39,960 - MainThread - INFO - Entered main
-2018-08-08 13:21:39,984 - MainThread - WARNING -  * Debugger is active!
-2018-08-08 13:21:39,986 - MainThread - INFO -  * Debugger PIN: 425-301-104
-2018-08-08 13:21:42,194 - Thread-2 - INFO - Got exec
-2018-08-08 13:21:42,215 - Thread-2 - INFO - executed
-2018-08-08 13:21:42,221 - Thread-2 - INFO - 127.0.0.1 - - [08/Aug/2018 13:21:42] "GET /exec HTTP/1.1" 200 -
-2018-08-08 13:24:14,236 - Thread-3 - INFO - 127.0.0.1 - - [08/Aug/2018 13:24:14] "GET /connect HTTP/1.1" 404 -
-2018-08-08 13:24:31,186 - Thread-4 - INFO - 127.0.0.1 - - [08/Aug/2018 13:24:31] "GET /connect HTTP/1.1" 404 -
-2018-08-08 13:24:43,789 - Thread-5 - INFO - Got status
-2018-08-08 13:24:43,795 - Thread-5 - INFO - 127.0.0.1 - - [08/Aug/2018 13:24:43] "GET /status HTTP/1.1" 200 -
-2018-08-08 13:24:49,990 - Thread-6 - INFO - Got disconnect
-2018-08-08 13:24:49,995 - Thread-6 - INFO - 127.0.0.1 - - [08/Aug/2018 13:24:49] "GET /disconnect HTTP/1.1" 200 -
-2018-08-08 13:24:54,617 - Thread-7 - INFO - 127.0.0.1 - - [08/Aug/2018 13:24:54] "GET /connect HTTP/1.1" 404 -
-2018-08-08 13:25:07,117 - Thread-8 - INFO - Got connect
-2018-08-08 13:25:07,123 - Thread-8 - INFO - 127.0.0.1 - - [08/Aug/2018 13:25:07] "POST /connect HTTP/1.1" 400 -
-2018-08-08 13:56:06,727 - MainThread - INFO -  * Detected change in '/home/pi/flaskREST/rest-flask-server.py', reloading
-2018-08-08 13:56:06,785 - MainThread - INFO -  * Restarting with stat
-2018-08-08 13:59:12,091 - MainThread - INFO - Entered main
-2018-08-08 13:59:12,117 - MainThread - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
-2018-08-08 13:59:12,119 - MainThread - INFO -  * Restarting with stat
-2018-08-08 13:59:12,678 - MainThread - INFO - Entered main
-2018-08-08 13:59:12,702 - MainThread - WARNING -  * Debugger is active!
-2018-08-08 13:59:12,704 - MainThread - INFO -  * Debugger PIN: 425-301-104
-2018-08-08 13:59:44,875 - Thread-2 - INFO - Got scan
-2018-08-08 13:59:45,921 - Thread-2 - INFO - 127.0.0.1 - - [08/Aug/2018 13:59:45] "GET /scan HTTP/1.1" 200 -
-2018-08-09 15:53:13,652 - MainThread - INFO - Entered main
-2018-08-09 15:53:17,093 - MainThread - INFO -  * Restarting with stat
-2018-08-09 15:53:17,813 - MainThread - INFO - Entered main
-2018-08-09 15:53:18,624 - MainThread - WARNING -  * Debugger is active!
-2018-08-09 15:53:19,120 - MainThread - INFO -  * Debugger PIN: 198-050-504
-2018-08-09 15:53:19,584 - Thread-1 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
-2018-08-09 15:53:23,488 - Thread-2 - INFO - Got status
-2018-08-09 15:53:23,793 - Thread-2 - INFO - 127.0.0.1 - - [09/Aug/2018 15:53:23] "GET /status HTTP/1.1" 500 -
-2018-08-09 15:57:23,792 - MainThread - INFO -  * Detected change in 'C:\\Users\\Antipin\\Desktop\\flaskREST\\rest-flask-server.py', reloading
-2018-08-09 15:57:25,819 - MainThread - INFO -  * Restarting with stat
-2018-08-09 15:57:29,825 - MainThread - INFO - Entered main
-2018-08-09 15:57:30,631 - MainThread - WARNING -  * Debugger is active!
-2018-08-09 15:57:30,691 - MainThread - INFO -  * Debugger PIN: 198-050-504
-2018-08-09 15:57:30,806 - Thread-1 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
-2018-08-09 15:57:37,755 - Thread-2 - INFO - Got status
-2018-08-09 15:57:37,932 - Thread-2 - INFO - 127.0.0.1 - - [09/Aug/2018 15:57:37] "GET /status HTTP/1.1" 500 -
-2018-08-09 15:58:20,330 - MainThread - INFO -  * Detected change in 'C:\\Users\\Antipin\\Desktop\\flaskREST\\rest-flask-server.py', reloading
-2018-08-09 15:58:22,523 - MainThread - INFO -  * Restarting with stat
-2018-08-09 16:00:08,942 - MainThread - INFO - Entered main
-2018-08-09 16:00:09,235 - MainThread - INFO -  * Restarting with stat
-2018-08-09 16:00:09,829 - MainThread - INFO - Entered main
-2018-08-09 16:00:10,066 - MainThread - WARNING -  * Debugger is active!
-2018-08-09 16:00:10,075 - MainThread - INFO -  * Debugger PIN: 198-050-504
-2018-08-09 16:00:10,095 - Thread-1 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
-2018-08-09 16:00:12,710 - Thread-2 - INFO - Got status
-2018-08-09 16:00:12,734 - Thread-2 - ERROR - Error occured during status check
-2018-08-09 16:00:12,735 - Thread-2 - ERROR - [WinError 2] Не удается найти указанный файл
-2018-08-09 16:00:12,773 - Thread-2 - INFO - 127.0.0.1 - - [09/Aug/2018 16:00:12] "GET /status HTTP/1.1" 200 -
-2018-08-09 16:00:48,491 - MainThread - INFO -  * Detected change in 'C:\\Users\\Antipin\\Desktop\\flaskREST\\wpa_commands.py', reloading
-2018-08-09 16:00:50,275 - MainThread - INFO -  * Restarting with stat
-2018-08-09 16:00:50,934 - MainThread - INFO - Entered main
-2018-08-09 16:00:51,202 - MainThread - WARNING -  * Debugger is active!
-2018-08-09 16:00:51,211 - MainThread - INFO -  * Debugger PIN: 198-050-504
-2018-08-09 16:00:51,239 - Thread-1 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
-2018-08-09 16:00:57,941 - Thread-2 - INFO - Got status
-2018-08-09 16:00:57,942 - Thread-2 - INFO - CHECK
-2018-08-09 16:00:57,959 - Thread-2 - ERROR - Error occured during status check
-2018-08-09 16:00:57,960 - Thread-2 - ERROR - [WinError 2] Не удается найти указанный файл
-2018-08-09 16:00:57,967 - Thread-2 - INFO - 127.0.0.1 - - [09/Aug/2018 16:00:57] "GET /status HTTP/1.1" 200 -
-2018-08-09 16:10:46,014 - MainThread - INFO - Entered main
-2018-08-09 16:10:47,657 - MainThread - INFO -  * Restarting with stat
-2018-08-09 16:10:48,252 - MainThread - INFO - Entered main
-2018-08-09 16:10:48,550 - MainThread - WARNING -  * Debugger is active!
-2018-08-09 16:10:48,749 - MainThread - INFO -  * Debugger PIN: 198-050-504
-2018-08-09 16:10:48,896 - Thread-1 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
-2018-08-09 16:11:14,534 - Thread-2 - INFO - Got scan
-2018-08-09 16:11:14,560 - Thread-2 - ERROR - Error occured during scan
-2018-08-09 16:11:14,561 - Thread-2 - ERROR - [WinError 2] Не удается найти указанный файл
-2018-08-09 16:11:14,566 - Thread-2 - INFO - 127.0.0.1 - - [09/Aug/2018 16:11:14] "GET /scan HTTP/1.1" 200 -
-2018-08-09 16:11:21,981 - Thread-3 - INFO - Got status
-2018-08-09 16:11:21,995 - Thread-3 - ERROR - Error occured during status check
-2018-08-09 16:11:21,996 - Thread-3 - ERROR - [WinError 2] Не удается найти указанный файл
-2018-08-09 16:11:21,999 - Thread-3 - INFO - 127.0.0.1 - - [09/Aug/2018 16:11:21] "GET /status HTTP/1.1" 200 -
-2018-08-09 16:11:28,226 - Thread-4 - INFO - Got disconnect
-2018-08-09 16:11:28,400 - Thread-4 - INFO - 127.0.0.1 - - [09/Aug/2018 16:11:28] "GET /disconnect HTTP/1.1" 500 -
-2018-08-09 16:11:39,004 - MainThread - INFO -  * Detected change in 'C:\\Users\\Antipin\\Desktop\\flaskREST\\rest-flask-server.py', reloading
-2018-08-09 16:11:41,292 - MainThread - INFO -  * Restarting with stat
-2018-08-09 16:11:42,021 - MainThread - INFO - Entered main
-2018-08-09 16:11:42,357 - MainThread - WARNING -  * Debugger is active!
-2018-08-09 16:11:42,370 - MainThread - INFO -  * Debugger PIN: 198-050-504
-2018-08-09 16:11:42,409 - Thread-1 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
-2018-08-09 16:11:46,436 - Thread-2 - INFO - Got disconnect
-2018-08-09 16:11:46,573 - Thread-2 - INFO - 127.0.0.1 - - [09/Aug/2018 16:11:46] "GET /disconnect HTTP/1.1" 500 -
-2018-08-09 16:12:43,977 - MainThread - INFO -  * Detected change in 'C:\\Users\\Antipin\\Desktop\\flaskREST\\wpa_commands.py', reloading
-2018-08-09 16:12:46,341 - MainThread - INFO -  * Restarting with stat
-2018-08-09 16:12:47,292 - MainThread - INFO - Entered main
-2018-08-09 16:12:47,680 - MainThread - WARNING -  * Debugger is active!
-2018-08-09 16:12:47,692 - MainThread - INFO -  * Debugger PIN: 198-050-504
-2018-08-09 16:12:47,729 - Thread-1 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
-2018-08-09 16:12:51,255 - Thread-2 - INFO - Got disconnect
-2018-08-09 16:12:51,263 - Thread-2 - ERROR - Error occured while disconnect
-2018-08-09 16:12:51,263 - Thread-2 - ERROR - [WinError 2] Не удается найти указанный файл
-2018-08-09 16:12:51,266 - Thread-2 - INFO - 127.0.0.1 - - [09/Aug/2018 16:12:51] "GET /disconnect HTTP/1.1" 200 -
+2018-08-30 15:29:50,808 - INFO - Got status
+2018-08-30 15:29:55,401 - INFO - Got connect
+2018-08-30 15:29:55,542 - INFO - Check state:
+2018-08-30 15:30:00,583 - INFO - Check state:
+2018-08-30 15:30:05,606 - INFO - Check state:
+2018-08-30 15:30:10,630 - INFO - Check state:
+2018-08-30 15:30:15,654 - INFO - Check state:
+2018-08-30 15:30:15,672 - ERROR - Error occured during status check
+2018-08-30 15:30:15,674 - ERROR - Error during add_network
+2018-08-30 15:30:15,675 - ERROR - Error during establishing connection
+2018-08-30 15:30:23,623 - INFO - Got connect
+2018-08-30 15:30:23,773 - INFO - Check state:
+2018-08-30 15:30:28,790 - INFO - Check state:
+2018-08-30 15:30:33,815 - INFO - Check state:
+2018-08-30 15:30:38,839 - INFO - Check state:
+2018-08-30 15:30:43,863 - INFO - Check state:
+2018-08-30 15:30:43,881 - ERROR - Error occured during status check
+2018-08-30 15:30:43,884 - ERROR - Error during add_network
+2018-08-30 15:30:43,886 - ERROR - Error during establishing connection
+2018-08-30 15:30:43,899 - INFO - Got scan
+2018-08-30 15:30:57,941 - INFO - Got scan
+2018-08-30 15:31:07,607 - INFO - Got connect
+2018-08-30 15:31:07,759 - INFO - Check state:
+2018-08-30 15:31:12,776 - INFO - Check state:
+2018-08-30 15:31:17,800 - INFO - Check state:
+2018-08-30 15:31:22,825 - INFO - Check state:
+2018-08-30 15:31:27,850 - INFO - Check state:
+2018-08-30 15:31:27,877 - ERROR - Error occured during status check
+2018-08-30 15:31:27,880 - ERROR - Error during add_network
+2018-08-30 15:31:27,882 - ERROR - Error during establishing connection
+2018-08-30 15:31:35,700 - INFO - Got connect
+2018-08-30 15:31:35,835 - INFO - Check state:
+2018-08-30 15:31:40,851 - INFO - Check state:
+2018-08-30 15:31:45,875 - INFO - Check state:
+2018-08-30 15:31:50,898 - INFO - Check state:
+2018-08-30 15:31:55,922 - INFO - Check state:
+2018-08-30 15:31:55,942 - ERROR - Error occured during status check
+2018-08-30 15:31:55,943 - ERROR - Error during add_network
+2018-08-30 15:31:55,944 - ERROR - Error during establishing connection
+2018-08-30 15:31:59,750 - INFO - Got status
+2018-08-30 15:32:03,749 - INFO - Got disconnect
+2018-08-30 15:32:05,629 - INFO - Got connect
+2018-08-30 15:32:05,862 - INFO - Check state:
+2018-08-30 15:32:10,886 - INFO - Check state:
+2018-08-30 15:32:15,910 - INFO - Check state:
+2018-08-30 15:32:20,933 - INFO - Check state:
+2018-08-30 15:32:25,957 - INFO - Check state:
+2018-08-30 15:32:25,982 - ERROR - Error occured during status check
+2018-08-30 15:32:25,983 - ERROR - Error during add_network
+2018-08-30 15:32:25,984 - ERROR - Error during establishing connection
+2018-08-30 15:33:22,411 - INFO - Got status
+2018-08-30 15:33:24,331 - INFO - Got disconnect
+2018-08-30 16:03:24,964 - INFO - Got connect
+2018-08-30 16:03:25,218 - INFO - Check state:
+2018-08-30 16:03:30,241 - INFO - Check state:
+2018-08-30 16:03:35,263 - INFO - Check state:
+2018-08-30 16:03:40,286 - INFO - Check state:
+2018-08-30 16:03:45,317 - INFO - Check state:
+2018-08-30 16:03:45,336 - ERROR - Error occured during status check
+2018-08-30 16:03:45,338 - ERROR - Error during add_network
+2018-08-30 16:03:45,339 - ERROR - Error during establishing connection
+2018-08-30 16:04:14,538 - INFO - Got connect
+2018-08-30 16:04:14,686 - INFO - Check state:
+2018-08-30 16:04:19,701 - INFO - Check state:
+2018-08-30 16:04:24,723 - INFO - Check state:
+2018-08-30 16:04:29,747 - INFO - Check state:
+2018-08-30 16:04:34,771 - INFO - Check state:
+2018-08-30 16:04:34,791 - ERROR - Error occured during status check
+2018-08-30 16:04:34,792 - ERROR - Error during add_network
+2018-08-30 16:04:34,794 - ERROR - Error during establishing connection
+2018-08-30 16:04:44,449 - INFO - Got disconnect
+2018-08-30 16:04:46,777 - INFO - Got scan
+2018-08-30 16:05:04,792 - INFO - Got status
+2018-08-31 09:42:51,795 - INFO - Got connect
+2018-08-31 09:42:51,941 - INFO - Check state:
+2018-08-31 09:42:56,957 - INFO - Check state:
+2018-08-31 09:43:01,986 - INFO - Check state:
+2018-08-31 09:43:07,014 - INFO - Check state:
+2018-08-31 09:43:12,043 - INFO - Check state:
+2018-08-31 09:43:12,066 - ERROR - Error occured during status check
+2018-08-31 09:43:12,068 - ERROR - Error during add_network
+2018-08-31 09:43:12,069 - ERROR - Error during establishing connection
