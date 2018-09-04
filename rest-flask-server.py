@@ -8,6 +8,8 @@ from flask_cors import CORS, cross_origin
 # Кастомный модуль для работы с wpa_cli (в корневой директории)
 from wpa_commands import wpa_status, wpa_scan, wpa_connect, wpa_disconnect
 
+from rpi.rpi import rpiHub
+
 # ============================= LOGS ============================= #
 # Модуль для определения абсолютного пути
 import os
@@ -40,6 +42,9 @@ SH.setFormatter(FORMATTER)
 
 LOG.addHandler(SH)
 LOG.addHandler(RFH)
+
+# ======================== Raspberry Core ========================= #
+rpiHub = rpiHub()
 
 # ============================= FLASK ============================= #
 app = Flask(__name__, static_url_path="")
@@ -105,6 +110,76 @@ def connect():
 
     response = {}
     response = wpa_connect(ssid, psk)
+    return jsonify(response)
+
+
+@app.route('/group', methods=['GET'])
+@cross_origin()
+def get_groups():
+    """ Получение списка имен групп """
+    LOG.info("Got connect")
+    response = rpiHub.get_groups()
+    return jsonify(response)
+
+
+@app.route('/group/<group_name>', methods=['GET', 'POST', 'DELETE'])
+@cross_origin()
+def group(group_name):
+    """ Подключение к заданной сети """
+    LOG.info("Got connect")
+    response = {}
+    if request.method == 'GET':
+        response = rpiHub.get_group_info(group_name)
+    if request.method == 'POST':
+        response = rpiHub.add_group(group_name)
+    elif request.method == 'DELETE':
+        response = rpiHub.remove_group(group_name)
+    return jsonify(response)
+
+
+@app.route('/group/<group_name>/sencor/<sencor_name>', methods=['POST', 'PUT', 'DELETE'])
+@cross_origin()
+def sencor(group_name, sencor_name):
+    """ Подключение к заданной сети """
+    LOG.info("Got connect")
+    response = {}
+    if request.method == 'POST' or request.method == 'PUT':
+        if not request.json or 'snc_id' not in request.json or 'snc_type' not in request.json:
+            abort(400)
+        # Забрать json
+        config = request.get_json()
+        snc_id = config['snc_id']
+        snc_type = config['snc_type']
+
+    if request.method == 'POST':
+        response = rpiHub.add_snc(snc_type=snc_type, snc_id=snc_id, snc_group=group_name, snc_name=sencor_name)
+    elif request.method == 'PUT':
+        response = rpiHub.edit_snc(snc_type=snc_type, snc_id=snc_id, snc_group=group_name, snc_name=sencor_name)
+    elif request.method == 'DELETE':
+        response = rpiHub.remove_snc(snc_group=group_name, snc_name=sencor_name)
+    return jsonify(response)
+
+
+@app.route('/group/<group_name>/device/<device_name>', methods=['POST', 'PUT', 'DELETE'])
+@cross_origin()
+def device(group_name, device_name):
+    """ Подключение к заданной сети """
+    LOG.info("Got connect")
+    response = {}
+    if request.method == 'POST' or request.method == 'PUT':
+        if not request.json or 'dvc_id' not in request.json or 'dvc_type' not in request.json:
+            abort(400)
+        # Забрать json
+        config = request.get_json()
+        snc_id = config['dvc_id']
+        snc_type = config['dvc_type']
+
+    if request.method == 'POST':
+        response = rpiHub.add_dvc(dvc_type=snc_type, dvc_id=snc_id, dvc_group=group_name, dvc_name=sencor_name)
+    elif request.method == 'PUT':
+        response = rpiHub.edit_dvc(dvc_type=snc_type, dvc_id=snc_id, dvc_group=group_name, dvc_name=sencor_name)
+    elif request.method == 'DELETE':
+        response = rpiHub.remove_dvc(dvc_group=group_name, dvc_name=sencor_name)
     return jsonify(response)
 
 

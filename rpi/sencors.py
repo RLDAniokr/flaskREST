@@ -17,15 +17,23 @@ class Sencor(object):
         self.value = ''
         self.last_response = time()
 
+    def get_info(self):
+        response = {
+            'snc_id': self.sencor_id,
+            'snc_type': self.type,
+            'group_name': self.group_name,
+            'name': self.name
+        }
+        return response
 
 class TemperatureSencor(Sencor):
     """ Класс датчиков температуры """
-    def __init__(self, id, group_name, name):
-        self.sencor_id = id
+    def __init__(self, snc_id, group_name, name):
+        self.sencor_id = snc_id
         self.group_name = group_name
         self.name = name
 
-        # self.type = 'temperature'
+        self.type = 'Temperature'
         # TODO: add to db
         # TODO: check if group exists
         # TODO: generate path for firebase
@@ -40,12 +48,12 @@ class TemperatureSencor(Sencor):
 
 class HumiditySencor(Sencor):
     """ Класс датчиков температуры """
-    def __init__(self, id, group_name, name):
-        self.sencor_id = id
+    def __init__(self, snc_id, group_name, name):
+        self.sencor_id = snc_id
         self.group_name = group_name
         self.name = name
 
-        # self.type = 'temperature'
+        self.type = 'Humidity'
         # TODO: add to db
         # TODO: generate path for firebase
         # TODO: add to fb
@@ -58,12 +66,12 @@ class HumiditySencor(Sencor):
 
 class LuminositySencor(Sencor):
     """ Класс датчиков температуры """
-    def __init__(self, id, group_name, name):
-        self.sencor_id = id
+    def __init__(self, snc_id, group_name, name):
+        self.sencor_id = snc_id
         self.group_name = group_name
         self.name = name
 
-        # self.type = 'temperature'
+        self.type = 'Luminosity'
         # TODO: add to db
         # TODO: generate path for firebase
         # TODO: add to fb

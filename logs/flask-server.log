@@ -80,3 +80,179 @@
 2018-08-31 09:43:12,066 - ERROR - Error occured during status check
 2018-08-31 09:43:12,068 - ERROR - Error during add_network
 2018-08-31 09:43:12,069 - ERROR - Error during establishing connection
+2018-09-04 11:22:19,002 - INFO - Read thread initialized
+2018-09-04 11:23:47,969 - INFO - Read thread initialized
+2018-09-04 11:23:47,971 - INFO - Entered main
+2018-09-04 11:24:41,035 - INFO -  * Restarting with stat
+2018-09-04 11:24:41,476 - INFO - Read thread initialized
+2018-09-04 11:24:41,479 - INFO - Entered main
+2018-09-04 11:25:32,894 - WARNING -  * Debugger is active!
+2018-09-04 11:25:33,070 - INFO -  * Debugger PIN: 152-513-921
+2018-09-04 11:25:33,485 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2018-09-04 11:25:41,256 - INFO - Got connect
+2018-09-04 11:25:41,274 - INFO - 127.0.0.1 - - [04/Sep/2018 11:25:41] "GET /group HTTP/1.1" 200 -
+2018-09-04 11:27:01,212 - INFO - 127.0.0.1 - - [04/Sep/2018 11:27:01] "POST /group/gr1 HTTP/1.1" 500 -
+2018-09-04 11:28:40,145 - INFO - Got connect
+2018-09-04 11:28:40,162 - INFO - 127.0.0.1 - - [04/Sep/2018 11:28:40] "GET /group HTTP/1.1" 200 -
+2018-09-04 11:28:57,691 - INFO - Got connect
+2018-09-04 11:28:57,709 - INFO - 127.0.0.1 - - [04/Sep/2018 11:28:57] "GET /group HTTP/1.1" 200 -
+2018-09-04 11:31:19,535 - INFO -  * Detected change in 'C:\\Users\\Antipin\\Desktop\\flaskREST\\rest-flask-server.py', reloading
+2018-09-04 11:31:20,482 - INFO -  * Restarting with stat
+2018-09-04 11:31:21,003 - INFO - Read thread initialized
+2018-09-04 11:31:29,074 - INFO - Read thread initialized
+2018-09-04 11:31:47,833 - INFO - Read thread initialized
+2018-09-04 11:31:47,836 - INFO - Entered main
+2018-09-04 11:32:40,891 - INFO -  * Restarting with stat
+2018-09-04 11:32:41,351 - INFO - Read thread initialized
+2018-09-04 11:32:41,354 - INFO - Entered main
+2018-09-04 11:33:13,602 - WARNING -  * Debugger is active!
+2018-09-04 11:33:13,717 - INFO -  * Debugger PIN: 152-513-921
+2018-09-04 11:33:13,977 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2018-09-04 11:33:16,727 - INFO - Got connect
+2018-09-04 11:33:16,745 - INFO - 127.0.0.1 - - [04/Sep/2018 11:33:16] "POST /group/gr1 HTTP/1.1" 200 -
+2018-09-04 11:33:19,473 - INFO - Got connect
+2018-09-04 11:33:19,497 - INFO - 127.0.0.1 - - [04/Sep/2018 11:33:19] "GET /group HTTP/1.1" 200 -
+2018-09-04 11:33:26,771 - INFO - Got connect
+2018-09-04 11:33:26,789 - INFO - 127.0.0.1 - - [04/Sep/2018 11:33:26] "POST /group/gr2 HTTP/1.1" 200 -
+2018-09-04 11:33:29,497 - INFO - Got connect
+2018-09-04 11:33:29,515 - INFO - 127.0.0.1 - - [04/Sep/2018 11:33:29] "POST /group/gr3 HTTP/1.1" 200 -
+2018-09-04 11:33:39,274 - INFO - Got connect
+2018-09-04 11:33:39,292 - INFO - 127.0.0.1 - - [04/Sep/2018 11:33:39] "DELETE /group/gr1 HTTP/1.1" 200 -
+2018-09-04 11:33:44,042 - INFO - Got connect
+2018-09-04 11:33:44,060 - INFO - 127.0.0.1 - - [04/Sep/2018 11:33:44] "GET /group HTTP/1.1" 200 -
+2018-09-04 12:27:29,090 - INFO -  * Detected change in 'C:\\Users\\Antipin\\Desktop\\flaskREST\\rpi\\rpi.py', reloading
+2018-09-04 12:27:30,397 - INFO -  * Restarting with stat
+2018-09-04 13:13:58,651 - INFO - Read thread initialized
+2018-09-04 13:14:26,658 - INFO - Read thread initialized
+2018-09-04 13:14:26,661 - INFO - Entered main
+2018-09-04 13:15:23,033 - INFO -  * Restarting with stat
+2018-09-04 13:15:23,557 - INFO - Read thread initialized
+2018-09-04 13:15:23,560 - INFO - Entered main
+2018-09-04 13:16:18,101 - WARNING -  * Debugger is active!
+2018-09-04 13:16:18,275 - INFO -  * Debugger PIN: 152-513-921
+2018-09-04 13:16:18,526 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2018-09-04 13:16:24,917 - INFO - Got connect
+2018-09-04 13:16:24,940 - INFO - 127.0.0.1 - - [04/Sep/2018 13:16:24] "GET /group HTTP/1.1" 200 -
+2018-09-04 13:16:34,104 - INFO - Got connect
+2018-09-04 13:16:34,122 - INFO - 127.0.0.1 - - [04/Sep/2018 13:16:34] "POST /group/gr1 HTTP/1.1" 200 -
+2018-09-04 13:18:17,670 - INFO - Got connect
+2018-09-04 13:18:17,688 - INFO - 127.0.0.1 - - [04/Sep/2018 13:18:17] "POST /group/gr1/sencor/snc_1 HTTP/1.1" 400 -
+2018-09-04 13:18:34,783 - INFO - Got connect
+2018-09-04 13:18:34,803 - INFO - 127.0.0.1 - - [04/Sep/2018 13:18:34] "POST /group/gr1/sencor/snc_1 HTTP/1.1" 400 -
+2018-09-04 13:18:55,408 - INFO - Got connect
+2018-09-04 13:18:55,425 - INFO - 127.0.0.1 - - [04/Sep/2018 13:18:55] "POST /group/gr1 HTTP/1.1" 200 -
+2018-09-04 13:19:04,584 - INFO - Got connect
+2018-09-04 13:19:04,609 - INFO - 127.0.0.1 - - [04/Sep/2018 13:19:04] "GET /group HTTP/1.1" 200 -
+2018-09-04 13:19:20,825 - INFO - Got connect
+2018-09-04 13:19:21,578 - INFO - 127.0.0.1 - - [04/Sep/2018 13:19:21] "GET /group/gr1 HTTP/1.1" 500 -
+2018-09-04 13:20:29,599 - INFO -  * Detected change in 'C:\\Users\\Antipin\\Desktop\\flaskREST\\rpi\\rpi.py', reloading
+2018-09-04 13:20:30,781 - INFO -  * Restarting with stat
+2018-09-04 13:20:31,331 - INFO - Read thread initialized
+2018-09-04 13:20:31,337 - INFO - Entered main
+2018-09-04 13:21:04,518 - WARNING -  * Debugger is active!
+2018-09-04 13:21:04,637 - INFO -  * Debugger PIN: 152-513-921
+2018-09-04 13:21:04,896 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2018-09-04 13:21:30,438 - INFO - Got connect
+2018-09-04 13:21:30,457 - INFO - 127.0.0.1 - - [04/Sep/2018 13:21:30] "GET /group/gr1 HTTP/1.1" 200 -
+2018-09-04 13:21:36,496 - INFO - Got connect
+2018-09-04 13:21:36,514 - INFO - 127.0.0.1 - - [04/Sep/2018 13:21:36] "POST /group/gr1 HTTP/1.1" 200 -
+2018-09-04 13:21:40,472 - INFO - Got connect
+2018-09-04 13:21:40,490 - INFO - 127.0.0.1 - - [04/Sep/2018 13:21:40] "POST /group/gr1/sencor/snc_1 HTTP/1.1" 400 -
+2018-09-04 13:21:48,950 - INFO - Got connect
+2018-09-04 13:21:48,968 - INFO - 127.0.0.1 - - [04/Sep/2018 13:21:48] "GET /group/gr1 HTTP/1.1" 200 -
+2018-09-04 13:22:20,356 - INFO - Got connect
+2018-09-04 13:22:20,374 - INFO - 127.0.0.1 - - [04/Sep/2018 13:22:20] "POST /group/gr1/sencor/snc_1 HTTP/1.1" 400 -
+2018-09-04 13:22:31,892 - INFO - Got connect
+2018-09-04 13:22:31,910 - INFO - 127.0.0.1 - - [04/Sep/2018 13:22:31] "POST /group/gr1/sencor/snc_1 HTTP/1.1" 400 -
+2018-09-04 13:22:49,171 - INFO - Got connect
+2018-09-04 13:22:49,191 - INFO - 127.0.0.1 - - [04/Sep/2018 13:22:49] "POST /group/gr1/sencor/snc_1 HTTP/1.1" 400 -
+2018-09-04 13:22:57,697 - INFO - Got connect
+2018-09-04 13:22:57,721 - INFO - 127.0.0.1 - - [04/Sep/2018 13:22:57] "POST /group/gr1/sencor/snc_1 HTTP/1.1" 200 -
+2018-09-04 13:23:02,708 - INFO - Got connect
+2018-09-04 13:23:03,909 - INFO - 127.0.0.1 - - [04/Sep/2018 13:23:03] "GET /group/gr1 HTTP/1.1" 500 -
+2018-09-04 13:45:02,244 - INFO -  * Detected change in 'C:\\Users\\Antipin\\Desktop\\flaskREST\\rpi\\sencors.py', reloading
+2018-09-04 13:45:04,631 - INFO -  * Restarting with stat
+2018-09-04 13:45:11,397 - INFO - Read thread initialized
+2018-09-04 13:45:11,401 - INFO - Entered main
+2018-09-04 13:45:36,223 - WARNING -  * Debugger is active!
+2018-09-04 13:45:36,353 - INFO -  * Debugger PIN: 152-513-921
+2018-09-04 13:45:36,653 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2018-09-04 13:55:44,644 - INFO -  * Detected change in 'C:\\Users\\Antipin\\Desktop\\flaskREST\\rpi\\rpi.py', reloading
+2018-09-04 13:55:46,309 - INFO -  * Restarting with stat
+2018-09-04 13:55:51,759 - INFO - Read thread initialized
+2018-09-04 13:55:51,763 - INFO - Entered main
+2018-09-04 13:56:45,718 - WARNING -  * Debugger is active!
+2018-09-04 13:56:45,842 - INFO -  * Debugger PIN: 152-513-921
+2018-09-04 13:56:46,159 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2018-09-04 13:57:27,808 - INFO - Got connect
+2018-09-04 13:57:27,828 - INFO - 127.0.0.1 - - [04/Sep/2018 13:57:27] "POST /group/gr1 HTTP/1.1" 200 -
+2018-09-04 13:57:35,968 - INFO - Got connect
+2018-09-04 13:57:36,822 - INFO - 127.0.0.1 - - [04/Sep/2018 13:57:36] "GET /group/gr1 HTTP/1.1" 500 -
+2018-09-04 13:59:32,025 - INFO -  * Detected change in 'C:\\Users\\Antipin\\Desktop\\flaskREST\\rpi\\rpi.py', reloading
+2018-09-04 13:59:33,545 - INFO -  * Restarting with stat
+2018-09-04 13:59:34,248 - INFO - Read thread initialized
+2018-09-04 13:59:34,253 - INFO - Entered main
+2018-09-04 13:59:57,784 - WARNING -  * Debugger is active!
+2018-09-04 13:59:57,885 - INFO -  * Debugger PIN: 152-513-921
+2018-09-04 13:59:58,170 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2018-09-04 14:02:10,493 - INFO -  * Detected change in 'C:\\Users\\Antipin\\Desktop\\flaskREST\\rpi\\devices.py', reloading
+2018-09-04 14:02:11,754 - INFO -  * Restarting with stat
+2018-09-04 14:02:12,389 - INFO - Read thread initialized
+2018-09-04 14:02:12,392 - INFO - Entered main
+2018-09-04 14:02:36,921 - WARNING -  * Debugger is active!
+2018-09-04 14:02:37,012 - INFO -  * Debugger PIN: 152-513-921
+2018-09-04 14:02:37,300 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2018-09-04 14:02:42,426 - INFO - Got connect
+2018-09-04 14:02:42,444 - INFO - 127.0.0.1 - - [04/Sep/2018 14:02:42] "GET /group/gr1 HTTP/1.1" 200 -
+2018-09-04 14:02:48,127 - INFO - Got connect
+2018-09-04 14:02:48,144 - INFO - 127.0.0.1 - - [04/Sep/2018 14:02:48] "POST /group/gr1 HTTP/1.1" 200 -
+2018-09-04 14:02:57,268 - INFO - Got connect
+2018-09-04 14:02:57,286 - INFO - 127.0.0.1 - - [04/Sep/2018 14:02:57] "GET /group/gr1 HTTP/1.1" 200 -
+2018-09-04 14:03:04,278 - INFO - Got connect
+2018-09-04 14:03:04,296 - INFO - 127.0.0.1 - - [04/Sep/2018 14:03:04] "POST /group/gr1/sencor/snc_1 HTTP/1.1" 200 -
+2018-09-04 14:03:11,959 - INFO - Got connect
+2018-09-04 14:03:12,662 - INFO - 127.0.0.1 - - [04/Sep/2018 14:03:12] "GET /group/gr1 HTTP/1.1" 500 -
+2018-09-04 14:03:38,789 - INFO -  * Detected change in 'C:\\Users\\Antipin\\Desktop\\flaskREST\\rpi\\sencors.py', reloading
+2018-09-04 14:03:40,185 - INFO -  * Restarting with stat
+2018-09-04 14:03:40,953 - INFO - Read thread initialized
+2018-09-04 14:03:40,958 - INFO - Entered main
+2018-09-04 14:03:46,700 - WARNING -  * Debugger is active!
+2018-09-04 14:03:46,842 - INFO -  * Debugger PIN: 152-513-921
+2018-09-04 14:03:47,068 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2018-09-04 14:03:49,490 - INFO - Got connect
+2018-09-04 14:03:49,508 - INFO - 127.0.0.1 - - [04/Sep/2018 14:03:49] "GET /group/gr1 HTTP/1.1" 200 -
+2018-09-04 14:03:52,764 - INFO - Got connect
+2018-09-04 14:03:52,783 - INFO - 127.0.0.1 - - [04/Sep/2018 14:03:52] "POST /group/gr1 HTTP/1.1" 200 -
+2018-09-04 14:03:58,993 - INFO - Got connect
+2018-09-04 14:03:59,014 - INFO - 127.0.0.1 - - [04/Sep/2018 14:03:59] "POST /group/gr1/sencor/snc_1 HTTP/1.1" 200 -
+2018-09-04 14:04:02,283 - INFO - Got connect
+2018-09-04 14:04:02,302 - INFO - 127.0.0.1 - - [04/Sep/2018 14:04:02] "GET /group/gr1 HTTP/1.1" 200 -
+2018-09-04 14:17:45,565 - INFO - Got connect
+2018-09-04 14:17:45,590 - INFO - 127.0.0.1 - - [04/Sep/2018 14:17:45] "POST /group/gr1/sencor/snc_2 HTTP/1.1" 200 -
+2018-09-04 14:17:49,037 - INFO - Got connect
+2018-09-04 14:17:49,055 - INFO - 127.0.0.1 - - [04/Sep/2018 14:17:49] "GET /group/gr1 HTTP/1.1" 200 -
+2018-09-04 14:21:22,782 - INFO -  * Detected change in 'C:\\Users\\Antipin\\Desktop\\flaskREST\\rpi\\rpi.py', reloading
+2018-09-04 14:21:24,452 - INFO -  * Restarting with stat
+2018-09-04 14:21:25,406 - INFO - Read thread initialized
+2018-09-04 14:21:25,412 - INFO - Entered main
+2018-09-04 14:21:46,631 - WARNING -  * Debugger is active!
+2018-09-04 14:21:46,747 - INFO -  * Debugger PIN: 152-513-921
+2018-09-04 14:21:46,996 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2018-09-04 14:22:23,390 - INFO -  * Detected change in 'C:\\Users\\Antipin\\Desktop\\flaskREST\\rpi\\rpi.py', reloading
+2018-09-04 14:22:24,655 - INFO -  * Restarting with stat
+2018-09-04 14:22:25,261 - INFO - Read thread initialized
+2018-09-04 14:22:25,264 - INFO - Entered main
+2018-09-04 14:22:49,463 - WARNING -  * Debugger is active!
+2018-09-04 14:22:49,558 - INFO -  * Debugger PIN: 152-513-921
+2018-09-04 14:22:49,843 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2018-09-04 14:23:09,249 - INFO -  * Detected change in 'C:\\Users\\Antipin\\Desktop\\flaskREST\\rest-flask-server.py', reloading
+2018-09-04 14:23:10,829 - INFO -  * Restarting with stat
+2018-09-04 14:23:11,530 - INFO - Read thread initialized
+2018-09-04 14:23:11,534 - INFO - Entered main
+2018-09-04 14:24:02,117 - WARNING -  * Debugger is active!
+2018-09-04 14:24:02,228 - INFO -  * Debugger PIN: 152-513-921
+2018-09-04 14:24:02,497 - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2018-09-04 14:34:10,146 - INFO -  * Detected change in 'C:\\Users\\Antipin\\Desktop\\flaskREST\\rpi\\rpi.py', reloading
+2018-09-04 14:34:11,751 - INFO -  * Restarting with stat
+2018-09-04 14:34:12,786 - INFO - Read thread initialized
+2018-09-04 14:34:12,788 - INFO - Entered main

@@ -5,3 +5,6 @@ vnv
 
 logs
 *.log
+
+*.swp
+*.db

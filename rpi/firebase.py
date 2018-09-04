@@ -7,7 +7,7 @@ import pyrebase
 from time import sleep, time
 import threading
 
-from sql import getFirebaseCredentials, getFirebaseConfig
+from .sql import getFirebaseCredentials, getFirebaseConfig
 
 import logging
 
@@ -61,4 +61,3 @@ class fireBase():
                         self.user = self.auth.refresh(self.user['refreshToken'])
                         self.token = self.user['idToken']
                         self.last_token_upd = time()
-
