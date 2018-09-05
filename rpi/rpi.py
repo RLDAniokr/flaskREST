@@ -38,14 +38,33 @@ class rpiHub(object):
         # Список устройств
         self.dvc_list = []
         # TODO: add get devices from db
+        self.restore_settings_from_db()
         # Средства работы с Google Firebase
-        # self.firebase = fireBase()
+        self.firebase = fireBase()
         # Инициализировать поток прослушки радиоканала
-        self.init_read_sencors()
+        #self.init_read_sencors()
 
-    def read_sencors_from_db(self):
-        #self.snc_list = sql.get_sencors()
-        pass
+    def restore_from_db(self):
+        # 1: Get and initiate groups
+        __raw_groups = sql.getGroupNames()
+        for raw_group in __raw_groups:
+            self.add_group(raw_group[0])
+
+        log.info(self.get_groups())
+
+        # 2: Get and initiate sencors
+        __raw_sencors = sql.getSencorsSettings()
+        for raw_snc in __raw_sencors:
+            self.add_snc(
+                snc_id=raw_snc[0][0]
+                snc_type=raw_snc[0][1]
+                snc_group=raw_snc[0][2]
+                snc_name=raw_snc[0][3]
+            )
+
+        # 3: Get and initiate devices
+        for gr in self.group_list:
+            self.get_group_info(gr.name)
 
     def read(self):
         # TEMP
@@ -205,7 +224,7 @@ class rpiHub(object):
     def add_dvc(self, dvc_type, dvc_id, dvc_group, dvc_name):
         """ Добавить устройство """
         # Проверить, существует ли уже такое устройство
-        if self.get_sencor_by_typid(snc_type, snc_id) != None:
+        if self.get_device_by_typid(snc_type, snc_id) != None:
             log.error("Device with this type/id already exists")
             return "FAIL"
 
@@ -273,3 +292,6 @@ class rpiHub(object):
         else:
             log.error("Device for delete not found in list")
             return "FAIL"
+
+if __name__ == '__main__':
+    hub = rpiHub()
