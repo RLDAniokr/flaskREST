@@ -56,6 +56,7 @@ class rpiHub(object):
                 snc_type=raw_snc[1].encode('utf-8'),
                 snc_group=raw_snc[2].encode('utf-8'),
                 snc_name=raw_snc[3].encode('utf-8'),
+                restore=True
             )
 
         # 3: Get and initiate devices
@@ -115,7 +116,7 @@ class rpiHub(object):
             if s.type == type:
                 if s.sencor_id == s_id:
                     __snc = s
-                break
+                    break
         return __snc
 
     def get_device_by_typid(self, type, d_id):
@@ -129,7 +130,7 @@ class rpiHub(object):
             if d.type == type:
                 if d.device_id == d_id:
                     __dvc = d
-                break
+                    break
         return __dvc
 
     def get_groups(self):
@@ -192,7 +193,7 @@ class rpiHub(object):
             self.group_list.remove(__group)
             return "OK"
 
-    def add_snc(self, snc_type, snc_id, snc_group, snc_name):
+    def add_snc(self, snc_type, snc_id, snc_group, snc_name, restore=False):
         """ Добавить датчик """
         # Проверить, существует ли уже такой датчик
         if self.get_sencor_by_typid(snc_type, snc_id) != None:
@@ -217,7 +218,8 @@ class rpiHub(object):
             return "FAIL"
 
         # Добавить новое устройство в список датчиков хаба и группы
-        sql.newSencorSettings((snc_id, snc_type, snc_group, snc_name))
+        if not restore:
+            sql.newSencorSettings((snc_id, snc_type, snc_group, snc_name))
         self.snc_list.append(new_sencor)
         __group.sencors.append(new_sencor)
         self.firebase.update_sencor_value(new_sencor)
@@ -264,12 +266,13 @@ class rpiHub(object):
         if __sencor_for_edit != None:
             __old_group = self.get_group_by_name(__sencor_for_edit.group_name)
             __old_group.sencors.remove(__sencor_for_edit)
+            self.firebase.delete_sencor(__sencor_for_edit)
 
-            __sencor_for_edit.group_name = snc_group
-            __sencor_for_edit.name = snc_name
+            __sencor_for_edit.group_name = new_snc_group
+            __sencor_for_edit.name = new_snc_name
             __new_group.sencors.append(__sencor_for_edit)
-            sql.editSencor((snc_group, snc_name, snc_id, snc_type))
-            # remove from firebase
+            self.firebase.update_sencor_value(__sencor_for_edit)
+            sql.editSencor((new_snc_group, new_snc_name, snc_id, snc_type))
             return "OK"
         else:
             log.error("Sencor for edit not found in list")
@@ -290,14 +293,14 @@ class rpiHub(object):
     def remove_snc(self, snc_type, snc_id):
         """ Удалить датчик """
         __sencor_for_delete = self.get_sencor_by_typid(snc_type, snc_id)
+        log.info("DELETE: %s, %s" % (snc_type, snc_id))
 
         if __sencor_for_delete != None:
             self.snc_list.remove(__sencor_for_delete)
-            __group = self.get_group_by_name(__sencor_for_edit.group_name)
-            __group.remove(__sencor_for_delete)
+            __group = self.get_group_by_name(__sencor_for_delete.group_name)
+            __group.sencors.remove(__sencor_for_delete)
             sql.deleteSencor((snc_id, snc_type))
             self.firebase.delete_sencor(__sencor_for_delete)
-            # remove from firebase
             return "OK"
         else:
             log.error("Sencor for delete not found in list")

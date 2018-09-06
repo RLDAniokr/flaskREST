@@ -56,7 +56,7 @@ class fireBase():
 
         def delete_sencor(self, sencor):
             """ Delete sencor from db """
-            self.root(sencor.group_name).child("sencors").child(sencor.name).remove()
+            self.root(sencor.group_name).child("sencors").child(sencor.name).remove(self.token)
 
         def upd_token(self):
                 __t_diff = time() - self.last_token_upd

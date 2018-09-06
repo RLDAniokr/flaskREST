@@ -147,15 +147,17 @@ def sencor():
         abort(400)
     # Забрать json
     config = request.get_json()
-    snc_id = config['snc_id']
-    snc_type = config['snc_type']
-    snc_group = config['snc_group'] || None
-    snc_name = config['snc_name'] || None
+    snc_id = int(config['snc_id'])
+    snc_type = config['snc_type'].encode('utf-8')
+
+    if request.method != 'DELETE':
+        snc_group = config['snc_group'].encode('utf-8')
+        snc_name = config['snc_name'].encode('utf-8')
 
     if request.method == 'POST':
         response = rpiHub.add_snc(snc_type=snc_type, snc_id=snc_id, snc_group=snc_group, snc_name=snc_name)
     elif request.method == 'PUT':
-        response = rpiHub.edit_snc(snc_type=snc_type, snc_id=snc_id, new_snc_group=group_name, new_snc_name=sencor_name)
+        response = rpiHub.edit_snc(snc_type=snc_type, snc_id=snc_id, new_snc_group=snc_group, new_snc_name=snc_name)
     elif request.method == 'DELETE':
         response = rpiHub.remove_snc(snc_id=snc_id, snc_type=snc_type)
     return jsonify(response)
@@ -171,15 +173,17 @@ def device():
         abort(400)
     # Забрать json
     config = request.get_json()
-    dvc_id = config['dvc_id']
-    dvc_type = config['dvc_type']
-    dvc_group = config['dvc_group'] || None
-    dvc_name = config['dvc_name'] || None
+    dvc_id = int(config['dvc_id'])
+    dvc_type = config['dvc_type'].encode('utf-8')
+
+    if reuest.method != 'DELETE':
+        dvc_group = config['dvc_group']
+        dvc_name = config['dvc_name']
 
     if request.method == 'POST':
         response = rpiHub.add_dvc(dvc_type=snc_type, dvc_id=snc_id, dvc_group=snc_group, dvc_name=snc_name)
     elif request.method == 'PUT':
-        response = rpiHub.edit_dvc(dvc_type=snc_type, dvc_id=snc_id, new_dvc_group=group_name, new_dvc_name=sencor_name)
+        response = rpiHub.edit_dvc(dvc_type=snc_type, dvc_id=snc_id, new_dvc_group=snc_group, new_dvc_name=snc_name)
     elif request.method == 'DELETE':
         response = rpiHub.remove_dvc(dvc_id=snc_id, dvc_type=snc_type)
     return jsonify(response)

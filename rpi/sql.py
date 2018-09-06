@@ -58,13 +58,13 @@ def editSencor(sencor):
     with sqlite3.connect('rlda.db') as db:
         cursor = db.cursor()
         sql_upd = ''' UPDATE sencors SET gr_name = ? , name = ? WHERE id = ? AND type = ?  '''
-        cursor.execute(sql_upd, upd_sencor)
+        cursor.execute(sql_upd, sencor)
 
 def deleteSencor(sencor):
     with sqlite3.connect('rlda.db') as db:
         cursor = db.cursor()
         sql_del = ''' DELETE FROM sencors WHERE id = ? AND type = ?  '''
-        cursor.execute(sql_del, del_sencor)
+        cursor.execute(sql_del, sencor)
 
 
 def editDevice(self, device):
