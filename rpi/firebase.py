@@ -54,6 +54,10 @@ class fireBase():
                 """ Update value of sencor on firebase cloud db """
                 self.root(sencor.group_name).child("sencors").update({sencor.name:  sencor.value}, self.token)
 
+        def delete_sencor(self, sencor):
+            """ Delete sencor from db """
+            self.root(sencor.group_name).child("sencors").child(sencor.name).remove()
+
         def upd_token(self):
                 __t_diff = time() - self.last_token_upd
                 if __t_diff > 3300:

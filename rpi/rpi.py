@@ -176,15 +176,21 @@ class rpiHub(object):
     def remove_group(self, group_name):
         """
             Удалить существующую группу.
-            Если группа с таким именем уже существует, возвращает FAIL (str)
+            Если группы с таким именем не существует, возвращает FAIL (str)
+            Если группа не пуста, возвращает FAIL
         """
         __group = self.get_group_by_name(group_name)
         if __group == None:
             return "FAIL"
         else:
+            if len(__group.sencors) > 0:
+                return "FAIL"
+            if len(__group.devices) > 0:
+                return "FAIL"
             # TODO: Kill listen stream
             # TODO: kill firebase reference in sencors/devices
             self.group_list.remove(__group)
+            return "OK"
 
     def add_snc(self, snc_type, snc_id, snc_group, snc_name):
         """ Добавить датчик """
@@ -257,7 +263,7 @@ class rpiHub(object):
 
         if __sencor_for_edit != None:
             __old_group = self.get_group_by_name(__sencor_for_edit.group_name)
-            __old_group.sencors.remove(__sencor_fro_edit)
+            __old_group.sencors.remove(__sencor_for_edit)
 
             __sencor_for_edit.group_name = snc_group
             __sencor_for_edit.name = snc_name
@@ -286,7 +292,11 @@ class rpiHub(object):
         __sencor_for_delete = self.get_sencor_by_typid(snc_type, snc_id)
 
         if __sencor_for_delete != None:
+            self.snc_list.remove(__sencor_for_delete)
+            __group = self.get_group_by_name(__sencor_for_edit.group_name)
+            __group.remove(__sencor_for_delete)
             sql.deleteSencor((snc_id, snc_type))
+            self.firebase.delete_sencor(__sencor_for_delete)
             # remove from firebase
             return "OK"
         else:

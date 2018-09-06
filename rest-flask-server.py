@@ -137,49 +137,51 @@ def group(group_name):
     return jsonify(response)
 
 
-@app.route('/group/<group_name>/sencor/<sencor_name>', methods=['POST', 'PUT', 'DELETE'])
+@app.route('/sencor', methods=['POST', 'PUT', 'DELETE'])
 @cross_origin()
-def sencor(group_name, sencor_name):
+def sencor():
     """ Подключение к заданной сети """
-    LOG.info("Got connect")
+    LOG.info("Got sencor")
     response = {}
-    if request.method == 'POST' or request.method == 'PUT':
-        if not request.json or 'snc_id' not in request.json or 'snc_type' not in request.json:
-            abort(400)
-        # Забрать json
-        config = request.get_json()
-        snc_id = config['snc_id']
-        snc_type = config['snc_type']
+    if not request.json or 'snc_id' not in request.json or 'snc_type' not in request.json:
+        abort(400)
+    # Забрать json
+    config = request.get_json()
+    snc_id = config['snc_id']
+    snc_type = config['snc_type']
+    snc_group = config['snc_group'] || None
+    snc_name = config['snc_name'] || None
 
     if request.method == 'POST':
-        response = rpiHub.add_snc(snc_type=snc_type, snc_id=snc_id, snc_group=group_name, snc_name=sencor_name)
+        response = rpiHub.add_snc(snc_type=snc_type, snc_id=snc_id, snc_group=snc_group, snc_name=snc_name)
     elif request.method == 'PUT':
-        response = rpiHub.edit_snc(snc_type=snc_type, snc_id=snc_id, snc_group=group_name, snc_name=sencor_name)
+        response = rpiHub.edit_snc(snc_type=snc_type, snc_id=snc_id, new_snc_group=group_name, new_snc_name=sencor_name)
     elif request.method == 'DELETE':
-        response = rpiHub.remove_snc(snc_group=group_name, snc_name=sencor_name)
+        response = rpiHub.remove_snc(snc_id=snc_id, snc_type=snc_type)
     return jsonify(response)
 
 
-@app.route('/group/<group_name>/device/<device_name>', methods=['POST', 'PUT', 'DELETE'])
+@app.route('/device', methods=['POST', 'PUT', 'DELETE'])
 @cross_origin()
-def device(group_name, device_name):
+def device():
     """ Подключение к заданной сети """
-    LOG.info("Got connect")
+    LOG.info("Got device")
     response = {}
-    if request.method == 'POST' or request.method == 'PUT':
-        if not request.json or 'dvc_id' not in request.json or 'dvc_type' not in request.json:
-            abort(400)
-        # Забрать json
-        config = request.get_json()
-        snc_id = config['dvc_id']
-        snc_type = config['dvc_type']
+    if not request.json or 'dvc_id' not in request.json or 'dvc_type' not in request.json:
+        abort(400)
+    # Забрать json
+    config = request.get_json()
+    dvc_id = config['dvc_id']
+    dvc_type = config['dvc_type']
+    dvc_group = config['dvc_group'] || None
+    dvc_name = config['dvc_name'] || None
 
     if request.method == 'POST':
-        response = rpiHub.add_dvc(dvc_type=snc_type, dvc_id=snc_id, dvc_group=group_name, dvc_name=sencor_name)
+        response = rpiHub.add_dvc(dvc_type=snc_type, dvc_id=snc_id, dvc_group=snc_group, dvc_name=snc_name)
     elif request.method == 'PUT':
-        response = rpiHub.edit_dvc(dvc_type=snc_type, dvc_id=snc_id, dvc_group=group_name, dvc_name=sencor_name)
+        response = rpiHub.edit_dvc(dvc_type=snc_type, dvc_id=snc_id, new_dvc_group=group_name, new_dvc_name=sencor_name)
     elif request.method == 'DELETE':
-        response = rpiHub.remove_dvc(dvc_group=group_name, dvc_name=sencor_name)
+        response = rpiHub.remove_dvc(dvc_id=snc_id, dvc_type=snc_type)
     return jsonify(response)
 
 
