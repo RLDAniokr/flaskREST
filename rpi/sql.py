@@ -7,6 +7,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
+# ======= Firebase ======= #
 def getFirebaseCredentials():
     with sqlite3.connect('rlda.db') as db:
         cursor = db.cursor()
@@ -32,13 +33,18 @@ def getFirebaseConfig():
             settings[line[0]] = line[1]
         return settings
 
+# ======= Groups ======= #
+
 def getGroupNames():
     with sqlite3.connect('rlda.db') as db:
         cursor = db.cursor()
         sql_group = ''' SELECT DISTINCT gr_name FROM sencors  '''
         cursor.execute(sql_group)
         results = cursor.fetchall()
+        # TODO: get and append form devices
         return results
+
+# ======= Sencors ======= #
 
 def getSencorsSettings():
     with sqlite3.connect('rlda.db') as db:
@@ -66,9 +72,30 @@ def deleteSencor(sencor):
         sql_del = ''' DELETE FROM sencors WHERE id = ? AND type = ?  '''
         cursor.execute(sql_del, sencor)
 
+# ======= Devices ======= #
 
-def editDevice(self, device):
-    pass
+def getDevicesSettings():
+    with sqlite3.connect('rlda.db') as db:
+        cursor = db.cursor()
+        sql = ''' SELECT * FROM devices  '''
+        cursor.execute(sql)
+        results = cursor.fetchall()
+        return results
 
-def getDevicesSettings(self):
-    pass
+def newDeviceSettings(device):
+    with sqlite3.connect('rlda.db') as db:
+        cursor = db.cursor()
+        sql_ins = ''' INSERT INTO sencors(id, type, gr_name, name) VALUES (?,?,?,?)  '''
+        cursor.execute(sql_ins, device)
+
+def editDevice(device):
+    with sqlite3.connect('rlda.db') as db:
+        cursor = db.cursor()
+        sql_upd = ''' UPDATE sencors SET gr_name = ? , name = ? WHERE id = ? AND type = ?  '''
+        cursor.execute(sql_upd, device)
+
+def deleteDevice(device):
+    with sqlite3.connect('rlda.db') as db:
+        cursor = db.cursor()
+        sql_del = ''' DELETE FROM sencors WHERE id = ? AND type = ?  '''
+        cursor.execute(sql_del, device)

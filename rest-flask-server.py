@@ -125,7 +125,11 @@ def get_groups():
 @app.route('/group/<group_name>', methods=['GET', 'POST', 'DELETE'])
 @cross_origin()
 def group(group_name):
-    """ Подключение к заданной сети """
+    """
+        @GET: Получение имен датчиков и устройств группы <group_name>
+        @POST: Создание новой группы с именем <group_name>
+        @DELETE: Удаление группы <group_name>
+    """
     LOG.info("Got connect")
     response = {}
     if request.method == 'GET':
@@ -140,7 +144,12 @@ def group(group_name):
 @app.route('/sencor', methods=['POST', 'PUT', 'DELETE'])
 @cross_origin()
 def sencor():
-    """ Подключение к заданной сети """
+    """
+        @POST: создание нового датчика
+        @PUT: редактирование имени и группы датчика
+        @DELETE: удаление датчика
+        input: json {snc_id(int), snc_type(char), snc_group(char), snc_name(char)}
+    """
     LOG.info("Got sencor")
     response = {}
     if not request.json or 'snc_id' not in request.json or 'snc_type' not in request.json:
@@ -166,7 +175,12 @@ def sencor():
 @app.route('/device', methods=['POST', 'PUT', 'DELETE'])
 @cross_origin()
 def device():
-    """ Подключение к заданной сети """
+    """
+        @POST: создание нового устройства
+        @PUT: редактирование имени и группы устройства
+        @DELETE: удаление устройства
+        input: json {dvc_id(int), dvc_type(char), dvc_group(char), dvc_name(char)}
+    """
     LOG.info("Got device")
     response = {}
     if not request.json or 'dvc_id' not in request.json or 'dvc_type' not in request.json:
@@ -176,16 +190,16 @@ def device():
     dvc_id = int(config['dvc_id'])
     dvc_type = config['dvc_type'].encode('utf-8')
 
-    if reuest.method != 'DELETE':
-        dvc_group = config['dvc_group']
-        dvc_name = config['dvc_name']
+    if request.method != 'DELETE':
+        dvc_group = config['dvc_group'].encode('utf-8')
+        dvc_name = config['dvc_name'].encode('utf-8')
 
     if request.method == 'POST':
-        response = rpiHub.add_dvc(dvc_type=snc_type, dvc_id=snc_id, dvc_group=snc_group, dvc_name=snc_name)
+        response = rpiHub.add_dvc(dvc_type=dvc_type, dvc_id=dvc_id, dvc_group=dvc_group, dvc_name=dvc_name)
     elif request.method == 'PUT':
-        response = rpiHub.edit_dvc(dvc_type=snc_type, dvc_id=snc_id, new_dvc_group=snc_group, new_dvc_name=snc_name)
+        response = rpiHub.edit_dvc(dvc_type=dvc_type, dvc_id=dvc_id, new_dvc_group=dvc_group, new_dvc_name=dvc_name)
     elif request.method == 'DELETE':
-        response = rpiHub.remove_dvc(dvc_id=snc_id, dvc_type=snc_type)
+        response = rpiHub.remove_dvc(dvc_id=dvc_id, dvc_type=dvc_type)
     return jsonify(response)
 
 

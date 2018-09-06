@@ -58,6 +58,14 @@ class fireBase():
             """ Delete sencor from db """
             self.root(sencor.group_name).child("sencors").child(sencor.name).remove(self.token)
 
+        def update_device_value(self, device):
+                """ Update value of device on firebase cloud db """
+                self.root(device.group_name).child("devices").update({device.name:  device.value}, self.token)
+
+        def delete_device(self, device):
+            """ Delete device from db """
+            self.root(device.group_name).child("sencors").child(device.name).remove(self.token)
+
         def upd_token(self):
                 __t_diff = time() - self.last_token_upd
                 if __t_diff > 3300:
