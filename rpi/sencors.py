@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 class Sencor(object):
     """ Родительский класс датчиков """
     def __init__(self):
-        self.value = ''
+        self.value = '-'
         self.last_response = time()
 
     def get_info(self):

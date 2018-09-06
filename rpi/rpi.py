@@ -3,20 +3,15 @@
 # Author: Antipin S.O. @RLDA
 
 # TODO: import stuff
-# import sql
 import threading
 from time import sleep, time
 
 from .sencors import *
 from .devices import *
-# from .firebase import fireBase
+from .firebase import fireBase
+import sql
 
 import logging
-
-# TEMP: debug with another entrypoint
-FORMATTER = '%(asctime)s - %(threadName)s - %(levelname)s - %(message)s'
-logging.basicConfig(level=logging.INFO, format=FORMATTER)
-
 log = logging.getLogger(__name__)
 
 class Group(object):
@@ -30,6 +25,8 @@ class Group(object):
 class rpiHub(object):
     """ Класса хаба Raspberry """
     def __init__(self):
+        # Средства работы с Google Firebase
+        self.firebase = fireBase()
         # Список групп устройств
         self.group_list = []
         # Список датчиков
@@ -39,27 +36,26 @@ class rpiHub(object):
         self.dvc_list = []
         # TODO: add get devices from db
         self.restore_settings_from_db()
-        # Средства работы с Google Firebase
-        self.firebase = fireBase()
         # Инициализировать поток прослушки радиоканала
-        #self.init_read_sencors()
+        self.init_read_sencors()
 
-    def restore_from_db(self):
+    def restore_settings_from_db(self):
         # 1: Get and initiate groups
         __raw_groups = sql.getGroupNames()
         for raw_group in __raw_groups:
-            self.add_group(raw_group[0])
+            self.add_group(raw_group[0]).encode('utf-8')
 
         log.info(self.get_groups())
 
         # 2: Get and initiate sencors
         __raw_sencors = sql.getSencorsSettings()
+        log.info(__raw_sencors)
         for raw_snc in __raw_sencors:
             self.add_snc(
-                snc_id=raw_snc[0][0]
-                snc_type=raw_snc[0][1]
-                snc_group=raw_snc[0][2]
-                snc_name=raw_snc[0][3]
+                snc_id=raw_snc[0],
+                snc_type=raw_snc[1].encode('utf-8'),
+                snc_group=raw_snc[2].encode('utf-8'),
+                snc_name=raw_snc[3].encode('utf-8'),
             )
 
         # 3: Get and initiate devices
@@ -74,16 +70,16 @@ class rpiHub(object):
                 pass
                 #__start = time()
                 # print(len(self.snc_list))
-                #__idx = randint(0, len(self.snc_list)-1)
-                #snc = self.snc_list[__idx]
-                #snc.get_random_state()
+                __idx = randint(0, len(self.snc_list)-1)
+                snc = self.snc_list[__idx]
+                snc.get_random_state()
                 #log.info("Sencor %s:%s" % (snc.name, snc.value))
-                # self.firebase.upd_token()
-                # self.firebase.update_sencor_value(snc)
+                self.firebase.upd_token()
+                self.firebase.update_sencor_value(snc)
                 # # TODO: send value to firebase
                 #log.critical("===ITER===")
                 #log.critical("TIEM: %s" %(time()-__start))
-                #sleep(5)
+                sleep(5)
         except Exception as e:
             raise
 
@@ -198,7 +194,7 @@ class rpiHub(object):
             return "FAIL"
 
         # Найти экземпляр группы в списке
-        __group = self.get_group_by_name(group_name)
+        __group = self.get_group_by_name(snc_group)
         if __group == None:
             log.error("Group %s not find" % snc_group)
             return "FAIL"
@@ -215,8 +211,10 @@ class rpiHub(object):
             return "FAIL"
 
         # Добавить новое устройство в список датчиков хаба и группы
+        sql.newSencorSettings((snc_id, snc_type, snc_group, snc_name))
         self.snc_list.append(new_sencor)
         __group.sencors.append(new_sencor)
+        self.firebase.update_sencor_value(new_sencor)
         # TODO: send initiate pack to firebase
         # TODO: send to sql
         return "OK"
@@ -248,12 +246,24 @@ class rpiHub(object):
         # TODO: send to sql
         return "OK"
 
-    def edit_snc(self, snc_type, snc_id, snc_group, snc_name):
+    def edit_snc(self, snc_type, snc_id, new_snc_group, new_snc_name):
         """ Редактировать настройки датчика """
         __sencor_for_edit = self.get_sencor_by_typid(snc_type, snc_id)
 
+        __new_group = self.get_group_by_name(new_snc_group)
+        if __new_group == None:
+            log.error("New group does not exists")
+            return "FAIL"
+
         if __sencor_for_edit != None:
-            # TODO: What should I redact?
+            __old_group = self.get_group_by_name(__sencor_for_edit.group_name)
+            __old_group.sencors.remove(__sencor_fro_edit)
+
+            __sencor_for_edit.group_name = snc_group
+            __sencor_for_edit.name = snc_name
+            __new_group.sencors.append(__sencor_for_edit)
+            sql.editSencor((snc_group, snc_name, snc_id, snc_type))
+            # remove from firebase
             return "OK"
         else:
             log.error("Sencor for edit not found in list")
@@ -265,18 +275,19 @@ class rpiHub(object):
         __device_for_edit = self.get_device_by_typid(dvc_type, dvc_id)
 
         if __device_for_edit != None:
-            # TODO: What should I redact?
+            # pl
             return "OK"
         else:
             log.error("Device for edit not found in list")
             return "FAIL"
 
-    def remove_snc(self, snc_group, snc_name):
+    def remove_snc(self, snc_type, snc_id):
         """ Удалить датчик """
         __sencor_for_delete = self.get_sencor_by_typid(snc_type, snc_id)
 
         if __sencor_for_delete != None:
-            # TODO: What should I delete?
+            sql.deleteSencor((snc_id, snc_type))
+            # remove from firebase
             return "OK"
         else:
             log.error("Sencor for delete not found in list")
