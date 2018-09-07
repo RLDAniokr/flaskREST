@@ -25,18 +25,18 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 LOG_FILE = os.path.join(ROOT, 'logs/flask-server.log')
 
 LOG = logging.getLogger()
-LOG.setLevel(logging.DEBUG)
+LOG.setLevel(logging.INFO)
 
 RFH = TimedRotatingFileHandler(LOG_FILE,
                                when="D",
                                interval=1,
                                backupCount=5)
-RFH.setLevel(logging.DEBUG)
+RFH.setLevel(logging.INFO)
 
 SH = logging.StreamHandler()
-SH.setLevel(logging.DEBUG)
+SH.setLevel(logging.INFO)
 
-FORMATTER = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+FORMATTER = logging.Formatter('%(asctime)s - %(threadName)s  - %(levelname)s - %(message)s')
 RFH.setFormatter(FORMATTER)
 SH.setFormatter(FORMATTER)
 
@@ -206,4 +206,4 @@ def device():
 # Точка входа main
 if __name__ == '__main__':
     LOG.info("Entered main")
-    app.run(debug=True)
+    app.run(debug=False)

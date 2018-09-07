@@ -9,10 +9,19 @@ from time import sleep, time
 from .sencors import *
 from .devices import *
 from .firebase import fireBase
-import sql
+from . import sql
 
 import logging
 log = logging.getLogger(__name__)
+
+def singleton(class_):
+    instances = {}
+    def getinstance(*args, **kwargs):
+        if class_ not in instances:
+            instances[class_] = class_(*args, **kwargs)
+        return instances[class_]
+    return getinstance
+
 
 class Group(object):
     """ Класс группы устройств (кухня/улица и т.п.) """
@@ -21,7 +30,7 @@ class Group(object):
         self.sencors = []
         self.devices = []
 
-
+@singleton
 class rpiHub(object):
     """ Класса хаба Raspberry """
     def __init__(self):
@@ -43,9 +52,9 @@ class rpiHub(object):
         # 1: Get and initiate groups
         __raw_groups = sql.getGroupNames()
         for raw_group in __raw_groups:
-            self.add_group(raw_group[0]).encode('utf-8')
+            self.add_group(raw_group[0])
 
-        log.info(self.get_groups())
+        log.info("GET GROUPS: %s" % self.get_groups())
 
         # 2: Get and initiate sencors
         __raw_sencors = sql.getSencorsSettings()
@@ -53,9 +62,9 @@ class rpiHub(object):
         for raw_snc in __raw_sencors:
             self.add_snc(
                 snc_id=raw_snc[0],
-                snc_type=raw_snc[1].encode('utf-8'),
-                snc_group=raw_snc[2].encode('utf-8'),
-                snc_name=raw_snc[3].encode('utf-8'),
+                snc_type=raw_snc[1],
+                snc_group=raw_snc[2],
+                snc_name=raw_snc[3],
                 restore=True
             )
 
@@ -72,7 +81,7 @@ class rpiHub(object):
             )
 
         for gr in self.group_list:
-            self.get_group_info(gr.name)
+            log.critical(gr.name)
 
     def read(self):
         # TEMP
@@ -81,19 +90,20 @@ class rpiHub(object):
             while(True):
                 pass
                 #__start = time()
-                # print(len(self.snc_list))
                 __idx = randint(0, len(self.snc_list)-1)
                 snc = self.snc_list[__idx]
                 snc.get_random_state()
-                #log.info("Sencor %s:%s" % (snc.name, snc.value))
-                self.firebase.upd_token()
+                log.info("Sencor %s:%s" % (snc.name, snc.value))
+                self.firebase.upd_token(self.group_list, self.device_handler)
                 self.firebase.update_sencor_value(snc)
                 # # TODO: send value to firebase
-                #log.critical("===ITER===")
+                log.critical("===ITER===")
                 #log.critical("TIEM: %s" %(time()-__start))
                 sleep(5)
-        except Exception as e:
-            raise
+        except KeyboardInterrupt:
+            "Got exception kbu"
+            for g in self.group_list:
+                g.dvc_stream.close()
 
     def init_read_sencors(self):
         # Инициализировать тред
@@ -175,15 +185,14 @@ class rpiHub(object):
     def device_handler(self, message):
         """ Метод-обработчик сообщений от облачной базы Firebase """
         __from = message["stream_id"]
-        __group = self.get_group_by_name(__from)
-        if __group == None:
-            log.error("Incoming message from non-existing group")
-            return
-        log.debug("Inc_name_b4_split: %s" % message["path"])
+        #__group = self.get_group_by_name(__from)
+#        if __group == None:
+#            log.error("Incoming message from non-existing group")
+#            return
         __inc_device_name = (message["path"].split("/"))[1]
         __data = message["data"]
-        log.debug("DATA: %s" % __data)
-        __device = None
+        log.info("GROUP: %s, DEVICE: %s, DATA: %s" % (__from, __inc_device_name, __data))
+        #__device = None
 
     def add_group(self, group_name):
         """
@@ -196,7 +205,9 @@ class rpiHub(object):
         __new_group = Group(group_name)
         self.group_list.append(__new_group)
         # TODO: subscribe devices
-        __new_group.dvc_stream = firebase.root(group_name).child('devices').stream(self.device_handler, stream_id=group_name)
+        log.info("Type in set: %s" % type(group_name))
+        __new_group.dvc_stream = self.firebase.root(group_name).child('devices').stream(self.device_handler, stream_id=__new_group.name, token=self.firebase.token)
+        log.info("Type stream in make: %s" %__new_group.dvc_stream)
         return("OK")
 
     def remove_group(self, group_name):
@@ -266,7 +277,7 @@ class rpiHub(object):
             return "FAIL"
 
         # В зависимости от типа инициализировать новый датчик
-        if snc_type == "Relay":
+        if dvc_type == "Relay":
             new_device = Relay(dvc_id=dvc_id, group_name=dvc_group, name=dvc_name)
         else:
             log.error("Unknown device type")
@@ -313,7 +324,7 @@ class rpiHub(object):
         """ Редактировать настройки устройства """
         __device_for_edit = self.get_device_by_typid(dvc_type, dvc_id)
 
-        __new_group = self.get_group_by_name(new_snc_group)
+        __new_group = self.get_group_by_name(new_dvc_group)
         if __new_group == None:
             log.error("New group does not exists")
             return "FAIL"
@@ -326,7 +337,7 @@ class rpiHub(object):
             __device_for_edit.group_name = new_dvc_group
             __device_for_edit.name = new_dvc_name
             __new_group.devices.append(__device_for_edit)
-            self.firebase.update_sencor_value(__device_for_edit)
+            self.firebase.update_device_value(__device_for_edit)
             sql.editDevice((new_dvc_group, new_dvc_name, dvc_id, dvc_type))
             return "OK"
         else:
@@ -348,16 +359,16 @@ class rpiHub(object):
             log.error("Sencor for delete not found in list")
             return "FAIL"
 
-    def remove_dvc(self, dvc_group, dvc_name):
+    def remove_dvc(self, dvc_type, dvc_id):
         """ Удалить устройство """
         __device_for_delete = self.get_device_by_typid(dvc_type, dvc_id)
 
         if __device_for_delete != None:
-            self.snc_list.remove(__device_for_delete)
+            self.dvc_list.remove(__device_for_delete)
             __group = self.get_group_by_name(__device_for_delete.group_name)
-            __group.sencors.remove(__device_for_delete)
-            sql.deleteSencor((dvc_id, dvc_type))
-            self.firebase.delete_sencor(__device_for_delete)
+            __group.devices.remove(__device_for_delete)
+            sql.deleteDevice((dvc_id, dvc_type))
+            self.firebase.delete_device(__device_for_delete)
             return "OK"
         else:
             log.error("Device for delete not found in list")

@@ -85,17 +85,17 @@ def getDevicesSettings():
 def newDeviceSettings(device):
     with sqlite3.connect('rlda.db') as db:
         cursor = db.cursor()
-        sql_ins = ''' INSERT INTO sencors(id, type, gr_name, name) VALUES (?,?,?,?)  '''
+        sql_ins = ''' INSERT INTO devices(id, type, gr_name, name) VALUES (?,?,?,?)  '''
         cursor.execute(sql_ins, device)
 
 def editDevice(device):
     with sqlite3.connect('rlda.db') as db:
         cursor = db.cursor()
-        sql_upd = ''' UPDATE sencors SET gr_name = ? , name = ? WHERE id = ? AND type = ?  '''
+        sql_upd = ''' UPDATE devices SET gr_name = ? , name = ? WHERE id = ? AND type = ?  '''
         cursor.execute(sql_upd, device)
 
 def deleteDevice(device):
     with sqlite3.connect('rlda.db') as db:
         cursor = db.cursor()
-        sql_del = ''' DELETE FROM sencors WHERE id = ? AND type = ?  '''
+        sql_del = ''' DELETE FROM devices WHERE id = ? AND type = ?  '''
         cursor.execute(sql_del, device)

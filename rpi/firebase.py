@@ -23,7 +23,7 @@ def singleton(class_):
 
 
 # Todo: make it singleton
-#@singleton
+@singleton
 class fireBase():
         def __init__(self):
                 creds = getFirebaseCredentials()
@@ -64,12 +64,20 @@ class fireBase():
 
         def delete_device(self, device):
             """ Delete device from db """
-            self.root(device.group_name).child("sencors").child(device.name).remove(self.token)
+            self.root(device.group_name).child("devices").child(device.name).remove(self.token)
 
-        def upd_token(self):
+        def upd_token(self, group_list, handler):
                 __t_diff = time() - self.last_token_upd
                 if __t_diff > 3300:
                         log.info("Token expired")
                         self.user = self.auth.refresh(self.user['refreshToken'])
                         self.token = self.user['idToken']
+                        for group in group_list:
+                            try:
+                                group.dvc_stream.close()
+                            except AttributeError:
+                                log.critical("Stream didn't closed normally. Num of active threads %s" % threading.active_count())
+                                pass
+                            group.dvc_stream = self.root(group.name).child('devices').stream(handler, stream_id=group.name, token=self.token)
                         self.last_token_upd = time()
+                        log.info("Active threads: %s" % threading.active_count())
