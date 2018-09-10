@@ -22,6 +22,15 @@ def getFirebaseCredentials():
         creds = {'email': email, 'password': password}
         return creds
 
+def setFirebaseCredentials(email, password):
+    with sqlite3.connect('rlda.db') as db:
+        cursor = db.cursor()
+        __setEmailSQL = """ UPDATE fbSettings SET value = ? WHERE id = 'email' """
+        cursor.execute(__setEmailSQL, email)
+
+        __setPasswordSQL = """ UPDATE fbSettings SET value = ? WHERE id = 'password' """
+        cursor.execute(__setPasswordSQL, password)
+
 def getFirebaseConfig():
     with sqlite3.connect('rlda.db') as db:
         cursor = db.cursor()
@@ -69,7 +78,7 @@ def editSencor(sencor):
 def deleteSencor(sencor):
     with sqlite3.connect('rlda.db') as db:
         cursor = db.cursor()
-        sql_del = ''' DELETE FROM sencors WHERE id = ? AND type = ?  '''
+        sql_del = ''' DELETE FROM sencors WHERE id = ? '''
         cursor.execute(sql_del, sencor)
 
 # ======= Devices ======= #
@@ -97,5 +106,5 @@ def editDevice(device):
 def deleteDevice(device):
     with sqlite3.connect('rlda.db') as db:
         cursor = db.cursor()
-        sql_del = ''' DELETE FROM devices WHERE id = ? AND type = ?  '''
+        sql_del = ''' DELETE FROM devices WHERE id = ? '''
         cursor.execute(sql_del, device)

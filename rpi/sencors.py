@@ -34,11 +34,6 @@ class TemperatureSencor(Sencor):
         self.name = name
 
         self.type = 'Temperature'
-        # TODO: add to db
-        # TODO: check if group exists
-        # TODO: generate path for firebase
-        # TODO: check if snc exists
-        # TODO: add to fb
 
         super(TemperatureSencor, self).__init__()
 
@@ -54,9 +49,6 @@ class HumiditySencor(Sencor):
         self.name = name
 
         self.type = 'Humidity'
-        # TODO: add to db
-        # TODO: generate path for firebase
-        # TODO: add to fb
 
         super(HumiditySencor, self).__init__()
 
@@ -72,9 +64,6 @@ class LuminositySencor(Sencor):
         self.name = name
 
         self.type = 'Luminosity'
-        # TODO: add to db
-        # TODO: generate path for firebase
-        # TODO: add to fb
 
         super(LuminositySencor, self).__init__()
 

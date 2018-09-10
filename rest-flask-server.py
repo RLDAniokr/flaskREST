@@ -148,7 +148,7 @@ def sencor():
         @POST: создание нового датчика
         @PUT: редактирование имени и группы датчика
         @DELETE: удаление датчика
-        input: json {snc_id(int), snc_type(char), snc_group(char), snc_name(char)}
+        input: json {snc_id(int), snc_type(string), snc_group(string), snc_name(string)}
     """
     LOG.info("Got sencor")
     response = {}
@@ -179,7 +179,7 @@ def device():
         @POST: создание нового устройства
         @PUT: редактирование имени и группы устройства
         @DELETE: удаление устройства
-        input: json {dvc_id(int), dvc_type(char), dvc_group(char), dvc_name(char)}
+        input: json {dvc_id(int), dvc_type(string), dvc_group(string), dvc_name(string)}
     """
     LOG.info("Got device")
     response = {}
@@ -200,6 +200,29 @@ def device():
         response = rpiHub.edit_dvc(dvc_type=dvc_type, dvc_id=dvc_id, new_dvc_group=dvc_group, new_dvc_name=dvc_name)
     elif request.method == 'DELETE':
         response = rpiHub.remove_dvc(dvc_id=dvc_id, dvc_type=dvc_type)
+    return jsonify(response)
+
+@app.route('/firebase', methods=['POST', 'PUT'])
+@cross_origin()
+def firebase_creds():
+    """
+        @POST: регистрация нового пользователя
+        @PUT: редактирование email и пароля пользователя Firebase
+        input: json {email(string), password(string)}
+    """
+    LOG.info("Got firebase")
+    response = {}
+    if not request.json or 'email' not in request.json or 'password' not in request.json:
+        abort(400)
+    # Забрать json
+    credentials = request.get_json()
+    email = credentials['email'].encode('utf-8')
+    password = credentials['password'].encode('utf-8')
+
+    if request.method == 'POST':
+        response = rpiHub.set_fb_creds(email=email, password=password)
+    elif request.method = 'PUT':
+        response = rpiHub.reset_fb_creds(email=email, password=password)
     return jsonify(response)
 
 
