@@ -157,11 +157,11 @@ def sencor():
     # Забрать json
     config = request.get_json()
     snc_id = int(config['snc_id'])
-    snc_type = config['snc_type'].encode('utf-8')
+    snc_type = config['snc_type']
 
     if request.method != 'DELETE':
-        snc_group = config['snc_group'].encode('utf-8')
-        snc_name = config['snc_name'].encode('utf-8')
+        snc_group = config['snc_group']
+        snc_name = config['snc_name']
 
     if request.method == 'POST':
         response = rpiHub.add_snc(snc_type=snc_type, snc_id=snc_id, snc_group=snc_group, snc_name=snc_name)
@@ -188,11 +188,11 @@ def device():
     # Забрать json
     config = request.get_json()
     dvc_id = int(config['dvc_id'])
-    dvc_type = config['dvc_type'].encode('utf-8')
+    dvc_type = config['dvc_type']
 
     if request.method != 'DELETE':
-        dvc_group = config['dvc_group'].encode('utf-8')
-        dvc_name = config['dvc_name'].encode('utf-8')
+        dvc_group = config['dvc_group']
+        dvc_name = config['dvc_name']
 
     if request.method == 'POST':
         response = rpiHub.add_dvc(dvc_type=dvc_type, dvc_id=dvc_id, dvc_group=dvc_group, dvc_name=dvc_name)
@@ -216,11 +216,11 @@ def firebase_creds():
         abort(400)
     # Забрать json
     credentials = request.get_json()
-    email = credentials['email'].encode('utf-8')
-    password = credentials['password'].encode('utf-8')
+    email = credentials['email']
+    password = credentials['password']
 
     if request.method == 'POST':
-        response = rpiHub.set_fb_creds(email=email, password=password)
+        response = rpiHub.set_fb_creds(email, password)
     elif request.method == 'PUT':
         response = rpiHub.reset_fb_creds(email=email, password=password)
     return jsonify(response)

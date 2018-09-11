@@ -57,9 +57,9 @@ class rpiHub(object):
         # TODO: reauth with new email+pass
         pass
 
-    def set_fb_creds(email, password):
+    def set_fb_creds(self, email, password):
         """ Установить параметры входа для Firebase """
-        response = self.firebase.authorize(email, password)
+        response = self.firebase.register_new_user(email, password)
         sql.setFirebaseCredentials(email, password)
         return response
 
@@ -96,13 +96,16 @@ class rpiHub(object):
             )
 
         for gr in self.group_list:
-            log.critical(gr.name)
+            log.info(gr.name)
 
     def read(self):
         # TEMP
         log.info("Read thread initialized")
         try:
             while(True):
+                sleep(5)
+                if len(self.snc_list) == 0:
+                    continue
                 __idx = randint(0, len(self.snc_list)-1)
                 snc = self.snc_list[__idx]
                 snc.get_random_state()
@@ -110,7 +113,6 @@ class rpiHub(object):
                 self.firebase.upd_token(self.group_list, self.device_handler)
                 self.firebase.update_sencor_value(snc)
                 log.critical("===ITER===")
-                sleep(5)
         except KeyboardInterrupt:
             "Got exception kbu"
             for g in self.group_list:
@@ -324,7 +326,7 @@ class rpiHub(object):
             __sencor_for_edit.name = new_snc_name
             __new_group.sencors.append(__sencor_for_edit)
             self.firebase.update_sencor_value(__sencor_for_edit)
-            sql.editSencor((new_snc_group, new_snc_name, snc_id, snc_type))
+            sql.editSencor((new_snc_group, new_snc_name, snc_id))
             return "OK"
         else:
             log.error("Sencor for edit not found in list")
@@ -348,7 +350,7 @@ class rpiHub(object):
             __device_for_edit.name = new_dvc_name
             __new_group.devices.append(__device_for_edit)
             self.firebase.update_device_value(__device_for_edit)
-            sql.editDevice((new_dvc_group, new_dvc_name, dvc_id, dvc_type))
+            sql.editDevice((new_dvc_group, new_dvc_name, dvc_id))
             return "OK"
         else:
             log.error("Device for edit not found in list")

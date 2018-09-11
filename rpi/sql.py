@@ -25,11 +25,11 @@ def getFirebaseCredentials():
 def setFirebaseCredentials(email, password):
     with sqlite3.connect('rlda.db') as db:
         cursor = db.cursor()
-        __setEmailSQL = """ UPDATE fbSettings SET value = ? WHERE id = 'email' """
-        cursor.execute(__setEmailSQL, email)
+        __setEmailSQL = """ UPDATE fbSettings SET value = ? WHERE keyName = 'email' """
+        cursor.execute(__setEmailSQL, (email,))
 
-        __setPasswordSQL = """ UPDATE fbSettings SET value = ? WHERE id = 'password' """
-        cursor.execute(__setPasswordSQL, password)
+        __setPasswordSQL = """ UPDATE fbSettings SET value = ? WHERE keyName = 'password' """
+        cursor.execute(__setPasswordSQL, (password,))
 
 def getFirebaseConfig():
     with sqlite3.connect('rlda.db') as db:
@@ -72,14 +72,14 @@ def newSencorSettings(sencor):
 def editSencor(sencor):
     with sqlite3.connect('rlda.db') as db:
         cursor = db.cursor()
-        sql_upd = ''' UPDATE sencors SET gr_name = ? , name = ? WHERE id = ? AND type = ?  '''
-        cursor.execute(sql_upd, sencor)
+        sql_upd = ''' UPDATE sencors SET gr_name = ? , name = ? WHERE id = ? '''
+        cursor.execute(sql_upd, (sencor))
 
 def deleteSencor(sencor):
     with sqlite3.connect('rlda.db') as db:
         cursor = db.cursor()
         sql_del = ''' DELETE FROM sencors WHERE id = ? '''
-        cursor.execute(sql_del, sencor)
+        cursor.execute(sql_del, (sencor,))
 
 # ======= Devices ======= #
 
@@ -100,11 +100,11 @@ def newDeviceSettings(device):
 def editDevice(device):
     with sqlite3.connect('rlda.db') as db:
         cursor = db.cursor()
-        sql_upd = ''' UPDATE devices SET gr_name = ? , name = ? WHERE id = ? AND type = ?  '''
+        sql_upd = ''' UPDATE devices SET gr_name = ? , name = ? WHERE id = ? '''
         cursor.execute(sql_upd, device)
 
 def deleteDevice(device):
     with sqlite3.connect('rlda.db') as db:
         cursor = db.cursor()
         sql_del = ''' DELETE FROM devices WHERE id = ? '''
-        cursor.execute(sql_del, device)
+        cursor.execute(sql_del, (device,))

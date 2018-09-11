@@ -49,14 +49,22 @@ class fireBase():
 
         # TODO: Check with empty rows
         if self.email != None and self.password != None:
+            log.info("GOT FB CREDS")
             self.authorize(self.email, self.password)
 
         # TODO: set new thread for internet connection check
 
     def register_new_user(self, email, password):
         """ Зарегистрировать нового пользователя """
-        self.auth.create_user_with_email_and_password(email, password)
-        # self.auth.send_email_verification(self.user['idToken'])
+        try:
+            self.auth.create_user_with_email_and_password(email, password)
+            sleep(2)
+            self.authorize(email, password)
+            return "OK"
+        except Exception as e:
+            log.error("Error during new user register")
+            log.error(e)
+            return "FAIL"
 
     def check_connection(self):
         """ Worker-метод для проверки интернет соединения """
@@ -84,7 +92,7 @@ class fireBase():
     def authorize(self, email, password):
         """ Авторизоваться в системе по почте и паролю """
         try:
-            self.user = self.auth.sign_in_with_email_and_password(self.email, self.password)
+            self.user = self.auth.sign_in_with_email_and_password(email, password)
             self.user = self.auth.refresh(self.user['refreshToken'])
             self.uid = self.user['userId']
             # Лямбда-функция для выделения корневой директории пользователя
@@ -94,10 +102,11 @@ class fireBase():
 
             self.last_token_upd = time()
             self.is_auth = True
-            return "OK"
+            log.info("Authorized")
         except Exception as e:
             self.is_auth = False
-            return "FAIL"
+            log.info(e)
+            log.info("Unauthorized")
 
     def update_sencor_value(self, sencor):
         """ Обновить данные датчика в облачной базе данных """
