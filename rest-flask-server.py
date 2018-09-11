@@ -36,7 +36,8 @@ RFH.setLevel(logging.INFO)
 SH = logging.StreamHandler()
 SH.setLevel(logging.INFO)
 
-FORMATTER = logging.Formatter('%(asctime)s - %(threadName)s  - %(levelname)s - %(message)s')
+format = '%(asctime)s - %(threadName)s  - %(levelname)s - %(message)s'
+FORMATTER = logging.Formatter(format)
 RFH.setFormatter(FORMATTER)
 SH.setFormatter(FORMATTER)
 
@@ -148,12 +149,15 @@ def sencor():
         @POST: создание нового датчика
         @PUT: редактирование имени и группы датчика
         @DELETE: удаление датчика
-        input: json {snc_id(int), snc_type(string), snc_group(string), snc_name(string)}
+        input: json {snc_id(int), snc_type(str), snc_group(str), snc_name(str)}
     """
     LOG.info("Got sencor")
     response = {}
-    if not request.json or 'snc_id' not in request.json or 'snc_type' not in request.json:
+    if not request.json:
         abort(400)
+    elif 'snc_id' not in request.json or 'snc_type' not in request.json:
+        abort(400)
+
     # Забрать json
     config = request.get_json()
     snc_id = int(config['snc_id'])
@@ -164,9 +168,15 @@ def sencor():
         snc_name = config['snc_name']
 
     if request.method == 'POST':
-        response = rpiHub.add_snc(snc_type=snc_type, snc_id=snc_id, snc_group=snc_group, snc_name=snc_name)
+        response = rpiHub.add_snc(snc_type=snc_type,
+                                  snc_id=snc_id,
+                                  snc_group=snc_group,
+                                  snc_name=snc_name)
     elif request.method == 'PUT':
-        response = rpiHub.edit_snc(snc_type=snc_type, snc_id=snc_id, new_snc_group=snc_group, new_snc_name=snc_name)
+        response = rpiHub.edit_snc(snc_type=snc_type,
+                                   snc_id=snc_id,
+                                   new_snc_group=snc_group,
+                                   new_snc_name=snc_name)
     elif request.method == 'DELETE':
         response = rpiHub.remove_snc(snc_id=snc_id, snc_type=snc_type)
     return jsonify(response)
@@ -179,12 +189,15 @@ def device():
         @POST: создание нового устройства
         @PUT: редактирование имени и группы устройства
         @DELETE: удаление устройства
-        input: json {dvc_id(int), dvc_type(string), dvc_group(string), dvc_name(string)}
+        input: json {dvc_id(int), dvc_type(str), dvc_group(str), dvc_name(str)}
     """
     LOG.info("Got device")
     response = {}
-    if not request.json or 'dvc_id' not in request.json or 'dvc_type' not in request.json:
+    if not request.json:
         abort(400)
+    elif 'dvc_id' not in request.json or 'dvc_type' not in request.json:
+        abort(400)
+
     # Забрать json
     config = request.get_json()
     dvc_id = int(config['dvc_id'])
@@ -195,12 +208,19 @@ def device():
         dvc_name = config['dvc_name']
 
     if request.method == 'POST':
-        response = rpiHub.add_dvc(dvc_type=dvc_type, dvc_id=dvc_id, dvc_group=dvc_group, dvc_name=dvc_name)
+        response = rpiHub.add_dvc(dvc_type=dvc_type,
+                                  dvc_id=dvc_id,
+                                  dvc_group=dvc_group,
+                                  dvc_name=dvc_name)
     elif request.method == 'PUT':
-        response = rpiHub.edit_dvc(dvc_type=dvc_type, dvc_id=dvc_id, new_dvc_group=dvc_group, new_dvc_name=dvc_name)
+        response = rpiHub.edit_dvc(dvc_type=dvc_type,
+                                   dvc_id=dvc_id,
+                                   new_dvc_group=dvc_group,
+                                   new_dvc_name=dvc_name)
     elif request.method == 'DELETE':
         response = rpiHub.remove_dvc(dvc_id=dvc_id, dvc_type=dvc_type)
     return jsonify(response)
+
 
 @app.route('/firebase', methods=['POST', 'PUT'])
 @cross_origin()
@@ -212,8 +232,11 @@ def firebase_creds():
     """
     LOG.info("Got firebase")
     response = {}
-    if not request.json or 'email' not in request.json or 'password' not in request.json:
+    if not request.json:
         abort(400)
+    elif 'email' not in request.json or 'password' not in request.json:
+        abort(400)
+
     # Забрать json
     credentials = request.get_json()
     email = credentials['email']

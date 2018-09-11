@@ -7,6 +7,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
+
 class Device(object):
     """ Родительский класс устройств """
     def __init__(self):
@@ -21,6 +22,7 @@ class Device(object):
             'name': self.name
         }
         return response
+
 
 class Relay(Device):
     """ Класс реле """

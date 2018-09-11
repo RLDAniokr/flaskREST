@@ -11,6 +11,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
+
 class Sencor(object):
     """ Родительский класс датчиков """
     def __init__(self):
@@ -25,6 +26,7 @@ class Sencor(object):
             'name': self.name
         }
         return response
+
 
 class TemperatureSencor(Sencor):
     """ Класс датчиков температуры """

@@ -14,9 +14,11 @@ import logging
 
 log = logging.getLogger(__name__)
 
+
 def singleton(class_):
     """ Декоратор для класса-одиночки """
     instances = {}
+
     def getinstance(*args, **kwargs):
         if class_ not in instances:
             instances[class_] = class_(*args, **kwargs)
@@ -48,7 +50,7 @@ class fireBase():
         self.password = creds['password']
 
         # TODO: Check with empty rows
-        if self.email != None and self.password != None:
+        if self.email is not None and self.password is not None:
             log.info("GOT FB CREDS")
             self.authorize(self.email, self.password)
 
@@ -92,12 +94,14 @@ class fireBase():
     def authorize(self, email, password):
         """ Авторизоваться в системе по почте и паролю """
         try:
-            self.user = self.auth.sign_in_with_email_and_password(email, password)
+            __auth = self.auth
+            __db = self.db
+            self.user = __auth.sign_in_with_email_and_password(email, password)
             self.user = self.auth.refresh(self.user['refreshToken'])
             self.uid = self.user['userId']
             # Лямбда-функция для выделения корневой директории пользователя
-            # (dir - имя группы в корневой директории пользователя)
-            self.root = lambda dir: self.db.child('users').child(self.uid).child(dir)
+            # (d - имя группы в корневой директории пользователя)
+            self.root = lambda d: __db.child('users').child(self.uid).child(d)
             self.token = self.user['idToken']
 
             self.last_token_upd = time()
@@ -111,22 +115,28 @@ class fireBase():
     def update_sencor_value(self, sencor):
         """ Обновить данные датчика в облачной базе данных """
         if self.is_auth:
-            self.root(sencor.group_name).child("sencors").update({sencor.name:  sencor.value}, self.token)
+            __data = {sencor.name: sencor.value}
+            __snc_dir = self.root(sencor.group_name).child("sencors")
+            __snc_dir.update(data, self.token)
 
     def delete_sencor(self, sencor):
         """ Удалить данные сенсора из облачной базы данных """
         if self.is_auth:
-            self.root(sencor.group_name).child("sencors").child(sencor.name).remove(self.token)
+            __sencors = self.root(sencor.group_name).child("sencors")
+            __sencors.child(sencor.name).remove(self.token)
 
     def update_device_value(self, device):
         """ Обновить данные устройства в облачной базе данных """
         if self.is_auth:
-            self.root(device.group_name).child("devices").update({device.name:  device.value}, self.token)
+            __data = {device.name: device.value}
+            __devices = self.root(device.group_name).child("devices")
+            __devices.update(__data, self.token)
 
     def delete_device(self, device):
         """ Удалить данные устройства из облачной базы данных """
         if self.is_auth:
-            self.root(device.group_name).child("devices").child(device.name).remove(self.token)
+            __devices = self.root(device.group_name).child("devices")
+            __devices.child(device.name).remove(self.token)
 
     def delete_group(self, group):
         """ Удалить группу из облачной базы данных """
@@ -144,8 +154,10 @@ class fireBase():
                     try:
                         group.dvc_stream.close()
                     except AttributeError:
-                        log.critical("Stream didn't closed normally. Num of active threads %s" % threading.active_count())
                         pass
-                    group.dvc_stream = self.root(group.name).child('devices').stream(handler, stream_id=group.name, token=self.token)
+                    __dvcs = self.root(group.name).child('devices')
+                    group.dvc_stream = .stream(handler,
+                                               stream_id=group.name,
+                                               token=self.token)
                 self.last_token_upd = time()
                 log.info("Active threads: %s" % threading.active_count())
