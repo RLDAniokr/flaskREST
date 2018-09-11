@@ -104,9 +104,9 @@ def connect():
     # Забрать json
     creds = request.get_json()
     # Выделение ssid
-    ssid = creds['ssid'].encode('utf-8')
+    ssid = creds['ssid']
     # Выделение psk
-    psk = creds['psk'].encode('utf-8')
+    psk = creds['psk']
 
     response = {}
     response = wpa_connect(ssid, psk)
@@ -221,7 +221,7 @@ def firebase_creds():
 
     if request.method == 'POST':
         response = rpiHub.set_fb_creds(email=email, password=password)
-    elif request.method = 'PUT':
+    elif request.method == 'PUT':
         response = rpiHub.reset_fb_creds(email=email, password=password)
     return jsonify(response)
 

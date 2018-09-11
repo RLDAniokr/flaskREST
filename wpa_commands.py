@@ -48,7 +48,7 @@ def wpa_status():
     args = ['wpa_cli', '-i', 'wlan0', 'status']
     try:
         # Раздзеление вывода по символу новой строки в список
-        statusOutput = str(sbp.check_output(args)).split("\n")  # (list)
+        statusOutput = sbp.check_output(args).decode('utf-8').split("\n")  # (list)
         status = {}  # dict
         # Разбить каждую из строк на пары "ключ":"занчение"
         for line in statusOutput[:len(statusOutput)-1]:
@@ -89,7 +89,7 @@ def wpa_scan():
             # Подождать 1 сек
             sleep(1)
             # Забрать список сетей и разделить его в список
-            tmp = str(sbp.check_output(scanListArgs)).split("\n")  # list
+            tmp = sbp.check_output(scanListArgs).decode('utf-8').split("\n")  # list
 
             listNetworks = {}  # dict/json
             # Для каждого из элементов списка
@@ -134,7 +134,7 @@ def wpa_disconnect():
         # Аргументы shell для переведения интерфейса в статус "DISCONNECTED"
         dcArgs = ['wpa_cli', '-i', 'wlan0', 'disconnect']
         # Выполенение shell команды на отключение
-        dcStatus = sbp.check_output(dcArgs)
+        dcStatus = sbp.check_output(dcArgs).decode('utf-8')
         # Если команда не прошла
         if dcStatus != "OK\n":
             LOG.error("Error during disconnect")
@@ -143,7 +143,7 @@ def wpa_disconnect():
         # Аргументы shell команды на вывод списка сохраненных сетей
         listArgs = ['wpa_cli', '-i', 'wlan0', 'list_networks']
         # Выполнение shell команды на вывод списка сохраненных сетей
-        listNetworks = sbp.check_output(listArgs).split("\n")  # list
+        listNetworks = sbp.check_output(listArgs).decode('utf-8').split("\n")  # list
 
         # Для каждого из элементов списка
         # NOTE: первая строка - наименования свойств сетей, а последняя-пустая
@@ -152,7 +152,7 @@ def wpa_disconnect():
             networkId, _ = network.split("\t", 1)
             # Выполнить удаление сети из списка сохраненных
             rmNetArgs = ['wpa_cli', '-i', 'wlan0', 'remove_network', networkId]
-            rmNetOut = sbp.check_output(rmNetArgs)
+            rmNetOut = sbp.check_output(rmNetArgs).decode('utf-8')
             # Если удаление прошло с ошибкой
             if rmNetOut != "OK\n":
                 LOG.error("Error occured during network removal")
@@ -161,7 +161,7 @@ def wpa_disconnect():
 
         # Перевести интерфейс в статус "INACTIVE"
         reasArgs = ['wpa_cli', '-i', 'wlan0', 'reassociate']
-        reasStatus = sbp.check_output(reasArgs)
+        reasStatus = sbp.check_output(reasArgs).decode('utf-8')
         if reasStatus != "OK\n":
             LOG.error("Error occured during network reassociate")
             raise DisconnectionError
@@ -205,25 +205,25 @@ def wpa_connect(ssid, psk):
     try:
         # Добавить сеть
         addArgs = ['wpa_cli', '-i', 'wlan0', 'add_network']
-        net = str(sbp.check_output(addArgs))
+        net = sbp.check_output(addArgs).decode('utf-8')
 
         # Установить ssid сети
         addSsidArgs = ['wpa_cli', '-i', 'wlan0', 'set_network', net,
                        'ssid', "\""+ssid+"\""]
-        if (sbp.check_output(addSsidArgs) != "OK\n"):
+        if (sbp.check_output(addSsidArgs).decode('utf-8') != "OK\n"):
             LOG.error("Error occured during ssid set")
             raise ConnectionError
 
         # Установить ключ зашифрованной сети
         addPskArgs = ['wpa_cli', '-i', 'wlan0',
                       'set_network', net, 'psk', "\""+psk+"\""]
-        if (sbp.check_output(addPskArgs) != "OK\n"):
+        if (sbp.check_output(addPskArgs).decode('utf-8') != "OK\n"):
             LOG.error("Error occured during psk set")
             raise ConnectionError
 
         # Активировать сеть
         enableArgs = ['wpa_cli', '-i', 'wlan0', 'enable_network', net]
-        if (sbp.check_output(enableArgs) != "OK\n"):
+        if (sbp.check_output(enableArgs).decode('utf-8') != "OK\n"):
             LOG.error("Error occured during network enable")
             raise ConnectionError
 
@@ -236,7 +236,7 @@ def wpa_connect(ssid, psk):
             LOG.info("Check state:")
             # Выполнить запрос статуса
             statusArgs = ['wpa_cli', '-i', 'wlan0', 'status']
-            statusOutput = sbp.check_output(statusArgs)
+            statusOutput = sbp.check_output(statusArgs).decode('utf-8')
 
             # Искать строку wpa_state
             match = regState.search(statusOutput)
@@ -251,7 +251,7 @@ def wpa_connect(ssid, psk):
                 # 10 раз с интервалом в 1 сек
                 for j in range(0, 10):
                     # Статус
-                    statusOutput = sbp.check_output(statusArgs)
+                    statusOutput = sbp.check_output(statusArgs).decode('utf-8')
                     # Искать ip в ответе
                     match = regIp.search(statusOutput)
                     # Если нашли
@@ -267,7 +267,7 @@ def wpa_connect(ssid, psk):
 
                 # Сохранить конфигурацию
                 saveArgs = ['wpa_cli', '-i', 'wlan0', 'save_config']
-                saveOut = sbp.check_output(saveArgs)
+                saveOut = sbp.check_output(saveArgs).decode('utf-8')
                 if saveOut == "OK\n":
                     LOG.info("Successufully connected with %s, ip: %s"
                              % (ssid, ip))
