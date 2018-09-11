@@ -48,7 +48,7 @@ def wpa_status():
     args = ['wpa_cli', '-i', 'wlan0', 'status']
     try:
         # Раздзеление вывода по символу новой строки в список
-        statusOutput = sbp.check_output(args).decode('utf-8').split("\n")  # (list)
+        statusOutput = sbp.check_output(args).decode('utf-8').split("\n")
         status = {}  # dict
         # Разбить каждую из строк на пары "ключ":"занчение"
         for line in statusOutput[:len(statusOutput)-1]:
@@ -89,7 +89,7 @@ def wpa_scan():
             # Подождать 1 сек
             sleep(1)
             # Забрать список сетей и разделить его в список
-            tmp = sbp.check_output(scanListArgs).decode('utf-8').split("\n")  # list
+            tmp = sbp.check_output(scanListArgs).decode('utf-8').split("\n")
 
             listNetworks = {}  # dict/json
             # Для каждого из элементов списка
@@ -143,7 +143,7 @@ def wpa_disconnect():
         # Аргументы shell команды на вывод списка сохраненных сетей
         listArgs = ['wpa_cli', '-i', 'wlan0', 'list_networks']
         # Выполнение shell команды на вывод списка сохраненных сетей
-        listNetworks = sbp.check_output(listArgs).decode('utf-8').split("\n")  # list
+        listNetworks = sbp.check_output(listArgs).decode('utf-8').split("\n")
 
         # Для каждого из элементов списка
         # NOTE: первая строка - наименования свойств сетей, а последняя-пустая
