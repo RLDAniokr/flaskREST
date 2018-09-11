@@ -14,9 +14,11 @@ from . import sql
 import logging
 log = logging.getLogger(__name__)
 
+
 def singleton(class_):
     """ Декоратор для класса-одиночки """
     instances = {}
+
     def getinstance(*args, **kwargs):
         if class_ not in instances:
             instances[class_] = class_(*args, **kwargs)
@@ -157,7 +159,7 @@ class rpiHub(object):
             Если группы с данным именем не существует, вернет FAIL (str)
         """
         __group = self.get_group_by_name(group_name)
-        if __group == None:
+        if __group is not None:
             return "FAIL"
         __snc_output = []
         for sencor in __group.sencors:
@@ -174,13 +176,15 @@ class rpiHub(object):
     def device_handler(self, message):
         """ Метод-обработчик сообщений от облачной базы Firebase """
         __from = message["stream_id"]
-      # __group = self.get_group_by_name(__from)
-      # if __group == None:
-      #      log.error("Incoming message from non-existing group")
-      #      return
+        # __group = self.get_group_by_name(__from)
+        # if __group == None:
+        #     log.error("Incoming message from non-existing group")
+        #     return
         __inc_device_name = (message["path"].split("/"))[1]
         __data = message["data"]
-        log.info("GROUP: %s, DEVICE: %s, DATA: %s" % (__from, __inc_device_name, __data))
+        log.info("GROUP: %s, DEVICE: %s, DATA: %s" % (__from,
+                                                      __inc_device_name,
+                                                      __data))
         # __device = None
 
     def add_group(self, group_name):
@@ -188,15 +192,17 @@ class rpiHub(object):
             Добавить новую группу.
             Если группа с таким именем уже существует, возвращает FAIL (str)
         """
-        if self.get_group_by_name(group_name) != None:
+        if self.get_group_by_name(group_name) is not None:
             return "FAIL"
 
         __new_group = Group(group_name)
         self.group_list.append(__new_group)
         # TODO: subscribe devices
         log.info("Type in set: %s" % type(group_name))
-        __new_group.dvc_stream = self.firebase.root(group_name).child('devices').stream(self.device_handler, stream_id=__new_group.name, token=self.firebase.token)
-        log.info("Type stream in make: %s" %__new_group.dvc_stream)
+        __devices = self.firebase.root(group_name).child('devices')
+        __new_group.dvc_stream = __devices.stream(self.device_handler,
+                                                  stream_id=__new_group.name,
+                                                  token=self.firebase.token)
         return("OK")
 
     def remove_group(self, group_name):
@@ -206,7 +212,7 @@ class rpiHub(object):
             Если группа не пуста, возвращает FAIL
         """
         __group = self.get_group_by_name(group_name)
-        if __group == None:
+        if __group is None:
             return "FAIL"
         else:
             if len(__group.sencors) > 0:
@@ -239,23 +245,29 @@ class rpiHub(object):
     def add_snc(self, snc_type, snc_id, snc_group, snc_name, restore=False):
         """ Добавить датчик """
         # Проверить, существует ли уже такой датчик
-        if self.get_sencor_by_id(snc_id) != None:
+        if self.get_sencor_by_id(snc_id) is not None:
             log.error("Sencor with this type/id already exists")
             return "FAIL"
 
         # Найти экземпляр группы в списке
         __group = self.get_group_by_name(snc_group)
-        if __group == None:
+        if __group is None:
             log.error("Group %s not find" % snc_group)
             return "FAIL"
 
         # В зависимости от типа инициализировать новый датчик
         if snc_type == "Temperature":
-            new_sencor = TemperatureSencor(snc_id=snc_id, group_name=snc_group, name=snc_name)
+            new_sencor = TemperatureSencor(snc_id=snc_id,
+                                           group_name=snc_group,
+                                           name=snc_name)
         elif snc_type == "Humidity":
-            new_sencor = HumiditySencor(snc_id=snc_id, group_name=snc_group, name=snc_name)
+            new_sencor = HumiditySencor(snc_id=snc_id,
+                                        group_name=snc_group,
+                                        name=snc_name)
         elif snc_type == "Luminosity":
-            new_sencor = LuminositySencor(snc_id=snc_id, group_name=snc_group, name=snc_name)
+            new_sencor = LuminositySencor(snc_id=snc_id,
+                                          group_name=snc_group,
+                                          name=snc_name)
         else:
             log.error("Unknown sencor type")
             return "FAIL"
@@ -275,11 +287,11 @@ class rpiHub(object):
         __sencor_for_edit = self.get_sencor_by_id(snc_id)
 
         __new_group = self.get_group_by_name(new_snc_group)
-        if __new_group == None:
+        if __new_group is None:
             log.error("New group does not exists")
             return "FAIL"
 
-        if __sencor_for_edit != None:
+        if __sencor_for_edit is not None:
             __old_group = self.get_group_by_name(__sencor_for_edit.group_name)
             __old_group.sencors.remove(__sencor_for_edit)
             self.firebase.delete_sencor(__sencor_for_edit)
@@ -298,7 +310,7 @@ class rpiHub(object):
         """ Удалить датчик """
         __sencor_for_delete = self.get_sencor_by_id(snc_id)
 
-        if __sencor_for_delete != None:
+        if __sencor_for_delete is not None:
             self.snc_list.remove(__sencor_for_delete)
             __group = self.get_group_by_name(__sencor_for_delete.group_name)
             __group.sencors.remove(__sencor_for_delete)
@@ -327,19 +339,21 @@ class rpiHub(object):
     def add_dvc(self, dvc_type, dvc_id, dvc_group, dvc_name, restore=False):
         """ Добавить устройство """
         # Проверить, существует ли уже такое устройство
-        if self.get_device_by_id(dvc_id) != None:
+        if self.get_device_by_id(dvc_id) is not None:
             log.error("Device with this type/id already exists")
             return "FAIL"
 
         # Найти экземпляр группы в списке
         __group = self.get_group_by_name(dvc_group)
-        if __group == None:
+        if __group is None:
             log.error("Group %s not find" % dvc_group)
             return "FAIL"
 
         # В зависимости от типа инициализировать новый датчик
         if dvc_type == "Relay":
-            new_device = Relay(dvc_id=dvc_id, group_name=dvc_group, name=dvc_name)
+            new_device = Relay(dvc_id=dvc_id,
+                               group_name=dvc_group,
+                               name=dvc_name)
         else:
             log.error("Unknown device type")
             return "FAIL"
@@ -360,11 +374,11 @@ class rpiHub(object):
         __device_for_edit = self.get_device_by_id(dvc_id)
 
         __new_group = self.get_group_by_name(new_dvc_group)
-        if __new_group == None:
+        if __new_group is None:
             log.error("New group does not exists")
             return "FAIL"
 
-        if __device_for_edit != None:
+        if __device_for_edit is not None:
             __old_group = self.get_group_by_name(__device_for_edit.group_name)
             __old_group.devices.remove(__device_for_edit)
             self.firebase.delete_device(__device_for_edit)
@@ -383,7 +397,7 @@ class rpiHub(object):
         """ Удалить устройство """
         __device_for_delete = self.get_device_by_id(dvc_id)
 
-        if __device_for_delete != None:
+        if __device_for_delete is not None:
             self.dvc_list.remove(__device_for_delete)
             __group = self.get_group_by_name(__device_for_delete.group_name)
             __group.devices.remove(__device_for_delete)
