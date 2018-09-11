@@ -156,11 +156,7 @@ class fireBase():
                     except AttributeError:
                         pass
                     __dvcs = self.root(group.name).child('devices')
-<<<<<<< HEAD
                     group.dvc_stream = __dvcs.stream(handler,
-=======
-                    group.dvc_stream = .stream(handler,
->>>>>>> 4a0b6341da080dd2e772f7a8a9e3d65e2e86cd59
                                                stream_id=group.name,
                                                token=self.token)
                 self.last_token_upd = time()
