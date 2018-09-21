@@ -117,7 +117,7 @@ class fireBase():
         if self.is_auth:
             __data = {sencor.name: sencor.value}
             __snc_dir = self.root(sencor.group_name).child("sencors")
-            __snc_dir.update(data, self.token)
+            __snc_dir.update(__data, self.token)
 
     def delete_sencor(self, sencor):
         """ Удалить данные сенсора из облачной базы данных """

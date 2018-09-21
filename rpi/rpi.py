@@ -147,10 +147,11 @@ class rpiHub(object):
 
     def get_groups(self):
         """ Метод получения списка имен групп """
-        __group_names = []
+        __groups = {}
         for group in self.group_list:
-            __group_names.append(group.name)
-        return __group_names
+            __groups.append(group.name)
+            __groups[group.name] = self.get_group_info(group.name)
+        return __groups
 
     def get_group_info(self, group_name):
         """
@@ -159,7 +160,7 @@ class rpiHub(object):
             Если группы с данным именем не существует, вернет FAIL (str)
         """
         __group = self.get_group_by_name(group_name)
-        if __group is not None:
+        if __group is None:
             return "FAIL"
         __snc_output = []
         for sencor in __group.sencors:
