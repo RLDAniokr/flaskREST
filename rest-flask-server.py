@@ -154,6 +154,7 @@ def sencor():
     LOG.info("Got sencor")
     response = {}
     if not request.json:
+        LOG.info("NO JSON")
         abort(400)
     elif 'snc_id' not in request.json or 'snc_type' not in request.json:
         abort(400)

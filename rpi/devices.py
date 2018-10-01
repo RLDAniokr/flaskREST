@@ -34,7 +34,9 @@ class Relay(Device):
         self.type = 'Relay'
         super(Relay, self).__init__()
 
-        self.value = 'false'
+        self.value = False
 
     def switch_value(self):
-        self.value = 'true' if self.value == 'false' else 'false'
+        #self.value = !self.value
+        pass
+

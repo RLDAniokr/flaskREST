@@ -73,8 +73,6 @@ class rpiHub(object):
         for raw_group in __raw_groups:
             self.add_group(raw_group[0])
 
-        log.info("GET GROUPS: %s" % self.get_groups())
-
         # 2: Get and initiate sencors
         __raw_sencors = sql.getSencorsSettings()
         log.info(__raw_sencors)
@@ -149,7 +147,6 @@ class rpiHub(object):
         """ Метод получения списка имен групп """
         __groups = {}
         for group in self.group_list:
-            __groups.append(group.name)
             __groups[group.name] = self.get_group_info(group.name)
         return __groups
 
@@ -224,7 +221,7 @@ class rpiHub(object):
                 __group.dvc_stream.close()
             except AttributeError:
                 pass
-            firebase.delete_group(__group.name)
+            self.firebase.delete_group(__group.name)
             self.group_list.remove(__group)
             return "OK"
 
