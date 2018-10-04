@@ -59,7 +59,7 @@ def getFirebaseConfig():
 def getGroupNames():
     with sqlite3.connect('rlda.db') as db:
         cursor = db.cursor()
-        sql_group = """ SELECT DISTINCT gr_name FROM sencors  """
+        sql_group = """ SELECT DISTINCT gr_name FROM sencors UNION SELECT DISTINCT gr_name FROM devices """
         cursor.execute(sql_group)
         results = cursor.fetchall()
         # TODO: get and append form devices

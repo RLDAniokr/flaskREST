@@ -79,6 +79,7 @@ class rpiHub(object):
     def restore_settings_from_db(self):
         # 1: Get and initiate groups
         __raw_groups = sql.getGroupNames()
+        log.critical(str(__raw_groups))
         for raw_group in __raw_groups:
             self.add_group(raw_group[0])
 
@@ -126,11 +127,13 @@ class rpiHub(object):
                 __sencor = None
                 income = self.rfm.read_with_cb(60)
                 if type(income)==tuple:
-                    log.info(income[0])
-                    __sencor = self.get_sencor_by_id(income[0][1])
+                    __payload = income[0]
+                    __sencor = self.get_sencor_by_id(__payload[1])
                     if __sencor is not None:
                         __sencor.convert_data(income[0])
-                        log.info(__sencor.name + ":" + __sencor.data)
+                        log.info(__sencor.name + ":" + __sencor.value)
+                        self.firebase.upd_token(self.group_list, self.device_handler)
+                        self.firebase.update_sencor_value(__sencor)
 
                 log.critical("===ITER===")
         except KeyboardInterrupt:
@@ -282,6 +285,10 @@ class rpiHub(object):
                                         name=snc_name)
         elif snc_type == "Luminosity":
             new_sencor = LuminositySencor(snc_id=snc_id,
+                                          group_name=snc_group,
+                                          name=snc_name)
+        elif snc_type == "Door":
+            new_sencor = DoorSencor(snc_id=snc_id,
                                           group_name=snc_group,
                                           name=snc_name)
         else:

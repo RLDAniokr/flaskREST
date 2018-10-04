@@ -44,7 +44,7 @@ class TemperatureSencor(Sencor):
         """
             Конвертация принятых данных
         """
-        self.last_responce = time.time()
+        self.last_responce = time()
 
         log.debug("Testing data conversion")
 
@@ -54,9 +54,9 @@ class TemperatureSencor(Sencor):
         __data_sum = (__data_lb | __data_sb) & 0xFFF
 
         if __data_sum in [0xFF, 0x00]:
-            self.data = "Ошибка датчика"
+            self.value = "Ошибка датчика"
         else:
-            self.data = str(__data_sum/10.00) + " °C"
+            self.value = str(__data_sum/10.00) + " °C"
 
     def get_random_state(self):
         self.value = str(randint(15, 30)) + " °C"
@@ -90,7 +90,7 @@ class LuminositySencor(Sencor):
         """
             Конвертация принятых данных
         """
-        self.last_responce = time.time()
+        self.last_responce = time()
 
         log.debug("Testing data conversion")
 
@@ -100,9 +100,9 @@ class LuminositySencor(Sencor):
         __data_sum = (__data_lb | __data_sb)
 
         if __data_sum in [0xFF, 0x00]:
-            self.data = "Ошибка датчика"
+            self.value = "Ошибка датчика"
         else:
-            self.data = str(__data_sum) + " люкс"
+            self.value = str(__data_sum) + " люкс"
 
     def get_random_state(self):
         self.value = str(randint(150, 300)) + " люкс"
@@ -118,11 +118,11 @@ class DoorSencor(Sencor):
         super(DoorSencor, self).__init__()
 
     def convert_data(self, data):
-        self.last_responce = time.time()
+        self.last_responce = time()
 
         __data_lb = data[7]
 
-        if __data_lb in self.settings.error_codes:
-            self.data = "Ошибка датчика"
+        if __data_lb in [0xFF]:
+            self.value = "Ошибка датчика"
         else:
-            self.data = "Открыто" if __data_lb == 0 else "Закрыто"
+            self.value = "Закрыто" if __data_lb == 0 else "Открыто"
