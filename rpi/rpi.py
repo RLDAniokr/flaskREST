@@ -10,6 +10,8 @@ from .sencors import *
 from .devices import *
 from .firebase import fireBase
 from . import sql
+from .rfm69_lib.rfm69 import RFM69 as rfm69
+from .rfm69_lib.configuration import RFM69Configuration as rfm_config
 
 import logging
 log = logging.getLogger(__name__)
@@ -51,6 +53,13 @@ class rpiHub(object):
         self.restore_settings_from_db()
         # Инициализировать поток прослушки радиоканала
         self.init_read_sencors()
+        # rfm69hw module
+        __config = rfm_config()
+        self.rfm = rfm69(dio0_pin=24,
+                         reset_pin=22,
+                         spi_channel=0,
+                         config=__config)
+        self.rfm.set_rssi_threshold(-114)
 
     # COMMON #
 
@@ -105,15 +114,24 @@ class rpiHub(object):
         log.info("Read thread initialized")
         try:
             while(True):
-                sleep(5)
-                if len(self.snc_list) == 0:
-                    continue
-                __idx = randint(0, len(self.snc_list)-1)
-                snc = self.snc_list[__idx]
-                snc.get_random_state()
-                log.info("Sencor %s:%s" % (snc.name, snc.value))
-                self.firebase.upd_token(self.group_list, self.device_handler)
-                self.firebase.update_sencor_value(snc)
+                # sleep(5)
+                # if len(self.snc_list) == 0:
+                #     continue
+                # __idx = randint(0, len(self.snc_list)-1)
+                # snc = self.snc_list[__idx]
+                # snc.get_random_state()
+                # log.info("Sencor %s:%s" % (snc.name, snc.value))
+                # self.firebase.upd_token(self.group_list, self.device_handler)
+                # self.firebase.update_sencor_value(snc)
+                __sencor = None
+                income = self.rfm.read_with_cb(60)
+                if type(income)==tuple:
+                    log.info(income[0])
+                    __sencor = self.get_sencor_by_id(income[0][1])
+                    if __sencor is not None:
+                        __sencor.convert_data(income[0])
+                        log.info(__sencor.name + ":" + __sencor.data)
+
                 log.critical("===ITER===")
         except KeyboardInterrupt:
             "Got exception kbu"
