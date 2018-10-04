@@ -51,15 +51,15 @@ class rpiHub(object):
         self.dvc_list = []
         # TODO: add get devices from db
         self.restore_settings_from_db()
-        # Инициализировать поток прослушки радиоканала
-        self.init_read_sencors()
         # rfm69hw module
         __config = rfm_config()
         self.rfm = rfm69(dio0_pin=24,
-                         reset_pin=22,
-                         spi_channel=0,
-                         config=__config)
+        reset_pin=22,
+        spi_channel=0,
+        config=__config)
         self.rfm.set_rssi_threshold(-114)
+        # Инициализировать поток прослушки радиоканала
+        self.init_read_sencors()
 
     # COMMON #
 
