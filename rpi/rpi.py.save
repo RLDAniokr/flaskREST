@@ -128,7 +128,7 @@ class rpiHub(object):
                 income = self.rfm.read_with_cb(30)
                 if type(income)==tuple:
                     __payload = income[0]
-                    if len(__payload) <= 1:
+                    if len(__payload) == 1:
                         log.error("GOT NULL")
                         continue
                     __sencor = self.get_sencor_by_id(__payload[1])

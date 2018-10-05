@@ -25,7 +25,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 LOG_FILE = os.path.join(ROOT, 'logs/flask-server.log')
 
 LOG = logging.getLogger()
-LOG.setLevel(logging.INFO)
+LOG.setLevel(logging.DEBUG)
 
 RFH = TimedRotatingFileHandler(LOG_FILE,
                                when="D",
