@@ -45,7 +45,7 @@ class Relay(Device):
             log.info('RELAY %s: RESTORED VALS: %s, %s' %(self.name, self.ch0val, self.ch1val))
 
     def sendCmd(self):
-        __result_val = ((self.ch1val : 0 ? 1) << 1) + (self.ch0val : 0 ? 1)
+        __result_val = ((1 if ch1val else 0) << 1) + (1 if ch0val else 0)
 
     def update(self, income_array):
         pass
