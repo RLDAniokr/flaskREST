@@ -137,7 +137,7 @@ class rpiHub(object):
                         log.info(__sencor.name + ":" + __sencor.value)
                         self.firebase.upd_token(self.group_list, self.device_handler)
                         self.firebase.update_sencor_value(__sencor)
-
+                self.check_sencors_timeouts()
                 log.critical("===ITER===")
         except KeyboardInterrupt:
             "Got exception kbu"
@@ -151,6 +151,10 @@ class rpiHub(object):
         self.read_thread.daemon = True
         # Запустить тред
         self.read_thread.start()
+
+    def check_sencors_timeouts(self):
+        for sencor in self.sencors:
+            sencor.check_timeout()
 
     # GROUPS #
 

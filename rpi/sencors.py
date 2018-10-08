@@ -27,6 +27,10 @@ class Sencor(object):
         }
         return response
 
+    def check_timeout(self):
+        if (time() - self.last_responce >= self.timeout):
+            self.value = "Таймаут"
+
 
 class TemperatureSencor(Sencor):
     """ Класс датчиков температуры """
@@ -37,6 +41,7 @@ class TemperatureSencor(Sencor):
 
         self.type = 'Temperature'
         self.type_id = 0
+        self.timeout = 1080
 
         super(TemperatureSencor, self).__init__()
 
@@ -45,8 +50,6 @@ class TemperatureSencor(Sencor):
             Конвертация принятых данных
         """
         self.last_responce = time()
-
-        log.debug("Testing data conversion")
 
         __data_lb = income_array[5]
         __data_sb = income_array[6] << 8
@@ -70,7 +73,13 @@ class HumiditySencor(Sencor):
         self.name = name
         self.type = 'Humidity'
 
+        self.timeout = 1080
+
         super(HumiditySencor, self).__init__()
+
+    def convert_data(self, income_array):
+        # TBD
+        pass
 
     def get_random_state(self):
         self.value = str(randint(35, 50)) + " %"
@@ -84,6 +93,8 @@ class LuminositySencor(Sencor):
         self.name = name
         self.type = 'Luminosity'
 
+        self.timeout = 1080
+
         super(LuminositySencor, self).__init__()
 
     def convert_data(self, income_array):
@@ -91,8 +102,6 @@ class LuminositySencor(Sencor):
             Конвертация принятых данных
         """
         self.last_responce = time()
-
-        log.debug("Testing data conversion")
 
         __data_lb = income_array[5]
         __data_sb = income_array[6] << 8
@@ -114,6 +123,8 @@ class DoorSencor(Sencor):
         self.group_name = group_name
         self.name = name
         self.type = 'Door'
+
+        self.timeout = 1080
 
         super(DoorSencor, self).__init__()
 
