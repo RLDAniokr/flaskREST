@@ -212,7 +212,8 @@ def device():
         dvc_group = config['dvc_group']
         dvc_name = config['dvc_name']
         if dvc_type == 'Relay':
-
+            ch0name = config['ch0name']
+            ch1name = config['ch1name']
 
     if request.method == 'POST':
         response = rpiHub.add_dvc(dvc_type=dvc_type,
