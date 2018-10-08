@@ -99,13 +99,19 @@ class rpiHub(object):
         __raw_devices = sql.getDevicesSettings()
         log.info(__raw_devices)
         for raw_dvc in __raw_devices:
-            self.add_dvc(
-                dvc_id=raw_dvc[0],
-                dvc_type=raw_dvc[1],
-                dvc_group=raw_dvc[2],
-                dvc_name=raw_dvc[3],
-                restore=True
-            )
+            if raw_dvc[1] == 'Relay':
+                self.add_dvc(
+                    dvc_id=raw_dvc[0],
+                    dvc_type=raw_dvc[1],
+                    dvc_group=raw_dvc[2],
+                    dvc_name=raw_dvc[3],
+                    ch0name=raw_dvc[4],
+                    ch1name=raw_dvc[5],
+                    last_val=raw_dvc[6],
+                    restore=True
+                )
+            elif raw_dvc[1] == 'Dimmer':
+                pass
 
         for gr in self.group_list:
             log.info(gr.name)
@@ -368,11 +374,12 @@ class rpiHub(object):
                 break
         return __dvc
 
-    def add_dvc(self, dvc_type, dvc_id, dvc_group, dvc_name, restore=False):
+    def add_dvc(self, dvc_type, dvc_id, dvc_group, dvc_name, ch0name=None,
+                ch1name=None, last_val=None, restore=False):
         """ Добавить устройство """
         # Проверить, существует ли уже такое устройство
         if self.get_device_by_id(dvc_id) is not None:
-            log.error("Device with this type/id already exists")
+            log.error("Device with this id already exists")
             return "FAIL"
 
         # Найти экземпляр группы в списке
@@ -385,7 +392,10 @@ class rpiHub(object):
         if dvc_type == "Relay":
             new_device = Relay(dvc_id=dvc_id,
                                group_name=dvc_group,
-                               name=dvc_name)
+                               name=dvc_name,
+                               ch0name=ch0name,
+                               ch1name=ch1name,
+                               last_val=last_val)
         else:
             log.error("Unknown device type")
             return "FAIL"

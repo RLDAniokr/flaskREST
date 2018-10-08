@@ -25,7 +25,7 @@ class Device(object):
 
 class Relay(Device):
     """ Класс реле """
-    def __init__(self, dvc_id, group_name, name):
+    def __init__(self, dvc_id, group_name, name, ch0name, ch1name, last_val):
         self.device_id = dvc_id
         self.group_name = group_name
         self.name = name
@@ -33,8 +33,19 @@ class Relay(Device):
         self.type = 'Relay'
         super(Relay, self).__init__()
 
-        self.value = 0
+        self.ch0name = ch0name
+        self.ch1name = ch1name
 
-    def switch_value(self):
-        #self.value = !self.value
+        if last_val == None:
+            self.ch0val = False
+            self.ch1val = False
+        else:
+            self.ch0val = (last_val & 1) == 1
+            self.ch1val = ((last_val >> 1) & 1) == 1
+            log.info('RELAY %s: RESTORED VALS: %s, %s' %(self.name, self.ch0val, self.ch1val))
+
+    def sendCmd(self):
+        __result_val = ((self.ch1val : 0 ? 1) << 1) + (self.ch0val : 0 ? 1)
+
+    def update(self, income_array):
         pass

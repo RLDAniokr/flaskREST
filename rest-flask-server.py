@@ -204,15 +204,23 @@ def device():
     dvc_id = int(config['dvc_id'])
     dvc_type = config['dvc_type']
 
+    # add info for relay
+    ch0name = None
+    ch1name = None
+
     if request.method != 'DELETE':
         dvc_group = config['dvc_group']
         dvc_name = config['dvc_name']
+        if dvc_type == 'Relay':
+
 
     if request.method == 'POST':
         response = rpiHub.add_dvc(dvc_type=dvc_type,
                                   dvc_id=dvc_id,
                                   dvc_group=dvc_group,
-                                  dvc_name=dvc_name)
+                                  dvc_name=dvc_name,
+                                  ch0name=ch0name,
+                                  ch1name=ch1name)
     elif request.method == 'PUT':
         response = rpiHub.edit_dvc(dvc_type=dvc_type,
                                    dvc_id=dvc_id,

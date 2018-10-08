@@ -128,7 +128,14 @@ class fireBase():
     def update_device_value(self, device):
         """ Обновить данные устройства в облачной базе данных """
         if self.is_auth:
-            __data = {device.name: device.value}
+            __data = {}
+            if device.type == 'Relay':
+                __data = {
+                    device.name + "/" + device.ch0name: device.ch0val,
+                    device.name + "/" + device.ch1name: device.ch1val
+                }
+            else:
+                __data = {device.name: device.value}
             __devices = self.root(device.group_name).child("devices")
             __devices.update(__data, self.token)
 
