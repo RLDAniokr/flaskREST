@@ -156,7 +156,7 @@ class rpiHub(object):
         for sencor in self.snc_list:
             if sencor.check_timeout():
                 log.error("TIMEOUT DETECTED: %s" % sencor.name)
-                self.firebase.update_sencor_value(__sencor)
+                self.firebase.update_sencor_value(sencor)
 
     # GROUPS #
 
