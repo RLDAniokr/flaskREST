@@ -30,6 +30,9 @@ class Sencor(object):
     def check_timeout(self):
         if (time() - self.last_responce >= self.timeout):
             self.value = "Таймаут"
+            return True
+        else:
+            return False
 
 
 class TemperatureSencor(Sencor):

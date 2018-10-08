@@ -153,8 +153,10 @@ class rpiHub(object):
         self.read_thread.start()
 
     def check_sencors_timeouts(self):
-        for sencor in self.sencors:
-            sencor.check_timeout()
+        for sencor in self.snc_list:
+            if sencor.check_timeout():
+                log.error("TIMEOUT DETECTED: %s" % sencor.name)
+                self.firebase.update_sencor_value(__sencor)
 
     # GROUPS #
 
