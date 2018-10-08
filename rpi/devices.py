@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 class Device(object):
     """ Родительский класс устройств """
     def __init__(self):
-        self.value = ''
+        self.value = 0
         self.last_response = time()
 
     def get_info(self):
@@ -39,4 +39,3 @@ class Relay(Device):
     def switch_value(self):
         #self.value = !self.value
         pass
-
