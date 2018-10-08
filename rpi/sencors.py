@@ -28,7 +28,7 @@ class Sencor(object):
         return response
 
     def check_timeout(self):
-        if (time() - self.last_responce >= self.timeout):
+        if (time() - self.last_response >= self.timeout):
             self.value = "Таймаут"
             return True
         else:
@@ -52,7 +52,7 @@ class TemperatureSencor(Sencor):
         """
             Конвертация принятых данных
         """
-        self.last_responce = time()
+        self.last_response = time()
 
         __data_lb = income_array[5]
         __data_sb = income_array[6] << 8
@@ -104,7 +104,7 @@ class LuminositySencor(Sencor):
         """
             Конвертация принятых данных
         """
-        self.last_responce = time()
+        self.last_response = time()
 
         __data_lb = income_array[5]
         __data_sb = income_array[6] << 8
@@ -132,7 +132,7 @@ class DoorSencor(Sencor):
         super(DoorSencor, self).__init__()
 
     def convert_data(self, data):
-        self.last_responce = time()
+        self.last_response = time()
 
         __data_lb = data[7]
 
