@@ -428,7 +428,7 @@ class rpiHub(object):
 
             __device_for_edit.group_name = new_dvc_group
             __device_for_edit.name = new_dvc_name
-            if __device_for_edit.type = 'Relay':
+            if __device_for_edit.type == 'Relay':
                 __device_for_edit.ch0name = new_ch0name
                 __device_for_edit.ch1name = new_ch1name
             __new_group.devices.append(__device_for_edit)
