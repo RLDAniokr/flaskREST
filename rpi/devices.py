@@ -44,6 +44,18 @@ class Relay(Device):
             self.ch1val = ((last_val >> 1) & 1) == 1
             log.info('RELAY %s: RESTORED VALS: %s, %s' %(self.name, self.ch0val, self.ch1val))
 
+    def get_info(self):
+        response = {
+            'dvc_id': self.device_id,
+            'dvc_type': self.type,
+            'group_name': self.group_name,
+            'name': self.name,
+            'ch0name': self.ch0name,
+            'ch1name': self.ch1name
+        }
+        return response
+
+
     def sendCmd(self):
         __result_val = ((1 if ch1val else 0) << 1) + (1 if ch0val else 0)
 

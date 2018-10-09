@@ -403,7 +403,7 @@ class rpiHub(object):
         # Если создается новое устройство (не восстанавливается из БД)
         if not restore:
             # Добавить новую запись в БД
-            sql.newDeviceSettings((dvc_id, dvc_type, dvc_group, dvc_name))
+            sql.newDeviceSettings((dvc_id, dvc_type, dvc_group, dvc_name, ch0name, ch1name, 0))
         # Добавить новое устройство в список устройств хаба и группы
         self.dvc_list.append(new_device)
         __group.devices.append(new_device)
@@ -433,7 +433,7 @@ class rpiHub(object):
                 __device_for_edit.ch1name = new_ch1name
             __new_group.devices.append(__device_for_edit)
             self.firebase.update_device_value(__device_for_edit)
-            sql.editDevice((new_dvc_group, new_dvc_name, dvc_id))
+            sql.editDevice((new_dvc_group, new_dvc_name, new_ch0name, new_ch1name, dvc_id))
             return "OK"
         else:
             log.error("Device for edit not found in list")

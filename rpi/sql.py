@@ -115,8 +115,8 @@ def getDevicesSettings():
 def newDeviceSettings(device):
     with sqlite3.connect('rlda.db') as db:
         cursor = db.cursor()
-        sql_ins = """ INSERT INTO devices(id, type, gr_name, name)
-                      VALUES (?,?,?,?)  """
+        sql_ins = """ INSERT INTO devices(id, type, gr_name, name, ch0name, ch1name, last_val)
+                      VALUES (?,?,?,?,?,?,?)  """
         cursor.execute(sql_ins, device)
 
 
@@ -124,7 +124,7 @@ def editDevice(device):
     with sqlite3.connect('rlda.db') as db:
         cursor = db.cursor()
         sql_upd = """ UPDATE devices
-                       SET gr_name = ? , name = ?
+                       SET gr_name = ? , name = ? , ch0name = ? , ch1name = ?
                        WHERE id = ? """
         cursor.execute(sql_upd, device)
 
