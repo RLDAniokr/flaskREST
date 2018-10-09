@@ -226,7 +226,9 @@ def device():
         response = rpiHub.edit_dvc(dvc_type=dvc_type,
                                    dvc_id=dvc_id,
                                    new_dvc_group=dvc_group,
-                                   new_dvc_name=dvc_name)
+                                   new_dvc_name=dvc_name,
+                                   new_ch0name=ch0name,
+                                   new_ch1name=ch1name)
     elif request.method == 'DELETE':
         response = rpiHub.remove_dvc(dvc_id=dvc_id, dvc_type=dvc_type)
     return jsonify(response)

@@ -54,9 +54,9 @@ class rpiHub(object):
         # rfm69hw module
         __config = rfm_config()
         self.rfm = rfm69(dio0_pin=24,
-        reset_pin=22,
-        spi_channel=0,
-        config=__config)
+                         reset_pin=22,
+                         spi_channel=0,
+                         config=__config)
         self.rfm.set_rssi_threshold(-114)
         # Инициализировать поток прослушки радиоканала
         self.init_read_sencors()
@@ -411,7 +411,8 @@ class rpiHub(object):
         self.firebase.update_device_value(new_device)
         return "OK"
 
-    def edit_dvc(self, dvc_type, dvc_id, new_dvc_group, new_dvc_name):
+    def edit_dvc(self, dvc_type, dvc_id, new_dvc_group, new_dvc_name,
+                 new_ch0name=None, new_ch1name=None):
         """ Редактировать настройки устройства """
         __device_for_edit = self.get_device_by_id(dvc_id)
 
@@ -427,6 +428,9 @@ class rpiHub(object):
 
             __device_for_edit.group_name = new_dvc_group
             __device_for_edit.name = new_dvc_name
+            if __device_for_edit.type = 'Relay':
+                __device_for_edit.ch0name = new_ch0name
+                __device_for_edit.ch1name = new_ch1name
             __new_group.devices.append(__device_for_edit)
             self.firebase.update_device_value(__device_for_edit)
             sql.editDevice((new_dvc_group, new_dvc_name, dvc_id))
