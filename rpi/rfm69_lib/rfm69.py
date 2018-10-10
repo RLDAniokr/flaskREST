@@ -162,9 +162,9 @@ class RFM69(object):
         """
         data = list(bytearray(data))
 
-        if self.config.packet_config_1.variable_length:
-            self.log.debug("Adding data legth byte")
-            data = [len(data)] + list(data)
+        #if self.config.packet_config_1.variable_length:
+        self.log.debug("Adding data legth byte")
+        data = [len(data)] + list(data)
 
         self.log.debug("Initialising Tx...")
         start = time()

@@ -172,7 +172,7 @@ class rpiHub(object):
         income = self.rfm.read_with_cb(30)
         if type(income)==tuple:
             __payload = income[0]
-            if len(__payload) != 2:
+            if len(__payload) <= 1:
                 log.error("Received damaged packet")
                 return
             __sencor = self.get_sencor_by_id(__payload[1])
@@ -188,6 +188,8 @@ class rpiHub(object):
             __dvc = __pack[1]
             __status = False
 
+            log.info(__cmd)
+
             for i in range(0, 5):
                 self.rfm.wrt_event.set()
                 self.rfm.send_packet(__cmd)
@@ -196,13 +198,14 @@ class rpiHub(object):
                 __response = self.rfm.read_with_cb(1)
 
                 if type(__response) == tuple:
-                    __status = __dvc.check_response(__cmd, __response[0])
+                    __status = __dvc.check_response(__cmd[4], __response[0])
                     if (__status):
                         log.info("Command sent successfully")
                         break
 
-            if !__status:
+            if not __status:
                 log.info("Command sending failed")
+        self.rfm.wrt_event.clear()
 
 
     def device_handler(self, message):
@@ -212,16 +215,16 @@ class rpiHub(object):
         __data = message["data"]
         __dvc2wrt = None
 
-        for dvc in self.devices:
+        for dvc in self.dvc_list:
             if dvc.name == __inc_device_name:
                 __dvc2wrt = dvc
                 break
 
         if __dvc2wrt is not None:
             cmd = __dvc2wrt.form_cmd(__data)
-            self.cmd_queue.append((cmd, __dvc2wrt))
+            self.cmd_queue.append([cmd, __dvc2wrt])
             self.rfm.wrt_event.set()
-            log.info("OUT for %s: %s" % (__dvc2wrt.name, __output_signal))
+            #log.info("OUT for %s: %s" % (__dvc2wrt.name, cmd))
 
 
     def init_read_sencors(self):

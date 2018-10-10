@@ -62,7 +62,7 @@ class Relay(Device):
             self.ch1val = data2parse[self.ch1name]
 
         cmd = [0, 0, 0, 0, 0]
-        cmd[0] = int.self.device_id
+        cmd[0] = self.device_id
         cmd[1] = 0
         cmd[2] = 14
         cmd[3] = 123
@@ -71,6 +71,12 @@ class Relay(Device):
 
         return cmd
 
-    def check_response(self, income):
-        log.info(income)
-        return True
+    def check_response(self, needed_states, income):
+        if income[1] != self.device_id:
+            return False
+        if ((income[5] & 0b1000)+(income[5] & 0b0010)) != 0:
+            return False
+        inc_total = ((income[5] & 0b0100) >> 1) + (income[5] & 0b0001)
+        if (inc_total == needed_states):
+            log.info("OK")
+            return True
