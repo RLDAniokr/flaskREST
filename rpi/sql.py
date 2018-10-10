@@ -134,7 +134,7 @@ def saveLast(device):
         sql_upd_lv = """ UPDATE devices
                        SET last_val = ?
                        WHERE id = ? """
-        cursor.execute(sql_upd, device)
+        cursor.execute(sql_upd_lv, device)
 
 
 def deleteDevice(device):
