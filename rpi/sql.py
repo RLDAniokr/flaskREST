@@ -128,6 +128,14 @@ def editDevice(device):
                        WHERE id = ? """
         cursor.execute(sql_upd, device)
 
+def saveLast(device):
+    with sqlite3.connect('rlda.db') as db:
+        cursor = db.cursor()
+        sql_upd_lv = """ UPDATE devices
+                       SET last_val = ?
+                       WHERE id = ? """
+        cursor.execute(sql_upd, device)
+
 
 def deleteDevice(device):
     with sqlite3.connect('rlda.db') as db:
