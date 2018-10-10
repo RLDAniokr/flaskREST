@@ -55,9 +55,22 @@ class Relay(Device):
         }
         return response
 
+    def form_cmd(self, data2parse):
+        if self.ch0name in data2parse:
+            self.ch0val = data2parse[self.ch0name]
+        elif self.ch1name in data2parse:
+            self.ch1val = data2parse[self.ch1name]
 
-    def sendCmd(self):
-        __result_val = ((1 if ch1val else 0) << 1) + (1 if ch0val else 0)
+        cmd = [0, 0, 0, 0, 0]
+        cmd[0] = int.self.device_id
+        cmd[1] = 0
+        cmd[2] = 14
+        cmd[3] = 123
 
-    def update(self, income_array):
-        pass
+        cmd[4] = (0b10 if self.ch1val else 0b00) + (0b01 if self.ch0val else 0b00)
+
+        return cmd
+
+    def check_response(self, income):
+        log.info(income)
+        return True

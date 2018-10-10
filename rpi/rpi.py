@@ -46,9 +46,9 @@ class rpiHub(object):
         self.group_list = []
         # Список датчиков
         self.snc_list = []
-        # TODO: add get sencors from db
         # Список устройств
         self.dvc_list = []
+        self.cmd_queue = []
         # TODO: add get devices from db
         self.restore_settings_from_db()
         # rfm69hw module
@@ -116,43 +116,117 @@ class rpiHub(object):
         for gr in self.group_list:
             log.info(gr.name)
 
+    def loop(self):
+        while(True):
+            self.firebase.upd_token(self.group_list, self.device_handler)
+            if self.rfm.wrt_event.is_set():
+                try:
+                    self.write()
+                except Exception as e:
+                    log.error("Error during command write")
+                    log.error(e)
+            else:
+                try:
+                    self.read()
+                except Exception as e:
+                    log.error("Error during snc/dvc read")
+                    log.error(e)
+            self.check_sencors_timeouts()
+            log.info("===ITER===")
+
+
+        # try:
+        #     while(True):
+        #         # sleep(5)
+        #         # if len(self.snc_list) == 0:
+        #         #     continue
+        #         # __idx = randint(0, len(self.snc_list)-1)
+        #         # snc = self.snc_list[__idx]
+        #         # snc.get_random_state()
+        #         # log.info("Sencor %s:%s" % (snc.name, snc.value))
+        #         # self.firebase.upd_token(self.group_list, self.device_handler)
+        #         # self.firebase.update_sencor_value(snc)
+
+        #         __sencor = None
+        #         income = self.rfm.read_with_cb(30)
+        #         if type(income)==tuple:
+        #             __payload = income[0]
+        #             if len(__payload) <= 1:
+        #                 log.error("GOT NULL")
+        #                 continue
+        #             __sencor = self.get_sencor_by_id(__payload[1])
+        #             if __sencor is not None:
+        #                 __sencor.convert_data(income[0])
+        #                 log.info(__sencor.name + ":" + __sencor.value)
+        #                 self.firebase.upd_token(self.group_list, self.device_handler)
+        #                 self.firebase.update_sencor_value(__sencor)
+        #         self.check_sencors_timeouts()
+        #         log.critical("===ITER===")
+        # except KeyboardInterrupt:
+        #     "Got exception kbu"
+        #     for g in self.group_list:
+        #         g.dvc_stream.close()
+
     def read(self):
-        # TEMP
-        log.info("Read thread initialized")
-        try:
-            while(True):
-                # sleep(5)
-                # if len(self.snc_list) == 0:
-                #     continue
-                # __idx = randint(0, len(self.snc_list)-1)
-                # snc = self.snc_list[__idx]
-                # snc.get_random_state()
-                # log.info("Sencor %s:%s" % (snc.name, snc.value))
-                # self.firebase.upd_token(self.group_list, self.device_handler)
-                # self.firebase.update_sencor_value(snc)
-                __sencor = None
-                income = self.rfm.read_with_cb(30)
-                if type(income)==tuple:
-                    __payload = income[0]
-                    if len(__payload) <= 1:
-                        log.error("GOT NULL")
-                        continue
-                    __sencor = self.get_sencor_by_id(__payload[1])
-                    if __sencor is not None:
-                        __sencor.convert_data(income[0])
-                        log.info(__sencor.name + ":" + __sencor.value)
-                        self.firebase.upd_token(self.group_list, self.device_handler)
-                        self.firebase.update_sencor_value(__sencor)
-                self.check_sencors_timeouts()
-                log.critical("===ITER===")
-        except KeyboardInterrupt:
-            "Got exception kbu"
-            for g in self.group_list:
-                g.dvc_stream.close()
+        __sencor = None
+        income = self.rfm.read_with_cb(30)
+        if type(income)==tuple:
+            __payload = income[0]
+            if len(__payload) != 2:
+                log.error("Received damaged packet")
+                return
+            __sencor = self.get_sencor_by_id(__payload[1])
+            if __sencor is not None:
+                __sencor.convert_data(income[0])
+                log.info(__sencor.name + ":" + __sencor.value)
+                self.firebase.update_sencor_value(__sencor)
+
+    def write(self):
+        while (len(self.cmd_queue) > 0):
+            __pack = self.cmd_queue.pop(0)
+            __cmd = __pack[0]
+            __dvc = __pack[1]
+            __status = False
+
+            for i in range(0, 5):
+                self.rfm.wrt_event.set()
+                self.rfm.send_packet(__cmd)
+                self.rfm.wrt_event.clear()
+
+                __response = self.rfm.read_with_cb(1)
+
+                if type(__response) == tuple:
+                    __status = __dvc.check_response(__cmd, __response[0])
+                    if (__status):
+                        log.info("Command sent successfully")
+                        break
+
+            if !__status:
+                log.info("Command sending failed")
+
+
+    def device_handler(self, message):
+        """ Метод-обработчик сообщений от облачной базы Firebase """
+        __from = message["stream_id"]
+        __inc_device_name = (message["path"].split("/"))[1]
+        __data = message["data"]
+        __dvc2wrt = None
+
+        for dvc in self.devices:
+            if dvc.name == __inc_device_name:
+                __dvc2wrt = dvc
+                break
+
+        if __dvc2wrt is not None:
+            cmd = __dvc2wrt.form_cmd(__data)
+            self.cmd_queue.append((cmd, __dvc2wrt))
+            self.rfm.wrt_event.set()
+            log.info("OUT for %s: %s" % (__dvc2wrt.name, __output_signal))
+
 
     def init_read_sencors(self):
         # Инициализировать тред
-        self.read_thread = threading.Thread(target=self.read)
+        self.read_thread = threading.Thread(target=self.loop)
         # Установить тред как демон
         self.read_thread.daemon = True
         # Запустить тред
@@ -206,35 +280,6 @@ class rpiHub(object):
             'devices': __dvc_output
         }
         return response
-
-    def device_handler(self, message):
-        """ Метод-обработчик сообщений от облачной базы Firebase """
-        __from = message["stream_id"]
-        # __group = self.get_group_by_name(__from)
-        # if __group == None:
-        #     log.error("Incoming message from non-existing group")
-        #     return
-        __inc_device_name = (message["path"].split("/"))[1]
-        __data = message["data"]
-        __dvc2wrt = None
-        for dvc in self.devices:
-            if dvc.name == __inc_device_name:
-                __dvc2wrt = dvc
-                break
-        if __dvc2wrt is not None:
-            if __dvc2wrt.ch0name in __data:
-                __dvc2wrt.ch0val = __data[__dvc2wrt.ch0name]
-            elif  __dvc2wrt.ch1name in __data:
-                __dvc2wrt.ch1val = __data[__dvc2wrt.ch1name]
-            else:
-                log.error("GET OBOSRAMS")
-            __output_signal = (0b10 if __dvc2wrt.ch1val else 0b00) +
-                              (0b01 if __dvc2wrt.ch0val else 0b00)
-            log.info("OUT for %s: %s" % (__dvc2wrt.name, __output_signal))
-        # log.info("GROUP: %s, DEVICE: %s, DATA: %s" % (__from,
-        #                                               __inc_device_name,
-        #                                               __data))
-        # __device = None
 
     def add_group(self, group_name):
         """
