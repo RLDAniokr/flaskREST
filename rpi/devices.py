@@ -80,5 +80,5 @@ class Relay(Device):
         inc_total = ((income[5] & 0b0100) >> 1) + (income[5] & 0b0001)
         if (inc_total == needed_states):
             log.info("OK")
-            saveLast((self.dvc_id, inc_total))
+            saveLast((self.device_id, inc_total))
             return True
