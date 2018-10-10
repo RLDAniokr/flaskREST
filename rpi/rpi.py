@@ -216,9 +216,24 @@ class rpiHub(object):
         #     return
         __inc_device_name = (message["path"].split("/"))[1]
         __data = message["data"]
-        log.info("GROUP: %s, DEVICE: %s, DATA: %s" % (__from,
-                                                      __inc_device_name,
-                                                      __data))
+        __dvc2wrt = None
+        for dvc in self.devices:
+            if dvc.name == __inc_device_name:
+                __dvc2wrt = dvc
+                break
+        if __dvc2wrt is not None:
+            if __dvc2wrt.ch0name in __data:
+                __dvc2wrt.ch0val = __data[__dvc2wrt.ch0name]
+            elif  __dvc2wrt.ch1name in __data:
+                __dvc2wrt.ch1val = __data[__dvc2wrt.ch1name]
+            else:
+                log.error("GET OBOSRAMS")
+            __output_signal = (0b10 if __dvc2wrt.ch1val else 0b00) +
+                              (0b01 if __dvc2wrt.ch0val else 0b00)
+            log.info("OUT for %s: %s" % (__dvc2wrt.name, __output_signal))
+        # log.info("GROUP: %s, DEVICE: %s, DATA: %s" % (__from,
+        #                                               __inc_device_name,
+        #                                               __data))
         # __device = None
 
     def add_group(self, group_name):
