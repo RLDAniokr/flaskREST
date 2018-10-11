@@ -152,7 +152,7 @@ class PulseSencor(Sencor):
 
         self.timeout = 3605
 
-        super(DoorSencor, self).__init__()
+        super(PulseSencor, self).__init__()
 
         self.prev_pulses = 0
         self.pow = 0.0
