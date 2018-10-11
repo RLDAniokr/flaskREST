@@ -163,11 +163,10 @@ class PulseSencor(Sencor):
         """
             Конвертация принятых данных
         """
-        # TODO: period = (time.time() - self.last_responce)/60 (mins)
         # Power calculate
         # Hago geJluTb Ha npoIIIegIIIuu' nepuog BpeMeHu
-        self.period_pwr = (time() - self.last_responce)/60
-        self.last_responce = time()
+        self.period_pwr = (time() - self.last_response)/60
+        self.last_response = time()
 
         __pulses = 0
         try:
