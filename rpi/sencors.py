@@ -185,4 +185,5 @@ class PulseSencor(Sencor):
                 self.pow = str((__pulses - self.prev_pulses) * 1.125 / self.period_pwr) + " Вт"
             else:
                 self.pow = "0 Вт"
+            self.prev_pulses = __pulses
             log.info("pow: %s" % self.pow)
