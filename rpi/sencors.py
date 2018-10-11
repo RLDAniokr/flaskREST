@@ -178,7 +178,7 @@ class PulseSencor(Sencor):
                 log.info("Data length: %s" % len(data))
                 return
         finally:
-            self.kwt = " %.2f КВт/ч" % (__pulses/3200.00)
+            self.kwt = "%.2f" % (__pulses/3200.00)
             log.info("kwt: %s" % self.kwt)
 
             if self.prev_pulses != 0:
