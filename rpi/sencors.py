@@ -41,9 +41,8 @@ class TemperatureSencor(Sencor):
         self.sencor_id = snc_id
         self.group_name = group_name
         self.name = name
-
         self.type = 'Temperature'
-        self.type_id = 0
+
         self.timeout = 1080
 
         super(TemperatureSencor, self).__init__()
@@ -59,7 +58,7 @@ class TemperatureSencor(Sencor):
 
         __data_sum = (__data_lb | __data_sb) & 0xFFF
 
-        if __data_sum in [0xFF, 0x00]:
+        if __data_sum in [0xFF]:
             self.value = "Ошибка датчика"
         else:
             self.value = str(__data_sum/10.00) + " °C"
@@ -111,13 +110,14 @@ class LuminositySencor(Sencor):
 
         __data_sum = (__data_lb | __data_sb)
 
-        if __data_sum in [0xFF, 0x00]:
+        if __data_sum in [0xFF]:
             self.value = "Ошибка датчика"
         else:
             self.value = str(__data_sum) + " люкс"
 
     def get_random_state(self):
         self.value = str(randint(150, 300)) + " люкс"
+
 
 class DoorSencor(Sencor):
     """ Класс датчиков открытия двери """
@@ -140,3 +140,46 @@ class DoorSencor(Sencor):
             self.value = "Ошибка датчика"
         else:
             self.value = "Закрыто" if __data_lb == 0 else "Открыто"
+
+
+class PulseSencor(Sencor):
+    """ Класс счетчиков импульсов """
+    def __init__(self, snc_id, group_name, name):
+        self.sencor_id = snc_id
+        self.group_name = group_name
+        self.name = name
+        self.type = 'Pulse'
+
+        self.timeout = 3605
+
+        super(DoorSencor, self).__init__()
+
+        self.pow = 0.0
+        self.kwt = 0.0
+
+
+    def convert_data(self, data):
+        """
+            Конвертация принятых данных
+        """
+        # TODO: period = (time.time() - self.last_responce)/60 (mins)
+        # Power calculate
+        # Hago geJluTb Ha npoIIIegIIIuu' nepuog BpeMeHu
+        self.period_pwr = (time() - self.last_responce)/60
+        self.last_responce = time()
+
+        __pulses = 0
+        try:
+            for i in range(0, 4):
+                __tmp = data[5+i] << (8*i)
+                __pulses = __pulses | __tmp
+        except Exception:
+                log.warn("Cant calc total pulses in Pulse:%s" % self.sencor_id)
+                log.info("Data length: %s" % len(data))
+                return
+        finally:
+            self.kwt = str(__pulses/3200.00) + " КВт/ч"
+            log.info("kwt: %s" % self.kwt)
+
+            self.pow = str(__pulses*1.125/self.period_pwr) + " Вт"
+            log.info("pow: %s" % self.pow)

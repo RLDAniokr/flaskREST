@@ -115,7 +115,13 @@ class fireBase():
     def update_sencor_value(self, sencor):
         """ Обновить данные датчика в облачной базе данных """
         if self.is_auth:
-            __data = {sencor.name: sencor.value}
+            if sencor.type == 'Pulse':
+                __data = {
+                    sencor.name + "/КВт*ч": sencor.kwt,
+                    sencor.name + "/Мощность": sencor.pow,
+                }
+            else:
+                __data = {sencor.name: sencor.value}
             __snc_dir = self.root(sencor.group_name).child("sencors")
             __snc_dir.update(__data, self.token)
 

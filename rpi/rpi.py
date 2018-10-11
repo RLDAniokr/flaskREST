@@ -134,39 +134,6 @@ class rpiHub(object):
             self.check_sencors_timeouts()
             log.info("===ITER===")
 
-
-        # try:
-        #     while(True):
-        #         # sleep(5)
-        #         # if len(self.snc_list) == 0:
-        #         #     continue
-        #         # __idx = randint(0, len(self.snc_list)-1)
-        #         # snc = self.snc_list[__idx]
-        #         # snc.get_random_state()
-        #         # log.info("Sencor %s:%s" % (snc.name, snc.value))
-        #         # self.firebase.upd_token(self.group_list, self.device_handler)
-        #         # self.firebase.update_sencor_value(snc)
-
-        #         __sencor = None
-        #         income = self.rfm.read_with_cb(30)
-        #         if type(income)==tuple:
-        #             __payload = income[0]
-        #             if len(__payload) <= 1:
-        #                 log.error("GOT NULL")
-        #                 continue
-        #             __sencor = self.get_sencor_by_id(__payload[1])
-        #             if __sencor is not None:
-        #                 __sencor.convert_data(income[0])
-        #                 log.info(__sencor.name + ":" + __sencor.value)
-        #                 self.firebase.upd_token(self.group_list, self.device_handler)
-        #                 self.firebase.update_sencor_value(__sencor)
-        #         self.check_sencors_timeouts()
-        #         log.critical("===ITER===")
-        # except KeyboardInterrupt:
-        #     "Got exception kbu"
-        #     for g in self.group_list:
-        #         g.dvc_stream.close()
-
     def read(self):
         __sencor = None
         income = self.rfm.read_with_cb(30)
@@ -207,7 +174,6 @@ class rpiHub(object):
                 log.info("Command sending failed")
         self.rfm.wrt_event.clear()
 
-
     def device_handler(self, message):
         """ Метод-обработчик сообщений от облачной базы Firebase """
         __from = message["stream_id"]
@@ -225,7 +191,6 @@ class rpiHub(object):
             self.cmd_queue.append([cmd, __dvc2wrt])
             self.rfm.wrt_event.set()
             #log.info("OUT for %s: %s" % (__dvc2wrt.name, cmd))
-
 
     def init_read_sencors(self):
         # Инициализировать тред
@@ -367,8 +332,12 @@ class rpiHub(object):
                                           name=snc_name)
         elif snc_type == "Door":
             new_sencor = DoorSencor(snc_id=snc_id,
-                                          group_name=snc_group,
-                                          name=snc_name)
+                                    group_name=snc_group,
+                                    name=snc_name)
+        elif snc_type == "Pulse":
+            new_sencor = PulseSencor(snc_id=snc_id,
+                                     group_name=snc_group,
+                                     name=snc_name)
         else:
             log.error("Unknown sencor type")
             return "FAIL"
