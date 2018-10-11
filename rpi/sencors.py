@@ -154,6 +154,7 @@ class PulseSencor(Sencor):
 
         super(DoorSencor, self).__init__()
 
+        self.prev_pulses = 0
         self.pow = 0.0
         self.kwt = 0.0
 
@@ -181,5 +182,8 @@ class PulseSencor(Sencor):
             self.kwt = str(__pulses/3200.00) + " КВт/ч"
             log.info("kwt: %s" % self.kwt)
 
-            self.pow = str(__pulses*1.125/self.period_pwr) + " Вт"
+            if self.prev_pulses != 0:
+                self.pow = str((__pulses - self.prev_pulses) * 1.125 / self.period_pwr) + " Вт"
+            else:
+                self.pow = "0 Вт"
             log.info("pow: %s" % self.pow)
