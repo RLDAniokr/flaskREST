@@ -72,7 +72,7 @@ class fireBase():
         """ Worker-метод для проверки интернет соединения """
         while True:
             # URL для пинга
-            __url = 'http://ww.google.com'
+            __url = 'http://www.google.com'
             # Таймаут ответа от URL
             __timeout = 3
             try:
@@ -123,13 +123,21 @@ class fireBase():
             else:
                 __data = {sencor.name: sencor.value}
             __snc_dir = self.root(sencor.group_name).child("sencors")
-            __snc_dir.update(__data, self.token)
+            try:
+                __snc_dir.update(__data, self.token)
+            except Exception as e:
+                log.error("Error occured while updating sencor value")
+                log.error(e)
 
     def delete_sencor(self, sencor):
         """ Удалить данные сенсора из облачной базы данных """
         if self.is_auth:
             __sencors = self.root(sencor.group_name).child("sencors")
-            __sencors.child(sencor.name).remove(self.token)
+            try:
+                __sencors.child(sencor.name).remove(self.token)
+            except Exception as e:
+                log.error("Error occured while sencor delete")
+                log.error(e)
 
     def update_device_value(self, device):
         """ Обновить данные устройства в облачной базе данных """
@@ -143,30 +151,49 @@ class fireBase():
             else:
                 __data = {device.name: device.value}
             __devices = self.root(device.group_name).child("devices")
-            __devices.update(__data, self.token)
+            try:
+                __devices.update(__data, self.token)
+            except Exception as e:
+                log.error("Error occured while updating device")
+                log.error(e)
 
     def delete_device(self, device):
         """ Удалить данные устройства из облачной базы данных """
         if self.is_auth:
             __devices = self.root(device.group_name).child("devices")
-            __devices.child(device.name).remove(self.token)
+            try:
+                __devices.child(device.name).remove(self.token)
+            except Exception as e:
+                log.error("Error occured while updating device")
+                log.error(e)
 
     def delete_group(self, group):
         """ Удалить группу из облачной базы данных """
         if self.is_auth:
-            self.root(group).remove(self.token)
+            try:
+                self.root(group).remove(self.token)
+            except Exception as e:
+                log.error("Error occured while deleting group")
+                log.error(e)
 
     def upd_token(self, group_list, handler):
         """ Обновить токен доступа """
         __t_diff = time() - self.last_token_upd
         if __t_diff > 3300 and self.is_auth:
                 log.info("Token expired")
-                self.user = self.auth.refresh(self.user['refreshToken'])
+                try:
+                    self.user = self.auth.refresh(self.user['refreshToken'])
+                except Exception as e:
+                    log.error("Error occured while updating token")
+                    log.error(e)
+                    return
                 self.token = self.user['idToken']
                 for group in group_list:
                     try:
                         group.dvc_stream.close()
                     except AttributeError:
+                        # NOTE: Иногда закрытие стрима может вывалится с ошибкой
+                        # аттрибута
                         pass
                     __dvcs = self.root(group.name).child('devices')
                     group.dvc_stream = __dvcs.stream(handler,
