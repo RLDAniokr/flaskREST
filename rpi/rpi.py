@@ -73,7 +73,6 @@ class rpiHub(object):
     def set_fb_creds(self, email, password):
         """ Установить параметры входа для Firebase """
         response = self.firebase.register_new_user(email, password)
-        sql.setFirebaseCredentials(email, password)
         return response
 
     def restore_settings_from_db(self):
@@ -137,7 +136,7 @@ class rpiHub(object):
     def read(self):
         __sencor = None
         income = self.rfm.read_with_cb(30)
-        if type(income)==tuple:
+        if type(income) == tuple:
             __payload = income[0]
             if len(__payload) <= 1:
                 log.error("Received damaged packet")
@@ -190,7 +189,6 @@ class rpiHub(object):
             cmd = __dvc2wrt.form_cmd(__data)
             self.cmd_queue.append([cmd, __dvc2wrt])
             self.rfm.wrt_event.set()
-            #log.info("OUT for %s: %s" % (__dvc2wrt.name, cmd))
 
     def init_read_sencors(self):
         # Инициализировать тред
@@ -435,7 +433,14 @@ class rpiHub(object):
         # Если создается новое устройство (не восстанавливается из БД)
         if not restore:
             # Добавить новую запись в БД
-            sql.newDeviceSettings((dvc_id, dvc_type, dvc_group, dvc_name, ch0name, ch1name, 0))
+            __dvc_settings = (dvc_id,
+                              dvc_type,
+                              dvc_group,
+                              dvc_name,
+                              ch0name,
+                              ch1name,
+                              0)
+            sql.newDeviceSettings(__dvc_settings)
         # Добавить новое устройство в список устройств хаба и группы
         self.dvc_list.append(new_device)
         __group.devices.append(new_device)
@@ -465,7 +470,12 @@ class rpiHub(object):
                 __device_for_edit.ch1name = new_ch1name
             __new_group.devices.append(__device_for_edit)
             self.firebase.update_device_value(__device_for_edit)
-            sql.editDevice((new_dvc_group, new_dvc_name, new_ch0name, new_ch1name, dvc_id))
+            __dvc_settings = (new_dvc_group,
+                              new_dvc_name,
+                              new_ch0name,
+                              new_ch1name,
+                              dvc_id)
+            sql.editDevice(__dvc_settings)
             return "OK"
         else:
             log.error("Device for edit not found in list")

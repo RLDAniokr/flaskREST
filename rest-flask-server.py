@@ -118,7 +118,7 @@ def connect():
 @cross_origin()
 def get_groups():
     """ Получение списка имен групп """
-    LOG.info("Got connect")
+    LOG.info("Got get groups")
     response = rpiHub.get_groups()
     return jsonify(response)
 
@@ -131,7 +131,7 @@ def group(group_name):
         @POST: Создание новой группы с именем <group_name>
         @DELETE: Удаление группы <group_name>
     """
-    LOG.info("Got connect")
+    LOG.info("Got single group: %s" % request.method)
     response = {}
     if request.method == 'GET':
         response = rpiHub.get_group_info(group_name)
@@ -151,7 +151,7 @@ def sencor():
         @DELETE: удаление датчика
         input: json {snc_id(int), snc_type(str), snc_group(str), snc_name(str)}
     """
-    LOG.info("Got sencor")
+    LOG.info("Got sencor: %s" % request.method)
     response = {}
     if not request.json:
         LOG.info("NO JSON")
@@ -192,7 +192,7 @@ def device():
         @DELETE: удаление устройства
         input: json {dvc_id(int), dvc_type(str), dvc_group(str), dvc_name(str)}
     """
-    LOG.info("Got device")
+    LOG.info("Got device %s" % request.method)
     response = {}
     if not request.json:
         abort(400)
