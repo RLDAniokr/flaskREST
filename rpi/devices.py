@@ -46,6 +46,9 @@ class Relay(Device):
         # Имя первого канала
         self.ch1name = ch1name
 
+        # Порядковый номер управляющей команды
+        self.cmd_num = 0
+
         # Если нет информации о последнем состоянии реле
         if last_val is None:
             # Установить оба канала в False
@@ -86,9 +89,13 @@ class Relay(Device):
         cmd[1] = 0
         # Идентификатор типа устройств "Реле"
         cmd[2] = 14
-        # TODO: add command counter
         # Номер управляющей команды
-        cmd[3] = 123
+        if self.cmd_num < 255:
+            self.cmd_num += 1
+        else:
+            self.cmd_num = 0
+
+        cmd[3] = self.cmd_num
 
         # Старший бит
         __sb = 0b10 if self.ch1val else 0b00
