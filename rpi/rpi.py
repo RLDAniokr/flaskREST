@@ -143,6 +143,10 @@ class rpiHub(object):
                 __sencor.convert_data(income[0])
                 log.info(__sencor.name + ":" + __sencor.value)
                 self.firebase.update_sencor_value(__sencor)
+            else:
+                __device = self.get_device_by_id(__payload[1])
+                if __device is not None:
+                    __device.update_device(income[0])
 
     def write(self):
         while (len(self.cmd_queue) > 0):
@@ -218,7 +222,8 @@ class rpiHub(object):
     def check_sencors_timeouts(self):
         for sencor in self.snc_list:
             if sencor.check_timeout():
-                log.error("TIMEOUT DETECTED: %s" % sencor.name)
+                log.error("TIMEOUT detected: %s" % sencor.name)
+                log.error("Time: %s sec" % (time() - sencor.last_response))
                 self.firebase.update_sencor_value(sencor)
 
     # GROUPS #

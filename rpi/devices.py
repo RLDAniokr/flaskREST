@@ -72,6 +72,10 @@ class Relay(Device):
         }
         return response
 
+    def update_device(self, income):
+        self.last_response = time()
+        # TODO: update device values on ram & FB
+
     def form_cmd(self, data2parse):
         """ Метод формирования управляющей команды """
         if self.ch0name in data2parse:
@@ -134,6 +138,10 @@ class Conditioner(Device):
         super(Conditioner, self).__init__(dvc_id, group_name, name)
         self.type = "Conditioner"
         self.value = False
+
+    def update_device(self, income):
+        self.last_response = time()
+        # TODO: update device values on ram & FB
 
     def form_cmd(self, data2parse):
         """ Метод формирования управляющей команды """
