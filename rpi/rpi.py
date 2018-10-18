@@ -98,19 +98,16 @@ class rpiHub(object):
         __raw_devices = sql.getDevicesSettings()
         log.info(__raw_devices)
         for raw_dvc in __raw_devices:
-            if raw_dvc[1] == 'Relay':
-                self.add_dvc(
-                    dvc_id=raw_dvc[0],
-                    dvc_type=raw_dvc[1],
-                    dvc_group=raw_dvc[2],
-                    dvc_name=raw_dvc[3],
-                    ch0name=raw_dvc[4],
-                    ch1name=raw_dvc[5],
-                    last_val=raw_dvc[6],
-                    restore=True
-                )
-            elif raw_dvc[1] == 'Dimmer':
-                pass
+            self.add_dvc(
+                dvc_id=raw_dvc[0],
+                dvc_type=raw_dvc[1],
+                dvc_group=raw_dvc[2],
+                dvc_name=raw_dvc[3],
+                ch0name=raw_dvc[4],
+                ch1name=raw_dvc[5],
+                last_val=raw_dvc[6],
+                restore=True
+            )
 
         for gr in self.group_list:
             log.info(gr.name)
@@ -171,7 +168,6 @@ class rpiHub(object):
                              if (__status):
                                  log.info("Command sent successfully")
                                  break
-                         break
                     if (time() - _start >= 30):
                         log.error("Conditioner command haven't been sent")
                         break

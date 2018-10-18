@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 
 class Sencor(object):
     """ Родительский класс датчиков """
-    def __init__(self snc_id, group_name, name):
+    def __init__(self, snc_id, group_name, name):
         # Идентификатор
         self.sencor_id = snc_id
         # Имя группы

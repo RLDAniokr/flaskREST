@@ -19,6 +19,9 @@ class Device(object):
         # Собственное имя
         self.name = name
 
+        # Порядковый номер управляющей команды
+        self.cmd_num = 0
+
         # Время последнего ответа
         self.last_response = time()
 
@@ -45,9 +48,6 @@ class Relay(Device):
         self.ch0name = ch0name
         # Имя первого канала
         self.ch1name = ch1name
-
-        # Порядковый номер управляющей команды
-        self.cmd_num = 0
 
         # Если нет информации о последнем состоянии реле
         if last_val is None:
