@@ -156,7 +156,27 @@ class rpiHub(object):
             __status = False
 
             if (__dvc.type == "Conditioner"):
+                # initial (not tamed controller)
                 _start = time()
+                if not __dvc.is_tamed:
+                    while True:
+                        self.rfm.wrt_event.clear()
+                        __rsp = self.rfm.read_with_cb(1)
+                        if type(__rsp) == tuple:
+                            if __rsp[1] != __dvc.device_id:
+                                continue
+                            sleep(0.05)
+                            self.rfm.wrt_event.set()
+                            self.rfm.send_packet(__cmd)
+                            self.rfm.wrt_event.clear()
+                            __rsp = self.rfm.read_with_cb(1)
+                            if (__dvc.check_response(__cmd, __rsp)):
+                                __dvc.is_tamed = True
+                                log.info("CONDER %s: SENT AND TAMED")
+                        if time() - _start >= 90:
+                            log.error("CONDER %s has not been tamed")
+                            return
+
                 while(True):
                     __t_diff = time() - __dvc.last_response
                     if (round(__t_diff % 5, 2) <= 0.1):

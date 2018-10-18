@@ -138,9 +138,11 @@ class Conditioner(Device):
         super(Conditioner, self).__init__(dvc_id, group_name, name)
         self.type = "Conditioner"
         self.value = False
+        self.is_tamed = False
 
     def update_device(self, income):
         self.last_response = time()
+        self.is_tamed = True if (income[7] != 0) else False
         # TODO: update device values on ram & FB
 
     def form_cmd(self, data2parse):
@@ -167,4 +169,8 @@ class Conditioner(Device):
         return cmd
 
     def check_response(self, cmd, income):
-        return True
+        if income[1] == self.device_id:
+            # Если ответ не от реле
+            return True
+        else:
+            return False
