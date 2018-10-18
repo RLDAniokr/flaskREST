@@ -11,7 +11,14 @@ log = logging.getLogger(__name__)
 
 class Device(object):
     """ Родительский класс устройств """
-    def __init__(self):
+    def __init__(self, dvc_id, group_name, name):
+        # Идентификатор устройтсва
+        self.device_id = dvc_id
+        # Имя группы
+        self.group_name = group_name
+        # Собственное имя
+        self.name = name
+
         # Время последнего ответа
         self.last_response = time()
 
@@ -29,17 +36,10 @@ class Device(object):
 class Relay(Device):
     """ Класс реле """
     def __init__(self, dvc_id, group_name, name, ch0name, ch1name, last_val):
-        # Идентификатор устройтсва
-        self.device_id = dvc_id
-        # Имя группы
-        self.group_name = group_name
-        # Собственное имя
-        self.name = name
-
+        # Инициализация родительского класса
+        super(Relay, self).__init__(dvc_id, group_name, name)
         # Тип устройства
         self.type = 'Relay'
-        # Инициализация родительского класса
-        super(Relay, self).__init__()
 
         # Имя нулевого канала
         self.ch0name = ch0name
@@ -126,3 +126,37 @@ class Relay(Device):
         else:
             # Вернуть ложь
             return False
+
+
+class Conditioner(Device):
+    """ Класс контроллера кондиционера"""
+    def __init__(self, dvc_id, group_name, name):
+        super(Conditioner, self).__init__(dvc_id, group_name, name)
+        self.type = "Conditioner"
+        self.value = False
+
+    def form_cmd(self, data2parse):
+        """ Метод формирования управляющей команды """
+        # Скелет пакета для отправки
+        cmd = [0, 0, 0, 0, 0]
+        # Идентификатор адресата
+        cmd[0] = self.device_id
+        # Идентификатор Raspberry
+        cmd[1] = 0
+        # Идентификатор типа устройств "Реле"
+        cmd[2] = 14
+        # Номер управляющей команды
+        if self.cmd_num < 255:
+            self.cmd_num += 1
+        else:
+            self.cmd_num = 0
+
+        cmd[3] = self.cmd_num
+
+        _on = 0b1 if data2parse else 0b0
+        cmd[4] = _on
+
+        return cmd
+
+    def check_response(self, cmd, income):
+        return True

@@ -91,9 +91,7 @@ class PacketConfig1(RegisterValue):
         self.dc_free = self.DCFreeOff
         self.crc = True
         self.crc_auto_clear_off = False
-        #123
-        self.address_filtering = 0b00
-        # self.address_filtering = 0b10
+        self.address_filtering = 0b10
 
 
 class Temperature1(RegisterValue):
@@ -158,7 +156,7 @@ class RFM69Configuration(object):
         self.sync_value_7 = 0
         self.sync_value_8 = 0
 
-        self.packet_config_1 = 0x94
+        self.packet_config_1 = PacketConfig1()
         self.payload_length = 0x40
 
         self.fifo_threshold = 0x8F
@@ -201,7 +199,7 @@ class RFM69Configuration(object):
         regs[Register.SYNCVALUE6] = self.sync_value_6
         regs[Register.SYNCVALUE7] = self.sync_value_7
         regs[Register.SYNCVALUE8] = self.sync_value_8
-        regs[Register.PACKETCONFIG1] = self.packet_config_1 #.pack()
+        regs[Register.PACKETCONFIG1] = self.packet_config_1.pack()
         regs[Register.PAYLOADLENGTH] = self.payload_length
         regs[Register.FIFOTHRESH] = self.fifo_threshold
         regs[Register.PACKETCONFIG2] = self.packet_config_2

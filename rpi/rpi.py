@@ -154,7 +154,28 @@ class rpiHub(object):
             __dvc = __pack[1]
             __status = False
 
-            log.info(__cmd)
+            if (__dvc.type == "Conditioner"):
+                _start = time()
+                while(True):
+                    __t_diff = time() - __dvc.last_response
+                    if (round(__t_diff % 5, 2) <= 0.1):
+                         log.info("DIFF: %s" % __t_diff)
+                         self.rfm.wrt_event.set()
+                         self.rfm.send_packet(__cmd)
+                         self.rfm.wrt_event.clear()
+
+                         __rsp = self.rfm.read_with_cb(1)
+
+                         if type(__rsp) == tuple:
+                             __status = __dvc.check_response(__cmd[4], __rsp[0])
+                             if (__status):
+                                 log.info("Command sent successfully")
+                                 break
+                         break
+                    if (time() - _start >= 30):
+                        log.error("Conditioner command haven't been sent")
+                        break
+                return
 
             for i in range(0, 5):
                 self.rfm.wrt_event.set()
@@ -426,6 +447,10 @@ class rpiHub(object):
                                ch0name=ch0name,
                                ch1name=ch1name,
                                last_val=last_val)
+        elif dvc_type == "Conditioner":
+            new_device = Conditioner(dvc_id=dvc_id,
+                                     group_name=dvc_group,
+                                     name=dvc_name)
         else:
             log.error("Unknown device type")
             return "FAIL"

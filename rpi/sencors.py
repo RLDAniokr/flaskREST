@@ -14,7 +14,14 @@ log = logging.getLogger(__name__)
 
 class Sencor(object):
     """ Родительский класс датчиков """
-    def __init__(self):
+    def __init__(self snc_id, group_name, name):
+        # Идентификатор
+        self.sencor_id = snc_id
+        # Имя группы
+        self.group_name = group_name
+        # Собственное имя
+        self.name = name
+        # Значение по умолчанию
         self.value = '-'
         self.last_response = time()
 
@@ -40,12 +47,8 @@ class Sencor(object):
 class TemperatureSencor(Sencor):
     """ Класс датчиков температуры """
     def __init__(self, snc_id, group_name, name):
-        # Идентификатор
-        self.sencor_id = snc_id
-        # Имя группы
-        self.group_name = group_name
-        # Собственное имя
-        self.name = name
+        # Инициализация родительского класса
+        super(TemperatureSencor, self).__init__(snc_id, group_name, name)
         # Тип датчика
         # TODO: send type to fb on init to ease data parsing
         self.type = 'Temperature'
@@ -53,8 +56,6 @@ class TemperatureSencor(Sencor):
         # Таймаут ответа датчика
         self.timeout = 1080
 
-        # Инициализация родительского класса
-        super(TemperatureSencor, self).__init__()
 
     def convert_data(self, income_array):
         """
@@ -87,20 +88,14 @@ class TemperatureSencor(Sencor):
 class HumiditySencor(Sencor):
     """ Класс датчиков температуры """
     def __init__(self, snc_id, group_name, name):
-        # Идентификатор
-        self.sencor_id = snc_id
-        # Имя группы
-        self.group_name = group_name
-        # Собственное имя
-        self.name = name
+        # Инициализация родительского класса
+        super(HumiditySencor, self).__init__(snc_id, group_name, name)
         # Тип датчика
         self.type = 'Humidity'
 
         # Таймаут ответа
         self.timeout = 1080
 
-        # Инициализация родительского класса
-        super(HumiditySencor, self).__init__()
 
     def convert_data(self, income_array):
         # TBD
@@ -114,20 +109,14 @@ class HumiditySencor(Sencor):
 class LuminositySencor(Sencor):
     """ Класс датчиков температуры """
     def __init__(self, snc_id, group_name, name):
-        # Идентификатор
-        self.sencor_id = snc_id
-        # Имя группы
-        self.group_name = group_name
-        # Собственное имя датчика
-        self.name = name
+        # Инициализация родительского класса
+        super(LuminositySencor, self).__init__(snc_id, group_name, name)
         # Тип датчика
         self.type = 'Luminosity'
 
         # Таймаут ответа
         self.timeout = 1080
 
-        # Инициализация родительского класса
-        super(LuminositySencor, self).__init__()
 
     def convert_data(self, income_array):
         """
@@ -159,20 +148,14 @@ class LuminositySencor(Sencor):
 class DoorSencor(Sencor):
     """ Класс датчиков открытия двери """
     def __init__(self, snc_id, group_name, name):
-        # Идентификатор датчика
-        self.sencor_id = snc_id
-        # Имя группы
-        self.group_name = group_name
-        # Собственное имя датчика
-        self.name = name
+        # Инициализация родительского класса
+        super(DoorSencor, self).__init__(snc_id, group_name, name)
         # Тип датчика
         self.type = 'Door'
 
         # Таймаут ответа
         self.timeout = 1080
 
-        # Инициализация родительского класса
-        super(DoorSencor, self).__init__()
 
     def convert_data(self, data):
         # Обновить время последнего ответа от датчика
@@ -192,20 +175,14 @@ class DoorSencor(Sencor):
 class PulseSencor(Sencor):
     """ Класс счетчиков импульсов """
     def __init__(self, snc_id, group_name, name):
-        # Идентификатор датчика
-        self.sencor_id = snc_id
-        # Имя группы
-        self.group_name = group_name
-        # Собственное имя датчика
-        self.name = name
+        # Инициализация родительского класса
+        super(PulseSencor, self).__init__(snc_id, group_name, name)
         # Тип датчика
         self.type = 'Pulse'
 
         # Таймаут ответа
         self.timeout = 3605
 
-        # Инициализация родительского класса
-        super(PulseSencor, self).__init__()
 
         # Предыдущее значение количества импульсов
         self.prev_pulses = 0
