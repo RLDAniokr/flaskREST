@@ -491,6 +491,7 @@ class rpiHub(object):
         self.dvc_list.append(new_device)
         __group.devices.append(new_device)
         # TODO: init stuff in first/recover send
+        self.fireBase.set_device_type(new_device)
         self.firebase.update_device_value(new_device)
         return "OK"
 

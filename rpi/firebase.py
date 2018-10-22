@@ -165,6 +165,16 @@ class fireBase():
                 log.error("Error occured while sencor delete")
                 log.error(e)
 
+    def set_device_type(self, device):
+        if self.is_auth:
+            __data = {device.name + "/dvc_type": device.type}
+            __devices = self.root(device.group_name).child("devices")
+            try:
+                __devices.update(__data, self.token)
+            except Exception as e:
+                log.error("Error occured while device type set")
+                log.error(e)
+
     def update_device_value(self, device):
         """ Обновить данные устройства в облачной базе данных """
         if self.is_auth:
