@@ -174,10 +174,10 @@ class rpiHub(object):
                             if (__dvc.check_response(__cmd, __rsp)):
                                 __dvc.is_tamed = True
                                 log.info("CONDER %s: SENT AND TAMED")
-                                return
+                                break
                         if time() - _start >= 90:
                             log.error("CONDER %s has not been tamed")
-                            return
+                            break
 
                 while(True):
                     __t_diff = time() - __dvc.last_response
