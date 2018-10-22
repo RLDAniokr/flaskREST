@@ -148,7 +148,7 @@ class Conditioner(Device):
     def form_cmd(self, data2parse):
         """ Метод формирования управляющей команды """
         # Скелет пакета для отправки
-        cmd = [0, 0, 0, 0, 0]
+        cmd = [0, 0, 0, 0, 0, 0]
         # Идентификатор адресата
         cmd[0] = self.device_id
         # Идентификатор Raspberry
@@ -163,14 +163,18 @@ class Conditioner(Device):
 
         cmd[3] = self.cmd_num
 
+        log.critical(data2parse)
+
         _on = 0b1 if data2parse else 0b0
-        cmd[4] = _on
+        cmd[4] = _on | 0b01010010
+        cmd[5] = 0b0
+
 
         return cmd
 
     def check_response(self, cmd, income):
         if income[1] == self.device_id:
-            # Если ответ не от реле
-            return True
+            if income[7] == self.cmd_num:
+                return True
         else:
             return False

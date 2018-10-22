@@ -163,9 +163,10 @@ class rpiHub(object):
                         self.rfm.wrt_event.clear()
                         __rsp = self.rfm.read_with_cb(1)
                         if type(__rsp) == tuple:
-                            if __rsp[1] != __dvc.device_id:
+                            if __rsp[0][1] != __dvc.device_id:
                                 continue
                             sleep(0.05)
+                            log.info("GOTCHA")
                             self.rfm.wrt_event.set()
                             self.rfm.send_packet(__cmd)
                             self.rfm.wrt_event.clear()

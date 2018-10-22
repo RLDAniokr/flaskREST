@@ -166,6 +166,7 @@ class fireBase():
                 log.error(e)
 
     def set_device_type(self, device):
+        """ Метод установки типа устройства в fb """
         if self.is_auth:
             __data = {device.name + "/dvc_type": device.type}
             __devices = self.root(device.group_name).child("devices")
@@ -186,7 +187,7 @@ class fireBase():
                     device.name + "/" + device.ch1name: device.ch1val
                 }
             else:
-                __data = {device.name: device.value}
+                __data = {device.name + "/value": device.value}
             # Установить query-путь к данным устройства в облаке
             __devices = self.root(device.group_name).child("devices")
             try:
