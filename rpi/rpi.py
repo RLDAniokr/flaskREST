@@ -174,6 +174,7 @@ class rpiHub(object):
                             if (__dvc.check_response(__cmd, __rsp)):
                                 __dvc.is_tamed = True
                                 log.info("CONDER %s: SENT AND TAMED")
+                                return
                         if time() - _start >= 90:
                             log.error("CONDER %s has not been tamed")
                             return
@@ -492,7 +493,7 @@ class rpiHub(object):
         self.dvc_list.append(new_device)
         __group.devices.append(new_device)
         # TODO: init stuff in first/recover send
-        self.fireBase.set_device_type(new_device)
+        self.firebase.set_device_type(new_device)
         self.firebase.update_device_value(new_device)
         return "OK"
 
@@ -517,6 +518,7 @@ class rpiHub(object):
                 __device_for_edit.ch0name = new_ch0name
                 __device_for_edit.ch1name = new_ch1name
             __new_group.devices.append(__device_for_edit)
+            self.firebase.set_device_type(__device_for_edit)
             self.firebase.update_device_value(__device_for_edit)
             __dvc_settings = (new_dvc_group,
                               new_dvc_name,
