@@ -131,93 +131,169 @@ class rpiHub(object):
             log.info("===ITER===")
 
     def read(self):
+        """ Метод чтения радиоканала """
+        # Переменная для хранения экземпляра датчика
         __sencor = None
+        # Чтение пакета данных из радиоканала
         income = self.rfm.read_with_cb(30)
+        # Если данные пришли, то тип income изменится на кортеж
+        # Если не пришли income == None
         if type(income) == tuple:
+            # Список с полезными данными
             __payload = income[0]
+            # Проверка на целостность пакета
             if len(__payload) <= 1:
                 log.error("Received damaged packet")
                 return
+            # Поиск экземпляра датчика
             __sencor = self.get_sencor_by_id(__payload[1])
             if __sencor is not None:
+                # Сконвертировать принятые данные
                 __sencor.convert_data(income[0])
+                # Вывести информацию в лог
                 log.info(__sencor.name + ":" + __sencor.value)
+                # Обновить данные датчика в Firebase
                 self.firebase.update_sencor_value(__sencor)
             else:
+                # Поиск экземпляра устройства
                 __device = self.get_device_by_id(__payload[1])
+                # Если экземпляр найден
                 if __device is not None:
+                    # Обносить данные в памяти
                     __device.update_device(income[0])
+                    # TODO: update data on FB
 
     def write(self):
+        """ Метод отправки комманд из очереди в радиоканал """
+        # Пока очередь команд не пуста
         while (len(self.cmd_queue) > 0):
+            # "Выдернуть" команду из очереди
             __pack = self.cmd_queue.pop(0)
+            # Сама команда
             __cmd = __pack[0]
+            # Экземпляр устройства
             __dvc = __pack[1]
+            # Статус отправки команды
             __status = False
 
+            """ Отдельный набор операций для контроллера кондиционера """
             if (__dvc.type == "Conditioner"):
-                # initial (not tamed controller)
+                # Время начала выполнения
                 _start = time()
+                # Если контроллеру еще не отправляли команды
+                # (т.е. прием осуществляется сразу после маякового сообщения)
                 if not __dvc.is_tamed:
                     while True:
+                        # Очистить событие записи
                         self.rfm.wrt_event.clear()
+                        # Считать пакет из радиоканала
                         __rsp = self.rfm.read_with_cb(1)
+                        # Если пришел пакет
                         if type(__rsp) == tuple:
+                            # Если пришел маяк не от необходимого устройства
                             if __rsp[0][1] != __dvc.device_id:
+                                # TODO: update incoming sencor
                                 continue
+                            # Ждать
                             sleep(0.05)
-                            log.info("GOTCHA")
-                            self.rfm.wrt_event.set()
+                            # Отправить команду
                             self.rfm.send_packet(__cmd)
+                            # Обнулить событие записи
                             self.rfm.wrt_event.clear()
+                            log.info("GOTCHA")
+                            # Ждать ответа 1 сек
                             __rsp = self.rfm.read_with_cb(1)
+                            # Если ответа не было
+                            if type(__rsp) !== tuple:
+                                continue
+                            # Если пришел ответ, проверить его
                             if (__dvc.check_response(__cmd[4], __rsp[0])):
+                                # Если совпадают номер отпрвленной команды и
+                                # id устройства в ответе, то считаем контроллер
+                                # "укрощенным"
                                 __dvc.is_tamed = True
+                                # Вывод в лог сообщение об успехе
                                 log.info("CONDER %s: SENT AND TAMED")
+                                # Выход из цикла while
                                 break
+                        # Проверка времени для выхода по времени
                         if time() - _start >= 90:
+                            # Вывести в лог ошибку
                             log.error("CONDER %s has not been tamed")
+                            # Выйти из цикла
                             break
 
+                # Если контроллер уже был в управлении
                 else:
-                     _start = time()
-                     _sent = False
+                    # Промежуточное хранение последнего ответа
+                    _lr = __dvc.last_response
+                    # Цикл по времени (попытки отправки в течение 26 сек)
+                    while(time() - _start < 26):
+                        # Для временного окна после маяка установить
+                        # дополнительную задержку
+                        if (round(time() - __dvc.last_response) == 10):
+                            __add_gap = 0.05
+                        else:
+                            __add_gap = 0
+                        # Вычисление временного окна для отправки команды
+                        # Каждые 5 сек + __add_gap
+                        __t_diff = (((time() - __lr) % 5) + __add_gap)
+                        # Условие вхождения во временное окно (20 мс)
+                        _time_to_send = (__t_diff <= 0.02) and (__t_diff >= 0)
+                        if (_time_to_send):
+                            # Отправить пакет
+                            self.rfm.send_packet(__cmd)
+                            # Очистить событие отправки
+                            self.rfm.wrt_event.clear()
+                            log.info("T_D: %s" % __t_diff)
 
-                     while(time() - _start < 26):
-                         __add_gap = 0.05 if (round(time() - __dvc.last_response) == 10) else 0
-                         __iit = (((time() - __dvc.last_response) % 5) + __add_gap) <= 0.02
-                         if (__iit):
-                             self.rfm.send_packet(__cmd)
-                             self.rfm.wrt_event.clear()
-                             log.info("ON SEND: %s" % __cmd)
-
-                             __rsp = self.rfm.read_with_cb(1)
-                             if type(__rsp) == tuple:
-                                 log.info("PROVERKA")
-                                 __status = __dvc.check_response(__cmd[3], __rsp[0])
-                                 if __status:
-                                     _sent = True
-                                     log.info("Conditioner command sent successfully")
-                                     break
-                if not _sent:
+                            # Подождать ответ
+                            __rsp = self.rfm.read_with_cb(1)
+                            # Если ответ пришел
+                            if type(__rsp) == tuple:
+                                # Ппроверить статус ответа
+                                __status = __dvc.check_response(__cmd[3],
+                                                                __rsp[0])
+                                # При правильном ответе лог и выход из цикла
+                                if __status:
+                                    log.info("""Conditioner command sent
+                                              successfully""")
+                                    break
+                # Если за 26 сек команда не была отправлена
+                if not __status:
+                    # Лог ошибки
                     log.info("Conditioner command sending failed")
+
+                # Возврат к изъятию команды из очереди
                 continue
 
+            # 5 попыток отправки
             for i in range(0, 5):
+                # Установка события отправки
                 self.rfm.wrt_event.set()
+                # Отправка команды
                 self.rfm.send_packet(__cmd)
+                # Очистка события отправки
                 self.rfm.wrt_event.clear()
 
+                # Ожидпние ответа
                 __response = self.rfm.read_with_cb(1)
 
+                # Если пришел ответ
                 if type(__response) == tuple:
+                    # Проверка статуса ответа
                     __status = __dvc.check_response(__cmd[4], __response[0])
+                    # Если статус отвтеа положительный
                     if (__status):
+                        # Лог и выход из for(0, 5)
                         log.info("Command sent successfully")
                         break
-
+            # Если статус не был получен
             if not __status:
+                # Лог ошибки
                 log.info("Command sending failed")
+                # TODO: upd data in fb
+        # Очистка события отправки
         self.rfm.wrt_event.clear()
 
     def device_handler(self, message):
