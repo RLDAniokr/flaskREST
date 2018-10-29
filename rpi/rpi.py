@@ -171,7 +171,7 @@ class rpiHub(object):
                             self.rfm.send_packet(__cmd)
                             self.rfm.wrt_event.clear()
                             __rsp = self.rfm.read_with_cb(1)
-                            if (__dvc.check_response(__cmd, __rsp)):
+                            if (__dvc.check_response(__cmd[4], __rsp[0])):
                                 __dvc.is_tamed = True
                                 log.info("CONDER %s: SENT AND TAMED")
                                 break
@@ -179,25 +179,29 @@ class rpiHub(object):
                             log.error("CONDER %s has not been tamed")
                             break
 
-                while(True):
-                    __t_diff = time() - __dvc.last_response
-                    if (round(__t_diff % 5, 2) <= 0.1):
-                         log.info("DIFF: %s" % __t_diff)
-                         self.rfm.wrt_event.set()
-                         self.rfm.send_packet(__cmd)
-                         self.rfm.wrt_event.clear()
+                else:
+                     _start = time()
+                     _sent = False
 
-                         __rsp = self.rfm.read_with_cb(1)
+                     while(time() - _start < 26):
+                         __add_gap = 0.05 if (round(time() - __dvc.last_response) == 10) else 0
+                         __iit = (((time() - __dvc.last_response) % 5) + __add_gap) <= 0.02
+                         if (__iit):
+                             self.rfm.send_packet(__cmd)
+                             self.rfm.wrt_event.clear()
+                             log.info("ON SEND: %s" % __cmd)
 
-                         if type(__rsp) == tuple:
-                             __status = __dvc.check_response(__cmd[4], __rsp[0])
-                             if (__status):
-                                 log.info("Command sent successfully")
-                                 break
-                    if (time() - _start >= 30):
-                        log.error("Conditioner command haven't been sent")
-                        break
-                return
+                             __rsp = self.rfm.read_with_cb(1)
+                             if type(__rsp) == tuple:
+                                 log.info("PROVERKA")
+                                 __status = __dvc.check_response(__cmd[3], __rsp[0])
+                                 if __status:
+                                     _sent = True
+                                     log.info("Conditioner command sent successfully")
+                                     break
+                if not _sent:
+                    log.info("Conditioner command sending failed")
+                continue
 
             for i in range(0, 5):
                 self.rfm.wrt_event.set()

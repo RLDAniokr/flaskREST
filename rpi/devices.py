@@ -167,14 +167,16 @@ class Conditioner(Device):
 
         _on = 0b1 if data2parse['value'] else 0b0
         cmd[4] = _on | 0b01010010
-        cmd[5] = 0b0
+        cmd[5] = 0b001001
 
         log.critical(cmd)
         return cmd
 
-    def check_response(self, cmd, income):
+    def check_response(self, cmd_n, income):
         if income[1] == self.device_id:
-            if income[7] == self.cmd_num:
+            if income[7] == cmd_n:
                 return True
+            else:
+                self.update_device(income)
         else:
             return False
