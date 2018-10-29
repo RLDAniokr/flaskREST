@@ -204,7 +204,7 @@ class rpiHub(object):
                             # Ждать ответа 1 сек
                             __rsp = self.rfm.read_with_cb(1)
                             # Если ответа не было
-                            if type(__rsp) !== tuple:
+                            if type(__rsp) != tuple:
                                 continue
                             # Если пришел ответ, проверить его
                             if (__dvc.check_response(__cmd[4], __rsp[0])):
@@ -231,21 +231,21 @@ class rpiHub(object):
                     while(time() - _start < 26):
                         # Для временного окна после маяка установить
                         # дополнительную задержку
-                        if (round(time() - __dvc.last_response) == 10):
+                        if (round((time() - _lr) % 10) == 0):
                             __add_gap = 0.05
                         else:
                             __add_gap = 0
                         # Вычисление временного окна для отправки команды
-                        # Каждые 5 сек + __add_gap
-                        __t_diff = (((time() - __lr) % 5) + __add_gap)
+                        # Каждые 5 сек
+                        __t_diff = (time() - _lr) % 5
                         # Условие вхождения во временное окно (20 мс)
                         _time_to_send = (__t_diff <= 0.02) and (__t_diff >= 0)
                         if (_time_to_send):
+                            sleep(__add_gap)
                             # Отправить пакет
                             self.rfm.send_packet(__cmd)
                             # Очистить событие отправки
                             self.rfm.wrt_event.clear()
-                            log.info("T_D: %s" % __t_diff)
 
                             # Подождать ответ
                             __rsp = self.rfm.read_with_cb(1)
@@ -256,8 +256,7 @@ class rpiHub(object):
                                                                 __rsp[0])
                                 # При правильном ответе лог и выход из цикла
                                 if __status:
-                                    log.info("""Conditioner command sent
-                                              successfully""")
+                                    log.info("Conditioner command sent")
                                     break
                 # Если за 26 сек команда не была отправлена
                 if not __status:
