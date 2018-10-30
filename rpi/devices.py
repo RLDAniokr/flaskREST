@@ -25,6 +25,9 @@ class Device(object):
         # Время последнего ответа
         self.last_response = time()
 
+        # Флаг отката изменения состояния утсройства
+        self.is_rollback = False
+
     def get_info(self):
         """ Метод получения информации об устройстве """
         response = {
@@ -80,10 +83,10 @@ class Relay(Device):
         """ Метод формирования управляющей команды """
         if self.ch0name in data2parse:
             # Если пришла команда управления нулевым каналом
-            self.ch0val = data2parse[self.ch0name]
+            ch0val_inc = data2parse[self.ch0name]
         elif self.ch1name in data2parse:
             # Если пришла команда управления первым каналом
-            self.ch1val = data2parse[self.ch1name]
+            ch1val_inc = data2parse[self.ch1name]
 
         # Скелет пакета для отправки
         cmd = [0, 0, 0, 0, 0]
@@ -102,9 +105,9 @@ class Relay(Device):
         cmd[3] = self.cmd_num
 
         # Старший бит
-        __sb = 0b10 if self.ch1val else 0b00
+        __sb = 0b10 if ch1val_inc else 0b00
         #  Младший бит
-        __lb = 0b01 if self.ch0val else 0b00
+        __lb = 0b01 if ch0val_inc else 0b00
         # Побитовое сложение
         cmd[4] = __sb + __lb
 
@@ -120,11 +123,12 @@ class Relay(Device):
             return False
         # Побитовое сложения битов состояния каналов
         inc_total = ((income[5] & 0b0100) >> 1) + (income[5] & 0b0001)
+        # Если показания совпали
         if (inc_total == needed_states):
-            # Если показания совпали
-            log.info("OK")
             # Сохранить состояние реле в БД
             saveLast((inc_total, self.device_id))
+            self.ch0val = (needed_states >> 1 == 1)
+            self.ch1val = (needed_states & 0b1 == 1)
             # Вернуть истину
             return True
         else:
@@ -175,6 +179,7 @@ class Conditioner(Device):
     def check_response(self, cmd_n, income):
         if income[1] == self.device_id:
             if income[7] == cmd_n:
+                self.value = ((income[5] & 0b1) == 1)
                 return True
             else:
                 self.update_device(income)

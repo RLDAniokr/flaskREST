@@ -113,22 +113,41 @@ class rpiHub(object):
             log.info(gr.name)
 
     def loop(self):
-        while(True):
-            self.firebase.upd_token(self.group_list, self.device_handler)
-            if self.rfm.wrt_event.is_set():
+        """ Loop-worker для потока чтения/записи """
+        try:
+            while(True):
+                # Проверить таймаут токена и обновить его при необходимости
+                self.firebase.upd_token(self.group_list, self.device_handler)
+                # Если установлено событие отправки команд
+                if self.rfm.wrt_event.is_set():
+                    try:
+                        # Отправка
+                        self.write()
+                    except Exception as e:
+                        log.error("Error during command write")
+                        log.error(e)
+                else:
+                    try:
+                        # Чтение
+                        self.read()
+                    except Exception as e:
+                        log.error("Error during snc/dvc read")
+                        log.error(e)
+                # Проверка датчиков на таймаут ответа и обновление их данных
+                self.check_sencors_timeouts()
+                log.info("===ITER===")
+        except Exception as e:
+            """Обработка непредвиденных исключений"""
+            log.exception(e)
+        finally:
+            """ Убить потоки чтения устройств для чистого выхода """
+            for group in self.group_list:
                 try:
-                    self.write()
-                except Exception as e:
-                    log.error("Error during command write")
-                    log.error(e)
-            else:
-                try:
-                    self.read()
-                except Exception as e:
-                    log.error("Error during snc/dvc read")
-                    log.error(e)
-            self.check_sencors_timeouts()
-            log.info("===ITER===")
+                    group.dvc_stream.close()
+                except AttributeError:
+                    # Обработка периодической ошибки аттрибута
+                    # библиотечная ошибка, не влияющая ни на что
+                    pass
 
     def read(self):
         """ Метод чтения радиоканала """
@@ -291,25 +310,42 @@ class rpiHub(object):
             if not __status:
                 # Лог ошибки
                 log.info("Command sending failed")
+                __dvc.is_rollback = True
+                self.firebase.update_device(__dvc)
                 # TODO: upd data in fb
         # Очистка события отправки
         self.rfm.wrt_event.clear()
 
     def device_handler(self, message):
         """ Метод-обработчик сообщений от облачной базы Firebase """
+        # Имя группы
         __from = message["stream_id"]
+        # Имя устройства
         __inc_device_name = (message["path"].split("/"))[1]
+        # Полезные данные
         __data = message["data"]
+        # Переменная для экземпляра устройства
         __dvc2wrt = None
 
+        # Поиск экземпляра устройства
         for dvc in self.dvc_list:
             if dvc.name == __inc_device_name:
                 __dvc2wrt = dvc
                 break
 
+        # Если устройство найдено
         if __dvc2wrt is not None:
+            # Если событие вызвано откатом данных при провальной отправке
+            # данных на устройство (по радиоканалу)
+            if __dwc2wrt.is_rollback:
+                __dwc2wrt.is_rollback = False
+                log.info("Rollback detected")
+                return
+            # Сформировать команду для отправки
             cmd = __dvc2wrt.form_cmd(__data)
+            # Добавить команду в очередь
             self.cmd_queue.append([cmd, __dvc2wrt])
+            # Установить событие отправки команд
             self.rfm.wrt_event.set()
 
     def init_read_sencors(self):
