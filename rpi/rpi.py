@@ -310,9 +310,7 @@ class rpiHub(object):
             if not __status:
                 # Лог ошибки
                 log.info("Command sending failed")
-                __dvc.is_rollback = True
-                self.firebase.update_device(__dvc)
-                # TODO: upd data in fb
+                self.firebase.update_device_value(__dvc)
         # Очистка события отправки
         self.rfm.wrt_event.clear()
 
@@ -335,12 +333,6 @@ class rpiHub(object):
 
         # Если устройство найдено
         if __dvc2wrt is not None:
-            # Если событие вызвано откатом данных при провальной отправке
-            # данных на устройство (по радиоканалу)
-            if __dwc2wrt.is_rollback:
-                __dwc2wrt.is_rollback = False
-                log.info("Rollback detected")
-                return
             # Сформировать команду для отправки
             cmd = __dvc2wrt.form_cmd(__data)
             # Добавить команду в очередь

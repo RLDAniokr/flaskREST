@@ -25,9 +25,6 @@ class Device(object):
         # Время последнего ответа
         self.last_response = time()
 
-        # Флаг отката изменения состояния утсройства
-        self.is_rollback = False
-
     def get_info(self):
         """ Метод получения информации об устройстве """
         response = {
@@ -81,12 +78,16 @@ class Relay(Device):
 
     def form_cmd(self, data2parse):
         """ Метод формирования управляющей команды """
+        ch0val_inc = False
+        ch1val_inc = False
         if self.ch0name in data2parse:
             # Если пришла команда управления нулевым каналом
             ch0val_inc = data2parse[self.ch0name]
+            ch1val_inc = self.ch1val
         elif self.ch1name in data2parse:
             # Если пришла команда управления первым каналом
             ch1val_inc = data2parse[self.ch1name]
+            ch0val_inc = self.ch0val
 
         # Скелет пакета для отправки
         cmd = [0, 0, 0, 0, 0]
@@ -127,8 +128,8 @@ class Relay(Device):
         if (inc_total == needed_states):
             # Сохранить состояние реле в БД
             saveLast((inc_total, self.device_id))
-            self.ch0val = (needed_states >> 1 == 1)
-            self.ch1val = (needed_states & 0b1 == 1)
+            self.ch1val = (needed_states >> 1 == 1)
+            self.ch0val = (needed_states & 0b1 == 1)
             # Вернуть истину
             return True
         else:
