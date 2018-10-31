@@ -202,7 +202,7 @@ class rpiHub(object):
                 # Если контроллеру еще не отправляли команды
                 # (т.е. прием осуществляется сразу после маякового сообщения)
                 if not __dvc.is_tamed:
-                    while True:
+                    while (time() - _start >= 40):
                         # Очистить событие записи
                         self.rfm.wrt_event.clear()
                         # Считать пакет из радиоканала
@@ -223,10 +223,11 @@ class rpiHub(object):
                             # Ждать ответа 1 сек
                             __rsp = self.rfm.read_with_cb(1)
                             # Если ответа не было
-                            if type(__rsp) != tuple:
-                                continue
+                            if type(__rsp) == tuple:
+                                __status = __dvc.check_response(__cmd[4],
+                                                                __rsp[0])
                             # Если пришел ответ, проверить его
-                            if (__dvc.check_response(__cmd[4], __rsp[0])):
+                            if (__status):
                                 # Если совпадают номер отпрвленной команды и
                                 # id устройства в ответе, то считаем контроллер
                                 # "укрощенным"
@@ -235,12 +236,9 @@ class rpiHub(object):
                                 log.info("CONDER %s: SENT AND TAMED")
                                 # Выход из цикла while
                                 break
-                        # Проверка времени для выхода по времени
-                        if time() - _start >= 90:
-                            # Вывести в лог ошибку
-                            log.error("CONDER %s has not been tamed")
-                            # Выйти из цикла
-                            break
+                    if not __status:
+                        __dvc.rollback()
+                        self.firebase.update_device_value(__dvc)
 
                 # Если контроллер уже был в управлении
                 else:
@@ -280,6 +278,8 @@ class rpiHub(object):
                 # Если за 26 сек команда не была отправлена
                 if not __status:
                     # Лог ошибки
+                    __dvc.rollback()
+                    self.firebase.update_device_value(__dvc)
                     log.info("Conditioner command sending failed")
 
                 # Возврат к изъятию команды из очереди
@@ -310,6 +310,7 @@ class rpiHub(object):
             if not __status:
                 # Лог ошибки
                 log.info("Command sending failed")
+                __dvc.rollback()
                 self.firebase.update_device_value(__dvc)
         # Очистка события отправки
         self.rfm.wrt_event.clear()
@@ -335,7 +336,7 @@ class rpiHub(object):
         if __dvc2wrt is not None:
             # Сформировать команду для отправки
             cmd = __dvc2wrt.form_cmd(__data)
-            # Добавить команду в очередь
+            # Добавить пару [команда, экземпляр] в очередь
             self.cmd_queue.append([cmd, __dvc2wrt])
             # Установить событие отправки команд
             self.rfm.wrt_event.set()

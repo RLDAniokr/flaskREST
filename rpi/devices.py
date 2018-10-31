@@ -60,6 +60,9 @@ class Relay(Device):
             self.ch0val = (last_val & 1) == 1
             self.ch1val = ((last_val >> 1) & 1) == 1
 
+        self.ch0old = self.ch0val
+        self.ch1old = self.ch0val
+
     def get_info(self):
         """ Переопределение мметода получения информации об устройстве """
         response = {
@@ -78,16 +81,14 @@ class Relay(Device):
 
     def form_cmd(self, data2parse):
         """ Метод формирования управляющей команды """
-        ch0val_inc = False
-        ch1val_inc = False
+        self.ch0old = self.ch0val
+        self.ch1old = self.ch1val
         if self.ch0name in data2parse:
             # Если пришла команда управления нулевым каналом
-            ch0val_inc = data2parse[self.ch0name]
-            ch1val_inc = self.ch1val
+            self.ch0val = data2parse[self.ch0name]
         elif self.ch1name in data2parse:
             # Если пришла команда управления первым каналом
-            ch1val_inc = data2parse[self.ch1name]
-            ch0val_inc = self.ch0val
+            self.ch1val = data2parse[self.ch1name]
 
         # Скелет пакета для отправки
         cmd = [0, 0, 0, 0, 0]
@@ -106,9 +107,9 @@ class Relay(Device):
         cmd[3] = self.cmd_num
 
         # Старший бит
-        __sb = 0b10 if ch1val_inc else 0b00
+        __sb = 0b10 if self.ch1val else 0b00
         #  Младший бит
-        __lb = 0b01 if ch0val_inc else 0b00
+        __lb = 0b01 if self.ch0val else 0b00
         # Побитовое сложение
         cmd[4] = __sb + __lb
 
@@ -128,13 +129,17 @@ class Relay(Device):
         if (inc_total == needed_states):
             # Сохранить состояние реле в БД
             saveLast((inc_total, self.device_id))
-            self.ch1val = (needed_states >> 1 == 1)
-            self.ch0val = (needed_states & 0b1 == 1)
+            self.ch1old = (needed_states >> 1 == 1)
+            self.ch0old = (needed_states & 0b1 == 1)
             # Вернуть истину
             return True
         else:
             # Вернуть ложь
             return False
+
+    def rollback(self):
+        self.ch0val = self.ch0old
+        self.ch1val = self.ch1old
 
 
 class Conditioner(Device):
@@ -142,12 +147,14 @@ class Conditioner(Device):
     def __init__(self, dvc_id, group_name, name):
         super(Conditioner, self).__init__(dvc_id, group_name, name)
         self.type = "Conditioner"
-        self.value = False
         self.is_tamed = False
+        self.value = False
+        self.old_value = self.value
 
     def update_device(self, income):
         self.last_response = time()
         self.is_tamed = True if (income[7] != 0) else False
+        self.value = ((income[5] & 0b1) == 1)
         # TODO: update device values on ram & FB
 
     def form_cmd(self, data2parse):
@@ -168,10 +175,9 @@ class Conditioner(Device):
 
         cmd[3] = self.cmd_num
 
-        log.critical(data2parse)
-
-        _on = 0b1 if data2parse['value'] else 0b0
-        cmd[4] = _on | 0b01010010
+        self.old_value = self.value
+        self.value = 0b1 if data2parse['value'] else 0b0
+        cmd[4] = self.value | 0b01010010
         cmd[5] = 0b001001
 
         log.critical(cmd)
@@ -186,3 +192,6 @@ class Conditioner(Device):
                 self.update_device(income)
         else:
             return False
+
+    def rollback(self):
+        self.value = self.old_value
