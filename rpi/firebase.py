@@ -186,8 +186,14 @@ class fireBase():
                     device.name + "/" + device.ch0name: device.ch0val,
                     device.name + "/" + device.ch1name: device.ch1val
                 }
-            else:
-                __data = {device.name + "/value": device.value}
+            elif device.type == 'Relay':
+                __data = {
+                    device.name + "/power": device.power,
+                    device.name + "/mode": device.mode,
+                    device.name + "/temp": device.temp,
+                    device.name + "/speed": device.speed,
+                    device.name + "/angle": str(device.angle),
+                }
             # Установить query-путь к данным устройства в облаке
             __devices = self.root(device.group_name).child("devices")
             try:

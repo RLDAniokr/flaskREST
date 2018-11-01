@@ -148,8 +148,18 @@ class Conditioner(Device):
         super(Conditioner, self).__init__(dvc_id, group_name, name)
         self.type = "Conditioner"
         self.is_tamed = False
-        self.value = False
+
+        self.value = 0
         self.old_value = self.value
+
+        self.power = False
+        self.mode = "AUTO"
+        self.temp = 16
+        self.speed = 0
+        self.angle = "AUTO"
+
+        self.mode_codes = ["AUTO", "COOL", "DRY", "VENT", "HEAT"]
+        self.angle_codes = ["AUTO", "TOP", "HTOP", "HBOT", "BOT"]
 
     def update_device(self, income):
         self.last_response = time()
@@ -158,7 +168,10 @@ class Conditioner(Device):
         # TODO: update device values on ram & FB
 
     def form_cmd(self, data2parse):
-        """ Метод формирования управляющей команды """
+        """ Метод формирования управляющей команды
+            @param: data2parse - словарь/json с параметрами управления
+            @return: list - список со сформированной командой
+        """
         # Скелет пакета для отправки
         cmd = [0, 0, 0, 0, 0, 0]
         # Идентификатор адресата
@@ -167,7 +180,7 @@ class Conditioner(Device):
         cmd[1] = 0
         # Идентификатор типа устройств "Контроллер кондиционера"
         cmd[2] = 17
-        # Номер управляющей команды
+        # Номер управляющей команды (инкремент + присвоение)
         if self.cmd_num < 255:
             self.cmd_num += 1
         else:
@@ -176,17 +189,40 @@ class Conditioner(Device):
         cmd[3] = self.cmd_num
 
         self.old_value = self.value
-        self.value = 0b1 if data2parse['value'] else 0b0
-        cmd[4] = self.value | 0b01010010
-        cmd[5] = 0b001001
+        # Парсинг пришедшего сообщения по ключам
+        if 'power' in data2parse:
+            self.power = data2parse['power']
+        if 'mode' in data2parse:
+            self.mode = data2parse['mode']
+        if 'temp' in data2parse:
+            self.temp = data2parse['temp']
+        if 'speed' in data2parse:
+            self.speed = int(data2parse['speed'])
+        if 'angle' in data2parse:
+            self.angle = data2parse['angle']
+
+        # Конкатенация настроек
+        self.value = (1 if self.power else 0) | \
+                     (self.mode_codes.index(self.mode) << 1) | \
+                     ((self.temp - 16) << 4) | \
+                     (self.speed << 8) | \
+                     (self.angle_codes.index(self.angle) << 11)
+
+        # Разбиение по байтам
+        cmd[4] = self.value & 0xFF
+        cmd[5] = self.value >> 8
 
         log.critical(cmd)
         return cmd
 
     def check_response(self, cmd_n, income):
+        """ Метод проверки ответа от устройства
+            @param: cmd_n - номер управл. команды из отправленного пакета
+            @param: income - список с ответтом от устройства
+            @return: status - правильность отклика (True/False)
+        """
         if income[1] == self.device_id:
             if income[7] == cmd_n:
-                self.value = ((income[5] & 0b1) == 1)
                 return True
             else:
                 self.update_device(income)
@@ -194,4 +230,9 @@ class Conditioner(Device):
             return False
 
     def rollback(self):
+        """ Метод отката изменений при ошибке """
         self.value = self.old_value
+        self.power = (self.value & 0x1) == 1
+        self.mode = self.mode_codes[((self.value >> 1) & 0x7)]
+        self.temp = ((self.value >> 4) & 0xF) + 16
+        self.speed = self.angle_codes[((self.value >> 8) & 0x7)]
