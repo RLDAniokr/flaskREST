@@ -212,7 +212,12 @@ class Conditioner(Device):
         cmd[4] = self.value & 0xFF
         cmd[5] = self.value >> 8
 
-        log.critical(cmd)
+        log.critical("POW: %s" % (cmd[4] & 1))
+        log.critical("MOD: %s" % (cmd[4] >> 1 & 7))
+        log.critical("TEMP: %s" % (cmd[4] >> 4 & 7))
+        log.critical("SPEED: %s" % (cmd[5] & 0x7))
+        log.critical("DIFF: %s" % (cmd[5] >> 3))
+        #log.critical(cmd)
         return cmd
 
     def check_response(self, cmd_n, income):
@@ -235,4 +240,5 @@ class Conditioner(Device):
         self.power = (self.value & 0x1) == 1
         self.mode = self.mode_codes[((self.value >> 1) & 0x7)]
         self.temp = ((self.value >> 4) & 0xF) + 16
-        self.speed = self.angle_codes[((self.value >> 8) & 0x7)]
+        self.speed = ((self.value >> 8) & 0x7)
+        self.angle = self.angle_codes[((self.value >> 11) & 0x7)]
