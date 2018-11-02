@@ -10,6 +10,8 @@ from .sencors import *
 from .devices import *
 from .firebase import fireBase
 from . import sql
+from .rfm69_lib.rfm69 import RFM69 as rfm69
+from .rfm69_lib.configuration import RFM69Configuration as rfm_config
 
 import logging
 log = logging.getLogger(__name__)
@@ -44,11 +46,18 @@ class rpiHub(object):
         self.group_list = []
         # Список датчиков
         self.snc_list = []
-        # TODO: add get sencors from db
         # Список устройств
         self.dvc_list = []
+        self.cmd_queue = []
         # TODO: add get devices from db
         self.restore_settings_from_db()
+        # rfm69hw module
+        __config = rfm_config()
+        self.rfm = rfm69(dio0_pin=24,
+                         reset_pin=22,
+                         spi_channel=0,
+                         config=__config)
+        self.rfm.set_rssi_threshold(-114)
         # Инициализировать поток прослушки радиоканала
         self.init_read_sencors()
 
@@ -64,12 +73,12 @@ class rpiHub(object):
     def set_fb_creds(self, email, password):
         """ Установить параметры входа для Firebase """
         response = self.firebase.register_new_user(email, password)
-        sql.setFirebaseCredentials(email, password)
         return response
 
     def restore_settings_from_db(self):
         # 1: Get and initiate groups
         __raw_groups = sql.getGroupNames()
+        log.critical(str(__raw_groups))
         for raw_group in __raw_groups:
             self.add_group(raw_group[0])
 
@@ -94,39 +103,258 @@ class rpiHub(object):
                 dvc_type=raw_dvc[1],
                 dvc_group=raw_dvc[2],
                 dvc_name=raw_dvc[3],
+                ch0name=raw_dvc[4],
+                ch1name=raw_dvc[5],
+                last_val=raw_dvc[6],
                 restore=True
             )
 
         for gr in self.group_list:
             log.info(gr.name)
 
-    def read(self):
-        # TEMP
-        log.info("Read thread initialized")
+    def loop(self):
+        """ Loop-worker для потока чтения/записи """
         try:
             while(True):
-                sleep(5)
-                if len(self.snc_list) == 0:
-                    continue
-                __idx = randint(0, len(self.snc_list)-1)
-                snc = self.snc_list[__idx]
-                snc.get_random_state()
-                log.info("Sencor %s:%s" % (snc.name, snc.value))
+                # Проверить таймаут токена и обновить его при необходимости
                 self.firebase.upd_token(self.group_list, self.device_handler)
-                self.firebase.update_sencor_value(snc)
-                log.critical("===ITER===")
-        except KeyboardInterrupt:
-            "Got exception kbu"
-            for g in self.group_list:
-                g.dvc_stream.close()
+                # Если установлено событие отправки команд
+                if self.rfm.wrt_event.is_set():
+                    try:
+                        # Отправка
+                        self.write()
+                    except Exception as e:
+                        log.error("Error during command write")
+                        log.error(e)
+                else:
+                    try:
+                        # Чтение
+                        self.read()
+                    except Exception as e:
+                        log.error("Error during snc/dvc read")
+                        log.error(e)
+                # Проверка датчиков на таймаут ответа и обновление их данных
+                self.check_sencors_timeouts()
+                log.info("===ITER===")
+        except Exception as e:
+            """Обработка непредвиденных исключений"""
+            log.exception(e)
+        finally:
+            """ Убить потоки чтения устройств для чистого выхода """
+            for group in self.group_list:
+                try:
+                    group.dvc_stream.close()
+                except AttributeError:
+                    # Обработка периодической ошибки аттрибута
+                    # библиотечная ошибка, не влияющая ни на что
+                    pass
+
+    def read(self):
+        """ Метод чтения радиоканала """
+        # Переменная для хранения экземпляра датчика
+        __sencor = None
+        # Чтение пакета данных из радиоканала
+        income = self.rfm.read_with_cb(30)
+        # Если данные пришли, то тип income изменится на кортеж
+        # Если не пришли income == None
+        if type(income) == tuple:
+            # Список с полезными данными
+            __payload = income[0]
+            # Проверка на целостность пакета
+            if len(__payload) <= 1:
+                log.error("Received damaged packet")
+                return
+            # Поиск экземпляра датчика
+            __sencor = self.get_sencor_by_id(__payload[1])
+            if __sencor is not None:
+                # Сконвертировать принятые данные
+                __sencor.convert_data(income[0])
+                # Вывести информацию в лог
+                log.info(__sencor.name + ":" + __sencor.value)
+                # Обновить данные датчика в Firebase
+                self.firebase.update_sencor_value(__sencor)
+            else:
+                # Поиск экземпляра устройства
+                __device = self.get_device_by_id(__payload[1])
+                # Если экземпляр найден
+                if __device is not None:
+                    # Обносить данные в памяти
+                    __device.update_device(income[0])
+                    # TODO: update data on FB
+
+    def write(self):
+        """ Метод отправки комманд из очереди в радиоканал """
+        # Пока очередь команд не пуста
+        while (len(self.cmd_queue) > 0):
+            # "Выдернуть" команду из очереди
+            __pack = self.cmd_queue.pop(0)
+            # Сама команда
+            __cmd = __pack[0]
+            # Экземпляр устройства
+            __dvc = __pack[1]
+            # Статус отправки команды
+            __status = False
+
+            """ Отдельный набор операций для контроллера кондиционера """
+            if (__dvc.type == "Conditioner"):
+                # Время начала выполнения
+                _start = time()
+                # Если контроллеру еще не отправляли команды
+                # (т.е. прием осуществляется сразу после маякового сообщения)
+                if not __dvc.is_tamed:
+                    while (time() - _start >= 40):
+                        # Очистить событие записи
+                        self.rfm.wrt_event.clear()
+                        # Считать пакет из радиоканала
+                        __rsp = self.rfm.read_with_cb(1)
+                        # Если пришел пакет
+                        if type(__rsp) == tuple:
+                            # Если пришел маяк не от необходимого устройства
+                            if __rsp[0][1] != __dvc.device_id:
+                                # TODO: update incoming sencor
+                                continue
+                            # Ждать
+                            sleep(0.05)
+                            # Отправить команду
+                            self.rfm.send_packet(__cmd)
+                            # Обнулить событие записи
+                            self.rfm.wrt_event.clear()
+                            log.info("GOTCHA")
+                            # Ждать ответа 1 сек
+                            __rsp = self.rfm.read_with_cb(1)
+                            # Если ответа не было
+                            if type(__rsp) == tuple:
+                                __status = __dvc.check_response(__cmd[4],
+                                                                __rsp[0])
+                            # Если пришел ответ, проверить его
+                            if (__status):
+                                # Если совпадают номер отпрвленной команды и
+                                # id устройства в ответе, то считаем контроллер
+                                # "укрощенным"
+                                __dvc.is_tamed = True
+                                # Вывод в лог сообщение об успехе
+                                log.info("CONDER %s: SENT AND TAMED")
+                                # Выход из цикла while
+                                break
+                    if not __status:
+                        __dvc.rollback()
+                        self.firebase.update_device_value(__dvc)
+
+                # Если контроллер уже был в управлении
+                else:
+                    # Промежуточное хранение последнего ответа
+                    _lr = __dvc.last_response
+                    # Цикл по времени (попытки отправки в течение 26 сек)
+                    while(time() - _start < 26):
+                        # Для временного окна после маяка установить
+                        # дополнительную задержку
+                        if (round((time() - _lr) % 10) == 0):
+                            __add_gap = 0.05
+                        else:
+                            __add_gap = 0
+                        # Вычисление временного окна для отправки команды
+                        # Каждые 5 сек
+                        __t_diff = (time() - _lr) % 5
+                        # Условие вхождения во временное окно (20 мс)
+                        _time_to_send = (__t_diff <= 0.02) and (__t_diff >= 0)
+                        if (_time_to_send):
+                            sleep(__add_gap)
+                            # Отправить пакет
+                            self.rfm.send_packet(__cmd)
+                            # Очистить событие отправки
+                            self.rfm.wrt_event.clear()
+
+                            # Подождать ответ
+                            __rsp = self.rfm.read_with_cb(1)
+                            # Если ответ пришел
+                            if type(__rsp) == tuple:
+                                # Ппроверить статус ответа
+                                __status = __dvc.check_response(__cmd[3],
+                                                                __rsp[0])
+                                # При правильном ответе лог и выход из цикла
+                                if __status:
+                                    log.info("Conditioner command sent")
+                                    break
+                # Если за 26 сек команда не была отправлена
+                if not __status:
+                    # Лог ошибки
+                    __dvc.rollback()
+                    self.firebase.update_device_value(__dvc)
+                    log.info("Conditioner command sending failed")
+
+                # Возврат к изъятию команды из очереди
+                continue
+
+            # 5 попыток отправки
+            for i in range(0, 5):
+                # Установка события отправки
+                self.rfm.wrt_event.set()
+                # Отправка команды
+                self.rfm.send_packet(__cmd)
+                # Очистка события отправки
+                self.rfm.wrt_event.clear()
+
+                # Ожидпние ответа
+                __response = self.rfm.read_with_cb(1)
+
+                # Если пришел ответ
+                if type(__response) == tuple:
+                    # Проверка статуса ответа
+                    __status = __dvc.check_response(__cmd[4], __response[0])
+                    # Если статус отвтеа положительный
+                    if (__status):
+                        # Лог и выход из for(0, 5)
+                        log.info("Command sent successfully")
+                        break
+            # Если статус не был получен
+            if not __status:
+                # Лог ошибки
+                log.info("Command sending failed")
+                __dvc.rollback()
+                self.firebase.update_device_value(__dvc)
+        # Очистка события отправки
+        self.rfm.wrt_event.clear()
+
+    def device_handler(self, message):
+        """ Метод-обработчик сообщений от облачной базы Firebase """
+        # Имя группы
+        __from = message["stream_id"]
+        # Имя устройства
+        __inc_device_name = (message["path"].split("/"))[1]
+        # Полезные данные
+        __data = message["data"]
+        # Переменная для экземпляра устройства
+        __dvc2wrt = None
+
+        # Поиск экземпляра устройства
+        for dvc in self.dvc_list:
+            if dvc.name == __inc_device_name:
+                __dvc2wrt = dvc
+                break
+
+        # Если устройство найдено
+        if __dvc2wrt is not None:
+            # Сформировать команду для отправки
+            cmd = __dvc2wrt.form_cmd(__data)
+            # Добавить пару [команда, экземпляр] в очередь
+            self.cmd_queue.append([cmd, __dvc2wrt])
+            # Установить событие отправки команд
+            self.rfm.wrt_event.set()
 
     def init_read_sencors(self):
         # Инициализировать тред
-        self.read_thread = threading.Thread(target=self.read)
+        self.read_thread = threading.Thread(target=self.loop)
         # Установить тред как демон
         self.read_thread.daemon = True
         # Запустить тред
         self.read_thread.start()
+
+    def check_sencors_timeouts(self):
+        for sencor in self.snc_list:
+            if sencor.check_timeout():
+                log.error("TIMEOUT detected: %s" % sencor.name)
+                log.error("Time: %s sec" % (time() - sencor.last_response))
+                self.firebase.update_sencor_value(sencor)
 
     # GROUPS #
 
@@ -170,20 +398,6 @@ class rpiHub(object):
             'devices': __dvc_output
         }
         return response
-
-    def device_handler(self, message):
-        """ Метод-обработчик сообщений от облачной базы Firebase """
-        __from = message["stream_id"]
-        # __group = self.get_group_by_name(__from)
-        # if __group == None:
-        #     log.error("Incoming message from non-existing group")
-        #     return
-        __inc_device_name = (message["path"].split("/"))[1]
-        __data = message["data"]
-        log.info("GROUP: %s, DEVICE: %s, DATA: %s" % (__from,
-                                                      __inc_device_name,
-                                                      __data))
-        # __device = None
 
     def add_group(self, group_name):
         """
@@ -266,6 +480,14 @@ class rpiHub(object):
             new_sencor = LuminositySencor(snc_id=snc_id,
                                           group_name=snc_group,
                                           name=snc_name)
+        elif snc_type == "Door":
+            new_sencor = DoorSencor(snc_id=snc_id,
+                                    group_name=snc_group,
+                                    name=snc_name)
+        elif snc_type == "Pulse":
+            new_sencor = PulseSencor(snc_id=snc_id,
+                                     group_name=snc_group,
+                                     name=snc_name)
         else:
             log.error("Unknown sencor type")
             return "FAIL"
@@ -334,11 +556,12 @@ class rpiHub(object):
                 break
         return __dvc
 
-    def add_dvc(self, dvc_type, dvc_id, dvc_group, dvc_name, restore=False):
+    def add_dvc(self, dvc_type, dvc_id, dvc_group, dvc_name, ch0name=None,
+                ch1name=None, last_val=None, restore=False):
         """ Добавить устройство """
         # Проверить, существует ли уже такое устройство
         if self.get_device_by_id(dvc_id) is not None:
-            log.error("Device with this type/id already exists")
+            log.error("Device with this id already exists")
             return "FAIL"
 
         # Найти экземпляр группы в списке
@@ -351,7 +574,14 @@ class rpiHub(object):
         if dvc_type == "Relay":
             new_device = Relay(dvc_id=dvc_id,
                                group_name=dvc_group,
-                               name=dvc_name)
+                               name=dvc_name,
+                               ch0name=ch0name,
+                               ch1name=ch1name,
+                               last_val=last_val)
+        elif dvc_type == "Conditioner":
+            new_device = Conditioner(dvc_id=dvc_id,
+                                     group_name=dvc_group,
+                                     name=dvc_name)
         else:
             log.error("Unknown device type")
             return "FAIL"
@@ -359,15 +589,24 @@ class rpiHub(object):
         # Если создается новое устройство (не восстанавливается из БД)
         if not restore:
             # Добавить новую запись в БД
-            sql.newDeviceSettings((dvc_id, dvc_type, dvc_group, dvc_name))
+            __dvc_settings = (dvc_id,
+                              dvc_type,
+                              dvc_group,
+                              dvc_name,
+                              ch0name,
+                              ch1name,
+                              0)
+            sql.newDeviceSettings(__dvc_settings)
         # Добавить новое устройство в список устройств хаба и группы
         self.dvc_list.append(new_device)
         __group.devices.append(new_device)
         # TODO: init stuff in first/recover send
+        self.firebase.set_device_type(new_device)
         self.firebase.update_device_value(new_device)
         return "OK"
 
-    def edit_dvc(self, dvc_type, dvc_id, new_dvc_group, new_dvc_name):
+    def edit_dvc(self, dvc_type, dvc_id, new_dvc_group, new_dvc_name,
+                 new_ch0name=None, new_ch1name=None):
         """ Редактировать настройки устройства """
         __device_for_edit = self.get_device_by_id(dvc_id)
 
@@ -383,9 +622,18 @@ class rpiHub(object):
 
             __device_for_edit.group_name = new_dvc_group
             __device_for_edit.name = new_dvc_name
+            if __device_for_edit.type == 'Relay':
+                __device_for_edit.ch0name = new_ch0name
+                __device_for_edit.ch1name = new_ch1name
             __new_group.devices.append(__device_for_edit)
+            self.firebase.set_device_type(__device_for_edit)
             self.firebase.update_device_value(__device_for_edit)
-            sql.editDevice((new_dvc_group, new_dvc_name, dvc_id))
+            __dvc_settings = (new_dvc_group,
+                              new_dvc_name,
+                              new_ch0name,
+                              new_ch1name,
+                              dvc_id)
+            sql.editDevice(__dvc_settings)
             return "OK"
         else:
             log.error("Device for edit not found in list")

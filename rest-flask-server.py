@@ -25,7 +25,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 LOG_FILE = os.path.join(ROOT, 'logs/flask-server.log')
 
 LOG = logging.getLogger()
-LOG.setLevel(logging.INFO)
+LOG.setLevel(logging.DEBUG)
 
 RFH = TimedRotatingFileHandler(LOG_FILE,
                                when="D",
@@ -118,7 +118,7 @@ def connect():
 @cross_origin()
 def get_groups():
     """ Получение списка имен групп """
-    LOG.info("Got connect")
+    LOG.info("Got get groups")
     response = rpiHub.get_groups()
     return jsonify(response)
 
@@ -131,7 +131,7 @@ def group(group_name):
         @POST: Создание новой группы с именем <group_name>
         @DELETE: Удаление группы <group_name>
     """
-    LOG.info("Got connect")
+    LOG.info("Got single group: %s" % request.method)
     response = {}
     if request.method == 'GET':
         response = rpiHub.get_group_info(group_name)
@@ -151,7 +151,7 @@ def sencor():
         @DELETE: удаление датчика
         input: json {snc_id(int), snc_type(str), snc_group(str), snc_name(str)}
     """
-    LOG.info("Got sencor")
+    LOG.info("Got sencor: %s" % request.method)
     response = {}
     if not request.json:
         LOG.info("NO JSON")
@@ -192,7 +192,7 @@ def device():
         @DELETE: удаление устройства
         input: json {dvc_id(int), dvc_type(str), dvc_group(str), dvc_name(str)}
     """
-    LOG.info("Got device")
+    LOG.info("Got device %s" % request.method)
     response = {}
     if not request.json:
         abort(400)
@@ -204,20 +204,31 @@ def device():
     dvc_id = int(config['dvc_id'])
     dvc_type = config['dvc_type']
 
+    # add info for relay
+    ch0name = None
+    ch1name = None
+
     if request.method != 'DELETE':
         dvc_group = config['dvc_group']
         dvc_name = config['dvc_name']
+        if dvc_type == 'Relay':
+            ch0name = config['ch0name']
+            ch1name = config['ch1name']
 
     if request.method == 'POST':
         response = rpiHub.add_dvc(dvc_type=dvc_type,
                                   dvc_id=dvc_id,
                                   dvc_group=dvc_group,
-                                  dvc_name=dvc_name)
+                                  dvc_name=dvc_name,
+                                  ch0name=ch0name,
+                                  ch1name=ch1name)
     elif request.method == 'PUT':
         response = rpiHub.edit_dvc(dvc_type=dvc_type,
                                    dvc_id=dvc_id,
                                    new_dvc_group=dvc_group,
-                                   new_dvc_name=dvc_name)
+                                   new_dvc_name=dvc_name,
+                                   new_ch0name=ch0name,
+                                   new_ch1name=ch1name)
     elif request.method == 'DELETE':
         response = rpiHub.remove_dvc(dvc_id=dvc_id, dvc_type=dvc_type)
     return jsonify(response)
