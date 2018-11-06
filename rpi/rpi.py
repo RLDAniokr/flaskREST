@@ -52,7 +52,7 @@ class rpiHub(object):
         # TODO: add get devices from db
         self.restore_settings_from_db()
         # rfm69hw module
-        __config = rfm_config()
+        __config = rfm_config(chan_num=2)
         self.rfm = rfm69(dio0_pin=24,
                          reset_pin=22,
                          spi_channel=0,

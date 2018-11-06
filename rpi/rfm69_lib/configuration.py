@@ -108,7 +108,7 @@ class RFM69Configuration(object):
 
         Some of the most-used registers are RegisterValue objects which remove the need for bitwise arithmetic.
     """
-    def __init__(self):
+    def __init__(self, chan_num):
         """ Defaults here are *mostly* the same as the defaults on the RFM69W """
         self.opmode = OpMode()
         self.data_modulation = DataModulation()
@@ -119,13 +119,11 @@ class RFM69Configuration(object):
         self.fdev_msb = 0x01
         self.fdev_lsb = 0x3F
 
-        # self.frf_msb = RF.FRFMSB_915
-        # self.frf_mid = RF.FRFMID_915
-        # self.frf_lsb = RF.FRFLSB_915
         #CUSTOM RLDA FREQ
-        self.frf_msb = 0x6C
-        self.frf_mid = 0x54
-        self.frf_lsb = 0xde
+        freq = (int(((chan_num-3)*100000)/61)+0x6C5B45)
+        self.frf_msb = (freq >> 16) & 0xFF
+        self.frf_mid = (freq >> 8) & 0xFF
+        self.frf_lsb = freq & 0xFF
 
         self.afc_ctl = RF.AFCLOWBETA_OFF
 
