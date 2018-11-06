@@ -227,6 +227,11 @@ class fireBase():
                 log.error("Error occured while deleting group")
                 log.error(e)
 
+    def update_time(self):
+        """ Обновление UNIX-времени в топике последнего сообщения """
+        __data = {"last_upd": time()}
+        self.db.child("users").child(self.uid).update(__data, self.token)
+
     def upd_token(self, group_list, handler):
         """ Обновить токен доступа """
         __t_diff = time() - self.last_token_upd

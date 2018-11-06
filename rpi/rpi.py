@@ -135,6 +135,7 @@ class rpiHub(object):
                         log.error(e)
                 # Проверка датчиков на таймаут ответа и обновление их данных
                 self.check_sencors_timeouts()
+                self.firebase.update_time()
                 log.info("===ITER===")
         except Exception as e:
             """Обработка непредвиденных исключений"""
