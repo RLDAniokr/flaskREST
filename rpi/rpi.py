@@ -582,7 +582,7 @@ class rpiHub(object):
         elif dvc_type == "Conditioner":
             new_device = Conditioner(dvc_id=dvc_id,
                                      group_name=dvc_group,
-                                     name=dvc_name
+                                     name=dvc_name,
                                      last_val=last_val)
         else:
             log.error("Unknown device type")

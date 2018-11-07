@@ -186,7 +186,7 @@ class fireBase():
                     device.name + "/" + device.ch0name: device.ch0val,
                     device.name + "/" + device.ch1name: device.ch1val
                 }
-            elif device.type == 'Relay':
+            elif device.type == 'Conditioner':
                 __data = {
                     device.name + "/power": device.power,
                     device.name + "/mode": device.mode,
