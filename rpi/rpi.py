@@ -203,7 +203,7 @@ class rpiHub(object):
                 # Если контроллеру еще не отправляли команды
                 # (т.е. прием осуществляется сразу после маякового сообщения)
                 if not __dvc.is_tamed:
-                    while (time() - _start >= 40):
+                    while (time() - _start <= 40):
                         # Очистить событие записи
                         self.rfm.wrt_event.clear()
                         # Считать пакет из радиоканала
@@ -583,6 +583,10 @@ class rpiHub(object):
             new_device = Conditioner(dvc_id=dvc_id,
                                      group_name=dvc_group,
                                      name=dvc_name)
+            if restore:
+                # RESTORE FROM FB
+                __settings = self.firebase.get_cond_settings(new_device)
+                new_device.restore_fb(__settings)
         else:
             log.error("Unknown device type")
             return "FAIL"

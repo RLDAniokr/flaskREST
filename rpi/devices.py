@@ -161,6 +161,18 @@ class Conditioner(Device):
         self.mode_codes = ["AUTO", "COOL", "DRY", "VENT", "HEAT"]
         self.angle_codes = ["AUTO", "TOP", "HTOP", "HBOT", "BOT"]
 
+    def restore_fb(self, presets):
+        if 'power' in presets:
+            self.power = presets['power']
+        if 'mode' in presets:
+            self.mode = presets['mode']
+        if 'temp' in presets:
+            self.temp = presets['temp']
+        if 'speed' in presets:
+            self.speed = int(presets['speed'])
+        if 'angle' in presets:
+            self.angle = presets['angle']
+
     def update_device(self, income):
         self.last_response = time()
         self.is_tamed = True if (income[7] != 0) else False
@@ -214,7 +226,7 @@ class Conditioner(Device):
 
         log.critical("POW: %s" % (cmd[4] & 1))
         log.critical("MOD: %s" % (cmd[4] >> 1 & 7))
-        log.critical("TEMP: %s" % (cmd[4] >> 4 & 7))
+        log.critical("TEMP: %s" % (cmd[4] >> 4 & 0xF))
         log.critical("SPEED: %s" % (cmd[5] & 0x7))
         log.critical("DIFF: %s" % (cmd[5] >> 3))
         #log.critical(cmd)
