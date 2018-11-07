@@ -582,11 +582,8 @@ class rpiHub(object):
         elif dvc_type == "Conditioner":
             new_device = Conditioner(dvc_id=dvc_id,
                                      group_name=dvc_group,
-                                     name=dvc_name)
-            if restore:
-                # RESTORE FROM FB
-                __settings = self.firebase.get_cond_settings(new_device)
-                new_device.restore_fb(__settings)
+                                     name=dvc_name
+                                     last_val=last_val)
         else:
             log.error("Unknown device type")
             return "FAIL"

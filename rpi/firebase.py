@@ -165,14 +165,6 @@ class fireBase():
                 log.error("Error occured while sencor delete")
                 log.error(e)
 
-    def get_cond_settings(self, conditioner):
-        if self.is_auth:
-            __gr = conditioner.group_name
-            __name = conditioner.name
-            __path = self.root(__gr).child("devices").child(__name)
-            __settings = __path.get(self.token).val()
-            return __settings
-
     def set_device_type(self, device):
         """ Метод установки типа устройства в fb """
         if self.is_auth:

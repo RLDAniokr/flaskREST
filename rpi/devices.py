@@ -144,34 +144,18 @@ class Relay(Device):
 
 class Conditioner(Device):
     """ Класс контроллера кондиционера"""
-    def __init__(self, dvc_id, group_name, name):
+    def __init__(self, dvc_id, group_name, name, last_val):
         super(Conditioner, self).__init__(dvc_id, group_name, name)
         self.type = "Conditioner"
         self.is_tamed = False
 
-        self.value = 0
+        self.value = last_val or 0
         self.old_value = self.value
 
-        self.power = False
-        self.mode = "AUTO"
-        self.temp = 16
-        self.speed = 0
-        self.angle = "AUTO"
+        self.mode_codes = ("AUTO", "COOL", "DRY", "VENT", "HEAT")
+        self.angle_codes = ("AUTO", "TOP", "HTOP", "HBOT", "BOT")
 
-        self.mode_codes = ["AUTO", "COOL", "DRY", "VENT", "HEAT"]
-        self.angle_codes = ["AUTO", "TOP", "HTOP", "HBOT", "BOT"]
-
-    def restore_fb(self, presets):
-        if 'power' in presets:
-            self.power = presets['power']
-        if 'mode' in presets:
-            self.mode = presets['mode']
-        if 'temp' in presets:
-            self.temp = presets['temp']
-        if 'speed' in presets:
-            self.speed = int(presets['speed'])
-        if 'angle' in presets:
-            self.angle = presets['angle']
+        self.rollback()
 
     def update_device(self, income):
         self.last_response = time()
@@ -222,13 +206,13 @@ class Conditioner(Device):
 
         # Разбиение по байтам
         cmd[4] = self.value & 0xFF
-        cmd[5] = self.value >> 8
+        cmd[5] = (self.value >> 8) & 0xFF
 
-        log.critical("POW: %s" % (cmd[4] & 1))
-        log.critical("MOD: %s" % (cmd[4] >> 1 & 7))
-        log.critical("TEMP: %s" % (cmd[4] >> 4 & 0xF))
-        log.critical("SPEED: %s" % (cmd[5] & 0x7))
-        log.critical("DIFF: %s" % (cmd[5] >> 3))
+        log.warning("POW: %s" % (cmd[4] & 1))
+        log.warning("MOD: %s" % (cmd[4] >> 1 & 7))
+        log.warning("TEMP: %s" % (cmd[4] >> 4 & 7))
+        log.warning("SPEED: %s" % (cmd[5] & 0x7))
+        log.warning("DIFF: %s" % (cmd[5] >> 3))
         #log.critical(cmd)
         return cmd
 
@@ -240,6 +224,7 @@ class Conditioner(Device):
         """
         if income[1] == self.device_id:
             if income[7] == cmd_n:
+                saveLast((self.value, self.device_id))
                 return True
             else:
                 self.update_device(income)
@@ -247,7 +232,7 @@ class Conditioner(Device):
             return False
 
     def rollback(self):
-        """ Метод отката изменений при ошибке """
+        """ Метод отката изменений при ошибке/восстановлении """
         self.value = self.old_value
         self.power = (self.value & 0x1) == 1
         self.mode = self.mode_codes[((self.value >> 1) & 0x7)]
