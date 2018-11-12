@@ -186,7 +186,7 @@ class fireBase():
                     device.name + "/" + device.ch0name: device.ch0val,
                     device.name + "/" + device.ch1name: device.ch1val
                 }
-            elif device.type == 'Relay':
+            elif device.type == 'Conditioner':
                 __data = {
                     device.name + "/power": device.power,
                     device.name + "/mode": device.mode,
@@ -226,6 +226,11 @@ class fireBase():
             except Exception as e:
                 log.error("Error occured while deleting group")
                 log.error(e)
+
+    def update_time(self):
+        """ Обновление UNIX-времени в топике последнего сообщения """
+        __data = {"last_upd": time()}
+        self.db.child("users").child(self.uid).update(__data, self.token)
 
     def upd_token(self, group_list, handler):
         """ Обновить токен доступа """

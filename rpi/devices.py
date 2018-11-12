@@ -144,28 +144,36 @@ class Relay(Device):
 
 class Conditioner(Device):
     """ Класс контроллера кондиционера"""
-    def __init__(self, dvc_id, group_name, name):
+    def __init__(self, dvc_id, group_name, name, last_val):
+        # Инициализация родительского класса
         super(Conditioner, self).__init__(dvc_id, group_name, name)
+        # Тип устройства
         self.type = "Conditioner"
+        # Флаг факта управления
         self.is_tamed = False
 
-        self.value = 0
+        # Последнее успешное значение управления
+        self.value = last_val or 0
+        # Бэкап последнего успешного знчения управления
         self.old_value = self.value
 
-        self.power = False
-        self.mode = "AUTO"
-        self.temp = 16
-        self.speed = 0
-        self.angle = "AUTO"
+        # Кодовые обозначения режимов работы
+        self.mode_codes = ("AUTO", "COOL", "DRY", "VENT", "HEAT")
+        # Кодовые обозначения углов диффузора
+        self.angle_codes = ("AUTO", "TOP", "HTOP", "HBOT", "BOT")
 
-        self.mode_codes = ["AUTO", "COOL", "DRY", "VENT", "HEAT"]
-        self.angle_codes = ["AUTO", "TOP", "HTOP", "HBOT", "BOT"]
+        # Откат занчений параметров управления
+        self.rollback()
 
     def update_device(self, income):
+        """ Обновление данных """
+        # Обновление времени последнего ответа
         self.last_response = time()
+        # Флаг факта управления
         self.is_tamed = True if (income[7] != 0) else False
+        # Обновление показаний
         self.value = ((income[5] & 0b1) == 1)
-        # TODO: update device values on ram & FB
+        self.rollback()
 
     def form_cmd(self, data2parse):
         """ Метод формирования управляющей команды
@@ -210,14 +218,13 @@ class Conditioner(Device):
 
         # Разбиение по байтам
         cmd[4] = self.value & 0xFF
-        cmd[5] = self.value >> 8
+        cmd[5] = (self.value >> 8) & 0xFF
 
-        log.critical("POW: %s" % (cmd[4] & 1))
-        log.critical("MOD: %s" % (cmd[4] >> 1 & 7))
-        log.critical("TEMP: %s" % (cmd[4] >> 4 & 7))
-        log.critical("SPEED: %s" % (cmd[5] & 0x7))
-        log.critical("DIFF: %s" % (cmd[5] >> 3))
-        #log.critical(cmd)
+        log.warning("POW: %s" % (cmd[4] & 1))
+        log.warning("MOD: %s" % (cmd[4] >> 1 & 7))
+        log.warning("TEMP: %s" % (cmd[4] >> 4 & 7))
+        log.warning("SPEED: %s" % (cmd[5] & 0x7))
+        log.warning("DIFF: %s" % (cmd[5] >> 3))
         return cmd
 
     def check_response(self, cmd_n, income):
@@ -228,6 +235,10 @@ class Conditioner(Device):
         """
         if income[1] == self.device_id:
             if income[7] == cmd_n:
+                # Если идентификатор и номер команды совпали
+                # Сохранить значение в базе
+                saveLast((self.value, self.device_id))
+                # Вернуть True
                 return True
             else:
                 self.update_device(income)
@@ -235,7 +246,7 @@ class Conditioner(Device):
             return False
 
     def rollback(self):
-        """ Метод отката изменений при ошибке """
+        """ Метод отката изменений при ошибке/восстановлении """
         self.value = self.old_value
         self.power = (self.value & 0x1) == 1
         self.mode = self.mode_codes[((self.value >> 1) & 0x7)]

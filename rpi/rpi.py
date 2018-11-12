@@ -52,7 +52,7 @@ class rpiHub(object):
         # TODO: add get devices from db
         self.restore_settings_from_db()
         # rfm69hw module
-        __config = rfm_config()
+        __config = rfm_config(chan_num=2)
         self.rfm = rfm69(dio0_pin=24,
                          reset_pin=22,
                          spi_channel=0,
@@ -116,6 +116,8 @@ class rpiHub(object):
         """ Loop-worker для потока чтения/записи """
         try:
             while(True):
+                # Проверить, жив ли основной поток
+                assert(threading.main_thread().is_alive())
                 # Проверить таймаут токена и обновить его при необходимости
                 self.firebase.upd_token(self.group_list, self.device_handler)
                 # Если установлено событие отправки команд
@@ -135,6 +137,7 @@ class rpiHub(object):
                         log.error(e)
                 # Проверка датчиков на таймаут ответа и обновление их данных
                 self.check_sencors_timeouts()
+                self.firebase.update_time()
                 log.info("===ITER===")
         except Exception as e:
             """Обработка непредвиденных исключений"""
@@ -202,7 +205,7 @@ class rpiHub(object):
                 # Если контроллеру еще не отправляли команды
                 # (т.е. прием осуществляется сразу после маякового сообщения)
                 if not __dvc.is_tamed:
-                    while (time() - _start >= 40):
+                    while (time() - _start <= 40):
                         # Очистить событие записи
                         self.rfm.wrt_event.clear()
                         # Считать пакет из радиоканала
@@ -343,7 +346,7 @@ class rpiHub(object):
 
     def init_read_sencors(self):
         # Инициализировать тред
-        self.read_thread = threading.Thread(target=self.loop)
+        self.read_thread = threading.Thread(name='rw', target=self.loop)
         # Установить тред как демон
         self.read_thread.daemon = True
         # Запустить тред
@@ -581,7 +584,8 @@ class rpiHub(object):
         elif dvc_type == "Conditioner":
             new_device = Conditioner(dvc_id=dvc_id,
                                      group_name=dvc_group,
-                                     name=dvc_name)
+                                     name=dvc_name,
+                                     last_val=last_val)
         else:
             log.error("Unknown device type")
             return "FAIL"
