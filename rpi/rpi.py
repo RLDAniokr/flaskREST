@@ -116,6 +116,8 @@ class rpiHub(object):
         """ Loop-worker для потока чтения/записи """
         try:
             while(True):
+                # Проверить, жив ли основной поток
+                assert(threading.main_thread().is_alive())
                 # Проверить таймаут токена и обновить его при необходимости
                 self.firebase.upd_token(self.group_list, self.device_handler)
                 # Если установлено событие отправки команд
@@ -344,7 +346,7 @@ class rpiHub(object):
 
     def init_read_sencors(self):
         # Инициализировать тред
-        self.read_thread = threading.Thread(target=self.loop)
+        self.read_thread = threading.Thread(name='rw', target=self.loop)
         # Установить тред как демон
         self.read_thread.daemon = True
         # Запустить тред
