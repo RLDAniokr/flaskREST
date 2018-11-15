@@ -233,3 +233,33 @@ class PulseSencor(Sencor):
             # Запомнить последнее значения количества импульсов
             self.prev_pulses = __pulses
             log.info("pow: %s" % self.pow)
+
+
+class WaterCounter(Sencor):
+    def __init__(self, snc_id, group_name, name):
+        super(WaterCounter, self).__init__(snc_id, group_name, name)
+        # Тип датчика
+        self.type = "Water"
+
+        # Таймаут ответа
+        self.timeout = 3605
+
+    def convert_data(self, data):
+        """
+            Конвертация принятых данных
+        """
+
+        self.last_response = time()
+
+        __pulses = 0
+        try:
+            # Побитовая конкатенация показаний количества импульсов
+            for i in range(0, 4):
+                # Текущий бит со смещением
+                __tmp = data[5+i] << (8*i)
+                # Сложение с предыдущими показаниями
+                __pulses = __pulses | __tmp
+        except Exception as e:
+            log.error("Cant calculate pulses on water counter: %s" % self.name)
+
+        self.value = str(__pulses * 10) + " л"

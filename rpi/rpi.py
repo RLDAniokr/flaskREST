@@ -491,6 +491,10 @@ class rpiHub(object):
             new_sencor = PulseSencor(snc_id=snc_id,
                                      group_name=snc_group,
                                      name=snc_name)
+        elif snc_type == "Water":
+            new_sencor = WaterCounter(snc_id=snc_id,
+                                      group_name=snc_group,
+                                      name=snc_name)
         else:
             log.error("Unknown sencor type")
             return "FAIL"
