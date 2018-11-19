@@ -175,7 +175,11 @@ class rpiHub(object):
                 # Вывести информацию в лог
                 log.info(__sencor.name + ":" + __sencor.value)
                 # Обновить данные датчика в Firebase
-                self.firebase.update_sencor_value(__sencor)
+                try:
+                    self.firebase.update_sencor_value(__sencor)
+                except:
+                    log.error("Error occured during sencor update")
+                    log.error("Internet might be unavailable")
             else:
                 # Поиск экземпляра устройства
                 __device = self.get_device_by_id(__payload[1])
@@ -414,10 +418,17 @@ class rpiHub(object):
         self.group_list.append(__new_group)
         # TODO: subscribe devices
         log.info("Type in set: %s" % type(group_name))
-        __devices = self.firebase.root(group_name).child('devices')
-        __new_group.dvc_stream = __devices.stream(self.device_handler,
-                                                  stream_id=__new_group.name,
-                                                  token=self.firebase.token)
+        try:
+            __devices = self.firebase.root(group_name).child('devices')
+            __new_group.dvc_stream = __devices.stream(self.device_handler,
+                                                stream_id=__new_group.name,
+                                                token=self.firebase.token)
+        except Exception as e:
+            log.error("Error in group appending")
+            log.error("Internet might be unavailable")
+            log.exception(e)
+            return("FAIL")
+            
         return("OK")
 
     def remove_group(self, group_name):
