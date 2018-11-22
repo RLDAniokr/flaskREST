@@ -101,11 +101,11 @@ class fireBase():
                 # Обнулить флаг аутэнтификации
                 self.is_auth = False
 
-    def authorize(self, email, password):
+    def authorize(self, email, pswd):
         """ Авторизоваться в системе по почте и паролю """
         try:
             # Войти в системе по паре email+пароль
-            self.user = __auth.sign_in_with_email_and_password(email, password)
+            self.user = self.auth.sign_in_with_email_and_password(email, pswd)
             # Обновить токен доступа
             self.user = self.auth.refresh(self.user['refreshToken'])
             # Выделить uid пользователя
@@ -162,6 +162,11 @@ class fireBase():
             except Exception as e:
                 log.error("Error occured while sencor delete")
                 log.exception(e)
+
+    def set_strm(self, handler, gr_name):
+        _dvc_dir = self.root.child('groups').child(gr_name).child('devices')
+        stream = _dvc_dir.stream(handler, stream_id=gr_name, token=self.token)
+        return stream
 
     def set_device_type(self, device):
         """ Метод установки типа устройства в fb """
