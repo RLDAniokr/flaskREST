@@ -168,18 +168,6 @@ class fireBase():
         stream = _dvc_dir.stream(handler, stream_id=gr_name, token=self.token)
         return stream
 
-    def set_device_type(self, device):
-        """ Метод установки типа устройства в fb """
-        if self.is_auth:
-            _data = {device.name + "/dvc_type": device.type}
-            _group_dir = self.root.child('groups').child(device.group_name)
-            _dvc_dir = _group_dir.child("devices")
-            try:
-                _dvc_dir.update(__data, self.token)
-            except Exception as e:
-                log.error("Error occured while device type set")
-                log.exception(e)
-
     def update_device_value(self, device):
         """ Обновить данные устройства в облачной базе данных """
         if self.is_auth:
