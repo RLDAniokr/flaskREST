@@ -45,7 +45,7 @@ class Sencor(object):
         data = {
             self.name + '/type': self.type,
             self.name + '/id': self.sencor_id,
-            self.name + '/value': self.vaule,
+            self.name + '/value': self.value,
             self.name + '/battery': self.battery,
             self.name + '/last_response': _time
         }
