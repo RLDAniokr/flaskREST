@@ -43,7 +43,7 @@ class Sencor(object):
         _format = '%d-%m-%Y %H:%M'
         _time = datetime.fromtimestamp(self.last_response).strftime(_format)
         data = {
-            self.name + '/type': self.type,
+            self.name + '/snc_type': self.type,
             self.name + '/id': self.sencor_id,
             self.name + '/value': self.value,
             self.name + '/battery': self.battery,
@@ -212,12 +212,12 @@ class PulseSencor(Sencor):
         _format = '%d-%m-%Y %H:%M'
         _time = datetime.fromtimestamp(self.last_response).strftime(_format)
         data = {
-            self.name + 'type': self.type,
-            self.name + 'id': self.sencor_id,
+            self.name + '/snc_type': self.type,
+            self.name + '/id': self.sencor_id,
             self.name + "/КВт*ч": self.kwt,
             self.name + "/Мощность": self.pow,
-            self.name + 'battery': self.battery,
-            self.name + 'last_response': _time
+            self.name + '/battery': self.battery,
+            self.name + '/last_response': _time
         }
         return data
 

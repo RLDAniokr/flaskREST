@@ -77,8 +77,7 @@ class Relay(Device):
 
     def form_data(self):
         data = {
-            self.name + '/type': self.type,
-            self.name + '/id': self.device_id,
+            self.name + '/dvc_type': self.type,
             self.name + '/' + self.ch0name: self.ch0val,
             self.name + '/' + self.ch1name: self.ch1val,
         }
@@ -177,7 +176,7 @@ class Conditioner(Device):
     def form_data(self):
         data = {
             self.name + '/id': self.device_id,
-            self.name + '/type': self.type,
+            self.name + '/dvc_type': self.type,
             self.name + "/power": self.power,
             self.name + "/mode": self.mode,
             self.name + "/temp": self.temp,
