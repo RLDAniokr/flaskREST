@@ -418,7 +418,7 @@ class rpiHub(object):
         __new_group = Group(group_name)
         self.group_list.append(__new_group)
         try:
-            __new_group.dvc_stream = self.firebase.set_strm(self.device_handler)
+            __new_group.dvc_stream = self.firebase.set_strm(self.device_handler, __new_group.name)
         except Exception as e:
             log.error("Error in group appending")
             log.error("Internet might be unavailable")
