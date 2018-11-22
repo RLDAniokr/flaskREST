@@ -3,6 +3,7 @@
 # Author: Antipin S.O. @RLDA
 
 from time import time
+from datetime import datetime
 
 # TEMP: # DEBUG: # XXX:
 from random import randint
@@ -23,6 +24,9 @@ class Sencor(object):
         self.name = name
         # Значение по умолчанию
         self.value = '-'
+        # Заряд батареи
+        self.battery = '-'
+        # Время последнего ответа
         self.last_response = time()
 
     def get_info(self):
@@ -34,6 +38,18 @@ class Sencor(object):
             'name': self.name
         }
         return response
+
+    def form_data(self):
+        _format = '%d-%m-%Y %H:%M'
+        _time = datetime.fromtimestamp(self.last_response).strftime(_format)
+        data = {
+            self.name + '/type': self.type,
+            self.name + '/id': self.sencor_id,
+            self.name + '/value': self.vaule,
+            self.name + '/battery': self.battery,
+            self.name + '/last_response': _time
+        }
+        return data
 
     def check_timeout(self):
         """ Метод проверки таймаута ответа """
@@ -190,6 +206,21 @@ class PulseSencor(Sencor):
         self.pow = 0.0
         # КВт*ч
         self.kwt = 0.0
+
+    # @override
+    def form_data(self):
+        _format = '%d-%m-%Y %H:%M'
+        _time = datetime.fromtimestamp(self.last_response).strftime(_format)
+        data = {
+            self.name + 'type': self.type,
+            self.name + 'id': self.sencor_id,
+            self.name + "/КВт*ч": self.kwt,
+            self.name + "/Мощность": self.pow,
+            self.name + 'battery': self.battery,
+            self.name + 'last_response': _time
+        }
+        return data
+
 
     def convert_data(self, data):
         """

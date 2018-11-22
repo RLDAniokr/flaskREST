@@ -25,7 +25,7 @@ def singleton(class_):
         return instances[class_]
     return getinstance
 
-
+# TODO: # XXX: # NOTE: change CRUD groups path
 @singleton
 class fireBase():
     """
@@ -68,7 +68,7 @@ class fireBase():
             # Обработка ошибки регистрации
             # TODO: Обработать статус наличия пользователя с указанной почтой
             log.error("Error during new user register")
-            log.error(e)
+            log.exception(e)
             return "FAIL"
         finally:
             # Записать данные в базу
@@ -104,17 +104,12 @@ class fireBase():
     def authorize(self, email, password):
         """ Авторизоваться в системе по почте и паролю """
         try:
-            __auth = self.auth
-            __db = self.db
             # Войти в системе по паре email+пароль
             self.user = __auth.sign_in_with_email_and_password(email, password)
             # Обновить токен доступа
             self.user = self.auth.refresh(self.user['refreshToken'])
             # Выделить uid пользователя
             self.uid = self.user['userId']
-            # Лямбда-функция для выделения корневой директории пользователя
-            # (d - имя группы в корневой директории пользователя)
-            self.root = lambda d: __db.child('users').child(self.uid).child(d)
             # Выделить токен доступа
             self.token = self.user['idToken']
 
@@ -128,93 +123,85 @@ class fireBase():
             # Установить флаг фхода в систему
             self.is_auth = False
             # Внести ошибку в лог
-            log.info(e)
+            log.exception(e)
             log.info("Unauthorized")
+
+    @property
+    def root(self):
+        """
+            Вычисляемое свойство объекта: query-путь в корневую
+            директорию пользователя. Read-only
+        """
+        return self.db.child('users').child(self.uid)
 
     def update_sencor_value(self, sencor):
         """ Обновить данные датчика в облачной базе данных """
         # Если установлен флаг входа
         if self.is_auth:
-            # Отдельный формат данных для счетчика импульсов
-            if sencor.type == 'Pulse':
-                __data = {
-                    sencor.name + "/КВт*ч": sencor.kwt,
-                    sencor.name + "/Мощность": sencor.pow,
-                }
-            else:
-                __data = {sencor.name: sencor.value}
+            _data = sencor.form_data()
             # Установить query-путь к данным датчика в облаке
-            __snc_dir = self.root(sencor.group_name).child("sencors")
+            _group_dir = self.root.child('groups').child(sencor.group_name)
+            _snc_dir = _group_dir.child("sencors")
             try:
                 # Обновить данные в облаке
-                __snc_dir.update(__data, self.token)
+                _snc_dir.update(_data, self.token)
             except Exception as e:
                 # Обработчик ошибки обновления
                 log.error("Error occured while updating sencor value")
-                log.error(e)
+                log.exception(e)
 
     def delete_sencor(self, sencor):
         """ Удалить данные сенсора из облачной базы данных """
         if self.is_auth:
             # Установить query-путь к данным датчика в облаке
-            __sencors = self.root(sencor.group_name).child("sencors")
+            _group_dir = self.root.child('groups').child(sencor.group_name)
+            _snc_dir =_group_dir.child("sencors")
             try:
                 # Удалить query-путь к данным датчика в облаке
-                __sencors.child(sencor.name).remove(self.token)
+                _snc_dir.child(sencor.name).remove(self.token)
             except Exception as e:
                 log.error("Error occured while sencor delete")
-                log.error(e)
+                log.exception(e)
 
     def set_device_type(self, device):
         """ Метод установки типа устройства в fb """
         if self.is_auth:
-            __data = {device.name + "/dvc_type": device.type}
-            __devices = self.root(device.group_name).child("devices")
+            _data = {device.name + "/dvc_type": device.type}
+            _group_dir = self.root.child('groups').child(device.group_name)
+            _dvc_dir = _group_dir.child("devices")
             try:
-                __devices.update(__data, self.token)
+                _dvc_dir.update(__data, self.token)
             except Exception as e:
                 log.error("Error occured while device type set")
-                log.error(e)
+                log.exception(e)
 
     def update_device_value(self, device):
         """ Обновить данные устройства в облачной базе данных """
         if self.is_auth:
-            __data = {}
-            # Форма вложенных данных для реле
-            if device.type == 'Relay':
-                __data = {
-                    device.name + "/" + device.ch0name: device.ch0val,
-                    device.name + "/" + device.ch1name: device.ch1val
-                }
-            elif device.type == 'Conditioner':
-                __data = {
-                    device.name + "/power": device.power,
-                    device.name + "/mode": device.mode,
-                    device.name + "/temp": device.temp,
-                    device.name + "/speed": device.speed,
-                    device.name + "/angle": str(device.angle),
-                }
+            _data = device.form_data()
             # Установить query-путь к данным устройства в облаке
-            __devices = self.root(device.group_name).child("devices")
+            _group_dir = self.root.child('groups').child(device.group_name)
+            _dvc_dir = _group_dir.child("devices")
             try:
                 # Обновить данные устройства в облаке
-                __devices.update(__data, self.token)
+                _dvc_dir.update(_data, self.token)
             except Exception as e:
                 log.error("Error occured while updating device")
-                log.error(e)
+                log.exception(e)
 
     def delete_device(self, device):
         """ Удалить данные устройства из облачной базы данных """
         if self.is_auth:
             # Установить query-путь к данным устройства в облаке
-            __devices = self.root(device.group_name).child("devices")
+            _group_dir = self.root.child('groups').child(device.group_name)
+            _dvc_dir = _group_dir.child("devices")
             try:
                 # Удалить query-путь к данным устройства в облаке
-                __devices.child(device.name).remove(self.token)
+                _dvc_dir.child(device.name).remove(self.token)
             except Exception as e:
                 # Обработка ошибки удаления
                 log.error("Error occured while updating device")
-                log.error(e)
+                log.exception(e)
 
     def delete_group(self, group):
         """ Удалить группу из облачной базы данных """
@@ -222,15 +209,18 @@ class fireBase():
         # NOTE: если группа пустая, то в облаке она не отображается
         if self.is_auth:
             try:
-                self.root(group).remove(self.token)
+                self.root.child('groups').child(group).remove(self.token)
             except Exception as e:
                 log.error("Error occured while deleting group")
-                log.error(e)
+                log.exception(e)
 
     def update_time(self):
         """ Обновление UNIX-времени в топике последнего сообщения """
         __data = {"last_upd": time()}
-        self.db.child("users").child(self.uid).update(__data, self.token)
+        try:
+            self.root.update(__data, self.token)
+        except Exception as e:
+            log.exception(e)
 
     def upd_token(self, group_list, handler):
         """ Обновить токен доступа """
@@ -260,10 +250,12 @@ class fireBase():
                         # ошибкой аттрибута (косяк библиотеки)
                         pass
                     # Установить query-путь для устройств группы
-                    __dvcs = self.root(group.name).child('devices')
+                    _gr = self.root.child('groups').child(device.group_name)
+                    _dvc_dir = _gr.child("devices")
+
                     # Создать новый поток для прослушки канала устройств группы
-                    group.dvc_stream = __dvcs.stream(handler,
-                                                     stream_id=group.name,
-                                                     token=self.token)
+                    group.dvc_stream = _dvc_dir.stream(handler,
+                                                       stream_id=group.name,
+                                                       token=self.token)
                 # Установить время последнего обновления токена
                 self.last_token_upd = time()

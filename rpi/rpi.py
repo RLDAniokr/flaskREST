@@ -2,7 +2,6 @@
 # -*- coding: utf8 -*-
 # Author: Antipin S.O. @RLDA
 
-# TODO: import stuff
 import threading
 from time import sleep, time
 
@@ -141,7 +140,7 @@ class rpiHub(object):
                 log.info("===ITER===")
         except Exception as e:
             """Обработка непредвиденных исключений"""
-            log.exception(e)
+            log.exception("message")
         finally:
             """ Убить потоки чтения устройств для чистого выхода """
             for group in self.group_list:
@@ -177,9 +176,10 @@ class rpiHub(object):
                 # Обновить данные датчика в Firebase
                 try:
                     self.firebase.update_sencor_value(__sencor)
-                except:
+                except Exception as e:
                     log.error("Error occured during sencor update")
                     log.error("Internet might be unavailable")
+                    log.exception("message")
             else:
                 # Поиск экземпляра устройства
                 __device = self.get_device_by_id(__payload[1])
@@ -188,6 +188,7 @@ class rpiHub(object):
                     # Обносить данные в памяти
                     __device.update_device(income[0])
                     # TODO: update data on FB
+                    # TODO: try/exc to prevent failure
 
     def write(self):
         """ Метод отправки комманд из очереди в радиоканал """
@@ -426,9 +427,9 @@ class rpiHub(object):
         except Exception as e:
             log.error("Error in group appending")
             log.error("Internet might be unavailable")
-            log.exception(e)
+            log.exception("message")
             return("FAIL")
-            
+
         return("OK")
 
     def remove_group(self, group_name):
