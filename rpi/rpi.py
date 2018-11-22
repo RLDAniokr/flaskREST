@@ -418,7 +418,6 @@ class rpiHub(object):
         __new_group = Group(group_name)
         self.group_list.append(__new_group)
         try:
-            __devices = self.firebase.root(group_name).child('devices')
             __new_group.dvc_stream = self.firebase.set_strm(self.device_handler)
         except Exception as e:
             log.error("Error in group appending")
