@@ -11,7 +11,7 @@ log.propagate = False
 format = '%(asctime)s,%(message)s'
 FORMATTER = logging.Formatter(format, datefmt='%Y-%m-%d %H:%M:%S')
 
-PATH = '../logs/sencor_logs/sencors.csv'
+PATH = './logs/sencor_logs/sencors.csv'
 trot_handler = TimedRotatingFileHandler(PATH,
                                         when="D",
                                         interval=1,
@@ -22,8 +22,7 @@ log.addHandler(trot_handler)
 
 
 class Warden(object):
-    def __init__(self, stream_init_fn, update_fb_fn):
-        self.stream = stream_init_fn(self.stream_handler)
+    def __init__(self, update_fb_fn):
         self.update_fb_fn = update_fb_fn
 
     def parse_n_write(self, snc_id, snc_type, snc_val, snc_time):

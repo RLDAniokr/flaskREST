@@ -59,8 +59,9 @@ class rpiHub(object):
                          config=__config)
         self.rfm.set_rssi_threshold(-114)
         # Инициализировать объект-логгер показаний датчиков
-        self.warden = Warden(stream_init_fn=self.firebase.init_warden,
-                             update_fb_fn=self.firebase.update_stats)
+        self.warden = Warden(update_fb_fn=self.firebase.update_stats)
+        # Инициализировать поток прослушки для статистики
+        self.firebase.init_warden(self.warden.stream_handler)
         # Инициализировать поток прослушки радиоканала
         self.init_read_sencors()
 
@@ -122,10 +123,8 @@ class rpiHub(object):
                 # Проверить, жив ли основной поток
                 assert(threading.main_thread().is_alive())
                 # Проверить таймаут токена и обновить его при необходимости
-                self.firebase.upd_token(self.group_list,
-                                        self.device_handler
-                                        self.warden.stream,
-                                        self.warden.stream_handler)
+                # TODO: set token-updater to diff thread with rLock
+                self.firebase.upd_token(self.group_list, self.device_handler)
                 # Если установлено событие отправки команд
                 if self.rfm.wrt_event.is_set():
                     try:

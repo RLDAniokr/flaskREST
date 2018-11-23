@@ -219,9 +219,12 @@ class fireBase():
         except Exception as e:
             log.exception(e)
 
-    def init_warden(self, handler):
+    def init_warden(self, handler=None):
+        if not self.wd_handler:
+            self.wd_handler = handler
+
         try:
-            _stream = self.root.child('stats').stream(handler,
+            self.wd_stream = self.root.child('stats').stream(self.wd_handler,
                                                       stream_id="stats",
                                                       token=self.token)
             return stream
@@ -232,7 +235,7 @@ class fireBase():
     def update_stats(self, data):
         pass
 
-    def upd_token(self, group_list, handler, wd_stream, wd_handler):
+    def upd_token(self, group_list, handler):
         """ Обновить токен доступа """
         __t_diff = time() - self.last_token_upd
         # NOTE: токен работает не больше часа
@@ -247,11 +250,11 @@ class fireBase():
 
                 # Закрыть поток чтения команд для сбора статистики
                 try:
-                    wd_stream.close()
+                    self.wd_stream.close()
                 except AttributeError:
                     pass
                 # Открыть новый поток прослушки команд для статистики
-                wd_stream = self.init_warden(wd_handler)
+                self.wd_stream = self.init_warden()
 
                 # Закрыть все текущие потоки прослушки команд устройствам
                 for group in group_list:
