@@ -9,6 +9,8 @@ from time import sleep, time
 import threading
 
 from . import sql
+import .sencor_logging as warden
+
 
 import logging
 
@@ -117,6 +119,8 @@ class fireBase():
             self.last_token_upd = time()
             # Установить флаг фхода в систему
             self.is_auth = True
+            # Инициализировать поток проослушки полей для статистики
+            self.warden_stream = self.init_warden()
             # Вывесть статус входа в лог
             log.info("Authorized")
         except Exception as e:
@@ -215,7 +219,20 @@ class fireBase():
         except Exception as e:
             log.exception(e)
 
-    def upd_token(self, group_list, handler):
+    def init_warden(self, handler):
+        try:
+            _stream = self.root.child('stats').stream(handler,
+                                                      stream_id="stats",
+                                                      token=self.token)
+            return stream
+        except Exception as e:
+            log.exception(e)
+            # TODO: XXX: return something?
+
+    def update_stats(self, data):
+        pass
+
+    def upd_token(self, group_list, handler, wd_stream, wd_handler):
         """ Обновить токен доступа """
         __t_diff = time() - self.last_token_upd
         # NOTE: токен работает не больше часа
@@ -225,14 +242,17 @@ class fireBase():
             try:
                 # Обновить токен
                 self.user = self.auth.refresh(self.user['refreshToken'])
-            except Exception as e:
-                # Обработка исключения
-                log.error("Error occured while updating token")
-                log.error(e)
-                return
-            finally:
                 # Выделить токен
                 self.token = self.user['idToken']
+
+                # Закрыть поток чтения команд для сбора статистики
+                try:
+                    wd_stream.close()
+                except AttributeError:
+                    pass
+                # Открыть новый поток прослушки команд для статистики
+                wd_stream = self.init_warden(wd_handler)
+
                 # Закрыть все текущие потоки прослушки команд устройствам
                 for group in group_list:
                     try:
@@ -243,12 +263,16 @@ class fireBase():
                         # ошибкой аттрибута (косяк библиотеки)
                         pass
                     # Установить query-путь для устройств группы
-                    _gr = self.root.child('groups').child(device.group_name)
+                    _gr = self.root.child('groups').child(group.name)
                     _dvc_dir = _gr.child("devices")
 
                     # Создать новый поток для прослушки канала устройств группы
                     group.dvc_stream = _dvc_dir.stream(handler,
-                                                       stream_id=group.name,
-                                                       token=self.token)
-                # Установить время последнего обновления токена
-                self.last_token_upd = time()
+                    stream_id=group.name,
+                    token=self.token)
+                    # Установить время последнего обновления токена
+                    self.last_token_upd = time()
+            except Exception as e:
+                # Обработка исключения
+                log.error("Error occured while updating token")
+                log.error(e)

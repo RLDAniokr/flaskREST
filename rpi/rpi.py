@@ -11,6 +11,7 @@ from .firebase import fireBase
 from . import sql
 from .rfm69_lib.rfm69 import RFM69 as rfm69
 from .rfm69_lib.configuration import RFM69Configuration as rfm_config
+from .sencor_logging import Warden
 
 import logging
 log = logging.getLogger(__name__)
@@ -57,6 +58,9 @@ class rpiHub(object):
                          spi_channel=0,
                          config=__config)
         self.rfm.set_rssi_threshold(-114)
+        # Инициализировать объект-логгер показаний датчиков
+        self.warden = Warden(stream_init_fn=self.firebase.init_warden,
+                             update_fb_fn=self.firebase.update_stats)
         # Инициализировать поток прослушки радиоканала
         self.init_read_sencors()
 
@@ -118,7 +122,10 @@ class rpiHub(object):
                 # Проверить, жив ли основной поток
                 assert(threading.main_thread().is_alive())
                 # Проверить таймаут токена и обновить его при необходимости
-                self.firebase.upd_token(self.group_list, self.device_handler)
+                self.firebase.upd_token(self.group_list,
+                                        self.device_handler
+                                        self.warden.stream,
+                                        self.warden.stream_handler)
                 # Если установлено событие отправки команд
                 if self.rfm.wrt_event.is_set():
                     try:
@@ -173,6 +180,11 @@ class rpiHub(object):
                 __sencor.convert_data(income[0])
                 # Вывести информацию в лог
                 log.info(__sencor.name + ":" + __sencor.value)
+                # Записать данные датчика в лог
+                self.warden.parse_n_write(snc_id=__sencor.snc_id,
+                                          snc_type=__sencor.type,
+                                          snc_val=__sencor.value,
+                                          snc_time=__sencor.last_response)
                 # Обновить данные датчика в Firebase
                 try:
                     self.firebase.update_sencor_value(__sencor)
