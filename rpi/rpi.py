@@ -61,7 +61,7 @@ class rpiHub(object):
         # Инициализировать объект-логгер показаний датчиков
         self.warden = Warden(update_fb_fn=self.firebase.update_stats)
         # Инициализировать поток прослушки для статистики
-        self.firebase.init_warden(self.warden.stream_handler)
+        self.firebase.init_warden(handler=self.warden.stream_handler)
         # Инициализировать поток прослушки радиоканала
         self.init_read_sencors()
 
@@ -180,7 +180,7 @@ class rpiHub(object):
                 # Вывести информацию в лог
                 log.info(__sencor.name + ":" + __sencor.value)
                 # Записать данные датчика в лог
-                self.warden.parse_n_write(snc_id=__sencor.snc_id,
+                self.warden.parse_n_write(snc_id=__sencor.sencor_id,
                                           snc_type=__sencor.type,
                                           snc_val=__sencor.value,
                                           snc_time=__sencor.last_response)

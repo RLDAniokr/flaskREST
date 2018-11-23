@@ -49,14 +49,15 @@ class fireBase():
         self.email = creds['email']
         self.password = creds['password']
 
+        # Резервирование для объектов потока и обработчика статистики
+        self.wd_stream = None
+        self.wd_handler = None
+
         # Если данные не пустые (Пользователь зарегистрировался)
         if self.email is not None and self.password is not None:
             log.info("GOT FB CREDS")
             self.authorize(self.email, self.password)
 
-        # Резервирование для объектов потока и обработчика статистики
-        self.wd_stream = None
-        self.wd_handler = None
         # TODO: set new thread for internet connection check
 
     def register_new_user(self, email, password):
@@ -119,8 +120,6 @@ class fireBase():
             self.last_token_upd = time()
             # Установить флаг фхода в систему
             self.is_auth = True
-            # Инициализировать поток проослушки полей для статистики
-            self.warden_stream = self.init_warden()
             # Вывесть статус входа в лог
             log.info("Authorized")
         except Exception as e:
@@ -224,10 +223,11 @@ class fireBase():
             self.wd_handler = handler
 
         try:
+            log.critical(self.wd_handler)
             self.wd_stream = self.root.child('stats').stream(self.wd_handler,
                                                       stream_id="stats",
                                                       token=self.token)
-            return stream
+            # return stream
         except Exception as e:
             log.exception(e)
             # TODO: XXX: return something?
