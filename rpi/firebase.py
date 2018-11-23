@@ -7,12 +7,9 @@ import requests
 
 from time import sleep, time
 import threading
+import logging
 
 from . import sql
-import .sencor_logging as warden
-
-
-import logging
 
 log = logging.getLogger(__name__)
 
