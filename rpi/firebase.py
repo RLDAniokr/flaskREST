@@ -232,8 +232,17 @@ class fireBase():
             log.exception(e)
             # TODO: XXX: return something?
 
-    def update_stats(self, data):
-        pass
+    def update_stats(self, status=None, data=None):
+        if status:
+            try:
+                self.root.child('stats').update({'status': status})
+            except Exception as e:
+                log.exception(e)
+        if data:
+            try:
+                self.root.child.('stats').set({"calcs": data})
+            except Exception as e:
+                log.exception(e)
 
     def upd_token(self, group_list, handler):
         """ Обновить токен доступа """
@@ -271,8 +280,8 @@ class fireBase():
 
                     # Создать новый поток для прослушки канала устройств группы
                     group.dvc_stream = _dvc_dir.stream(handler,
-                    stream_id=group.name,
-                    token=self.token)
+                                                       stream_id=group.name,
+                                                       token=self.token)
                     # Установить время последнего обновления токена
                     self.last_token_upd = time()
             except Exception as e:
