@@ -54,6 +54,9 @@ class fireBase():
             log.info("GOT FB CREDS")
             self.authorize(self.email, self.password)
 
+        # Резервирование для объектов потока и обработчика статистики
+        self.wd_stream = None
+        self.wd_handler = None
         # TODO: set new thread for internet connection check
 
     def register_new_user(self, email, password):
