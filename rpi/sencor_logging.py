@@ -49,6 +49,11 @@ class Warden(object):
         __from = message["path"]
         __data = message["data"]
         LOG.info("FROM: %s DATA: %s" % (__from, __data))
+
+        if ('status' in __data):
+            if __data['status'] == "AWAIT":
+                return
+
         if ('date' in __data) and ('id' in __data):
             _date = __data['date']
             _snc_id = int(__data['id'])

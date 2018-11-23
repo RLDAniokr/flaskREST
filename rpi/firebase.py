@@ -223,10 +223,10 @@ class fireBase():
             self.wd_handler = handler
 
         try:
-            log.critical(self.wd_handler)
             self.wd_stream = self.root.child('stats').stream(self.wd_handler,
                                                       stream_id="stats",
                                                       token=self.token)
+            self.update_stats(status="AWAIT")
             # return stream
         except Exception as e:
             log.exception(e)
