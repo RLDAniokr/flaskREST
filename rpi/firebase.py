@@ -240,7 +240,7 @@ class fireBase():
                 log.exception(e)
         if data:
             try:
-                self.root.child.('stats').set({"calcs": data})
+                self.root.child('stats').set({"calcs": data})
             except Exception as e:
                 log.exception(e)
 
