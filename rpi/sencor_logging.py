@@ -1,4 +1,4 @@
-from time import mktime, strptime
+from time import mktime, strptime, time
 from datetime import datetime
 import pandas as pd
 
@@ -24,6 +24,19 @@ log.addHandler(trot_handler)
 # TEMP: NOTE: XXX: separate log
 LOG = logging.getLogger("Warden")
 LOG.setLevel(logging.INFO)
+
+
+def timeit(fun):
+    def timed(*args, **kwargs):
+        ts = time.time()
+        result = fun(*args, **kwargs)
+        te = time.time()
+        td = te-ts
+
+        LOG.info('%r : %2.2f sec' % (fun.__name__, td))
+        return result
+
+    return timed
 
 
 class Warden(object):
@@ -75,6 +88,7 @@ class Warden(object):
             elif __data['status'] == "FAIL":
                 self.cancel = True
 
+    @timeit
     def send_stats(self, date, id):
         # TODO: Get local tz from system
         __tz = 'Europe/Moscow'
