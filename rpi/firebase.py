@@ -251,9 +251,10 @@ class fireBase():
             'date': "None"
         }
         try:
-            __raw_stats = self.root.child('stats').get()
-            stats['id'] = __raw_stats['id']
-            stats['date'] = __raw_stats['date']
+            __raw_id = self.root.child('stats').child('id').get(self.token).val()
+            __raw_date = self.root.child('stats').child('date').get(self.token).val()
+            stats['id'] = __raw_id
+            stats['date'] = __raw_date
         except Exception as e:
             log.exception(e)
 

@@ -50,6 +50,9 @@ class Warden(object):
         __data = message["data"]
         LOG.info("FROM: %s DATA: %s" % (__data))
 
+        if not __data:
+            return
+
         if ('status' in __data):
             if __data['status'] == "AWAIT":
                 return
