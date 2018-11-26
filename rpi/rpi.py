@@ -59,7 +59,8 @@ class rpiHub(object):
                          config=__config)
         self.rfm.set_rssi_threshold(-114)
         # Инициализировать объект-логгер показаний датчиков
-        self.warden = Warden(update_fb_fn=self.firebase.update_stats)
+        self.warden = Warden(update_fb_fn=self.firebase.update_stats
+                             read_fb_fn=self.firebase.read_stats)
         # Инициализировать поток прослушки для статистики
         self.firebase.init_warden(handler=self.warden.stream_handler)
         # Инициализировать поток прослушки радиоканала

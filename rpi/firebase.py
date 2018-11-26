@@ -240,9 +240,24 @@ class fireBase():
                 log.exception(e)
         if data:
             try:
+                self.root.child('stats').child('calcs').remove(self.token)
                 self.root.child('stats').child('calcs').update(data, self.token)
             except Exception as e:
                 log.exception(e)
+
+    def read_stats(self):
+        stats = {
+            'id': "None",
+            'date': "None"
+        }
+        try:
+            __raw_stats = self.root.child('stats').get()
+            stats['id'] = __raw_stats['id']
+            stats['date'] = __raw_stats['date']
+        except Exception as e:
+            log.exception(e)
+
+        return stats
 
     def upd_token(self, group_list, handler):
         """ Обновить токен доступа """

@@ -27,8 +27,9 @@ LOG.setLevel(logging.INFO)
 
 
 class Warden(object):
-    def __init__(self, update_fb_fn):
+    def __init__(self, update_fb_fn, read_fb_fn):
         self.update_fb_fn = update_fb_fn
+        self.read_fb_fn = read_fb_fn
         self.cancel = False
 
     def parse_n_write(self, snc_id, snc_type, snc_val, snc_time):
@@ -46,25 +47,30 @@ class Warden(object):
     def stream_handler(self, message):
         LOG.info("GOT MSG")
         self.cancel = False
-        __from = message["path"]
         __data = message["data"]
-        LOG.info("FROM: %s DATA: %s" % (__from, __data))
+        LOG.info("FROM: %s DATA: %s" % (__data))
 
         if ('status' in __data):
             if __data['status'] == "AWAIT":
                 return
 
-        if ('date' in __data) and ('id' in __data):
-            LOG.info("YUP")
-            _date = __data['date']
-            _id = int(__data['id'])
-            self.send_stats(_date, _id)
-#        elif __data['status'] == "FAIL":
-#            LOG.critical("MOBILE IS TIRED")
-#            self.cancel = True
-#        else:
-#            LOG.info("SELF FUK")
-#            self.update_fb_fn(status="FAIL")
+            elif __data['status'] == "PENDING":
+                if ('date' in __data) and ('id' in __data):
+                    LOG.info("CALCA")
+                    _date = __data['date']
+                    _id = int(__data['id'])
+                    self.send_stats(_date, _id)
+                else:
+                    __stats_params = self.read_fb_fn()
+                    __have_id = __stats_params['id'] != "None"
+                    __have_date = __stats_params['date'] != "None"
+                    if __have_id and __have_date:
+                        _date = __stats_params['date']
+                        _id = __stats_params['id']
+                        self.send_stats(_date, _id)
+
+            elif __data['status'] == "FAIL":
+                self.cancel = True
 
     def send_stats(self, date, id):
         # TODO: Get local tz from system
