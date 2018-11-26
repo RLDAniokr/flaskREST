@@ -117,17 +117,15 @@ class Warden(object):
         return _out_df
 
     def pack_results(self, df):
-        # TODO: change index name for more convinient one
-        df.index = [i for i in range(0, len(df))]
-
         _output_dict = {}
         for index, row in df.iterrows():
             if pd.isna(row['max']):
                 row['max'] = '-'
             if pd.isna(row['diff']):
                 row['diff'] = '-'
-            _output_dict[str(index) + "/max"] = row['max']
-            _output_dict[str(index) + "/diff"] = row['diff']
+            _hour = index.hour
+            _output_dict[str(_hour) + "/max"] = row['max']
+            _output_dict[str(_hour) + "/diff"] = row['diff']
 
         LOG.critical(_output_dict)
 
