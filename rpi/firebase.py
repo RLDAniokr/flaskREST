@@ -235,12 +235,12 @@ class fireBase():
     def update_stats(self, status=None, data=None):
         if status:
             try:
-                self.root.child('stats').update({'status': status})
+                self.root.child('stats').update({'status': status}, self.token)
             except Exception as e:
                 log.exception(e)
         if data:
             try:
-                self.root.child('stats').set({"calcs": data})
+                self.root.child('stats').child('calcs').update(data, self.token)
             except Exception as e:
                 log.exception(e)
 

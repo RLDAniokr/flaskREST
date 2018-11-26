@@ -55,14 +55,16 @@ class Warden(object):
                 return
 
         if ('date' in __data) and ('id' in __data):
+            LOG.info("YUP")
             _date = __data['date']
-            _snc_id = int(__data['id'])
+            _id = int(__data['id'])
             self.send_stats(_date, _id)
-        elif __data['status'] == "FAIL":
-            LOG.critical("MOBILE IS TIRED")
-            self.cancel = True
-        else:
-            self.update_fb_fn(status="FAIL")
+#        elif __data['status'] == "FAIL":
+#            LOG.critical("MOBILE IS TIRED")
+#            self.cancel = True
+#        else:
+#            LOG.info("SELF FUK")
+#            self.update_fb_fn(status="FAIL")
 
     def send_stats(self, date, id):
         # TODO: Get local tz from system
@@ -72,8 +74,9 @@ class Warden(object):
         if date != __today:
             __path += ('.' + date)
         try:
+            LOG.info(__today)
             __df = pd.read_csv(__path, names=['date', 'id', 'value'], sep=',')
-            __df['date'] = pd.to_datetime(df['date']).dt.tz_localize(__tz)
+            __df['date'] = pd.to_datetime(__df['date']).dt.tz_localize(__tz)
             __df.set_index('date', inplace=True)
         except FileNotFoundError:
             self.update_fb_fn(status="404")
@@ -83,7 +86,7 @@ class Warden(object):
             return
 
         try:
-            __calc_df = self.calculate_results(__df)
+            __calc_df = self.calculate_results(__df, id)
             if self.cancel:
                 return
 
@@ -96,7 +99,7 @@ class Warden(object):
             LOG.exception(e)
             self.update_fb_fn(status="FAIL")
 
-    def calculate_results(self, df):
+    def calculate_results(self, df, snc_id):
         # Slice given sencor
         __snc_rows = df[(df.id == snc_id)]
         # Resample frame by hours & get maximal values
@@ -119,5 +122,7 @@ class Warden(object):
                 row['diff'] = '-'
             _output_dict[str(index) + "/max"] = row['max']
             _output_dict[str(index) + "/diff"] = row['diff']
+
+        LOG.critical(_output_dict)
 
         return _output_dict
