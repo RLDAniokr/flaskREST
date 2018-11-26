@@ -61,7 +61,7 @@ class Warden(object):
         LOG.info("GOT MSG")
         self.cancel = False
         __data = message["data"]
-        LOG.info("FROM: %s DATA: %s" % (__data))
+        LOG.info("FROM STATS - DATA: %s" % (__data))
 
         if not __data:
             return
@@ -82,7 +82,7 @@ class Warden(object):
                     __have_date = __stats_params['date'] != "None"
                     if __have_id and __have_date:
                         _date = __stats_params['date']
-                        _id = __stats_params['id']
+                        _id = int(__stats_params['id'])
                         self.send_stats(_date, _id)
 
             elif __data['status'] == "FAIL":
