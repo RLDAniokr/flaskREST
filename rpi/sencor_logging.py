@@ -28,9 +28,9 @@ LOG.setLevel(logging.INFO)
 
 def timeit(fun):
     def timed(*args, **kwargs):
-        ts = time.time()
+        ts = time()
         result = fun(*args, **kwargs)
-        te = time.time()
+        te = time()
         td = te-ts
 
         LOG.info('%r : %2.2f sec' % (fun.__name__, td))

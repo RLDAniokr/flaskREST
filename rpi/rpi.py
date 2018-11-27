@@ -178,6 +178,7 @@ class rpiHub(object):
             if __sencor is not None:
                 # Сконвертировать принятые данные
                 __sencor.convert_data(income[0])
+                __sencor.convert_battery(income[0])
                 # Вывести информацию в лог
                 log.info(__sencor.name + ":" + __sencor.value)
                 # Записать данные датчика в лог

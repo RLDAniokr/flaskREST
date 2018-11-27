@@ -59,6 +59,21 @@ class Sencor(object):
         else:
             return False
 
+    def convert_battery(self, income):
+        if len(income) > 3:
+            __volt_raw = income[3] + 150
+            __volt_full = 330
+            __volt_low = 280
+            __volt_range = __volt_full - __volt_low
+            _volt_calc = ((__volt_raw - volt_low)*100)/volt_range
+            if _volt_calc > 100:
+                _volt_calc = 100
+            elif _volt_calc < 0:
+                _volt_calc = 0
+
+            log.info("Battery level of %s: %s" % (self.name, _volt_calc))
+            self.battery = str(_volt_calc) = " %"
+
 
 class TemperatureSencor(Sencor):
     """ Класс датчиков температуры """
