@@ -81,13 +81,13 @@ class rpiHub(object):
         return response
 
     def restore_settings_from_db(self):
-        # 1: Get and initiate groups
+        """ Мтод восстановления устройств и групп из БД """
+        # 1: Инициализировать группы
         __raw_groups = sql.getGroupNames()
-        log.critical(str(__raw_groups))
         for raw_group in __raw_groups:
             self.add_group(raw_group[0])
 
-        # 2: Get and initiate sencors
+        # 2: Инициализировать датчики
         __raw_sencors = sql.getSencorsSettings()
         log.info(__raw_sencors)
         for raw_snc in __raw_sencors:
@@ -99,7 +99,7 @@ class rpiHub(object):
                 restore=True
             )
 
-        # 3: Get and initiate devices
+        # 3: Инициализировать управляемые устройства
         __raw_devices = sql.getDevicesSettings()
         log.info(__raw_devices)
         for raw_dvc in __raw_devices:
@@ -113,9 +113,6 @@ class rpiHub(object):
                 last_val=raw_dvc[6],
                 restore=True
             )
-
-        for gr in self.group_list:
-            log.info(gr.name)
 
     def loop(self):
         """ Loop-worker для потока чтения/записи """
@@ -181,7 +178,7 @@ class rpiHub(object):
                 __sencor.convert_battery(income[0])
                 # Вывести информацию в лог
                 log.info(__sencor.name + ":" + __sencor.value)
-                # Записать данные датчика в лог
+                # Записать данные датчика в лог (если он нужного типа)
                 self.warden.parse_n_write(snc_id=__sencor.sencor_id,
                                           snc_type=__sencor.type,
                                           snc_val=__sencor.value,
@@ -428,10 +425,11 @@ class rpiHub(object):
         if self.get_group_by_name(group_name) is not None:
             return "FAIL"
 
-        __new_group = Group(group_name)
-        self.group_list.append(__new_group)
+        _new_grp = Group(group_name)
+        self.group_list.append(_new_grp)
         try:
-            __new_group.dvc_stream = self.firebase.set_strm(self.device_handler, __new_group.name)
+            _new_grp.dvc_stream = self.firebase.set_strm(self.device_handler,
+                                                         _new_grp.name)
         except Exception as e:
             log.error("Error in group appending")
             log.error("Internet might be unavailable")

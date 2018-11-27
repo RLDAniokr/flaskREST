@@ -24,6 +24,7 @@ def singleton(class_):
         return instances[class_]
     return getinstance
 
+
 # TODO: # XXX: # NOTE: change CRUD groups path
 @singleton
 class fireBase():
@@ -158,7 +159,7 @@ class fireBase():
         if self.is_auth:
             # Установить query-путь к данным датчика в облаке
             _group_dir = self.root.child('groups').child(sencor.group_name)
-            _snc_dir =_group_dir.child("sencors")
+            _snc_dir = _group_dir.child("sencors")
             try:
                 # Удалить query-путь к данным датчика в облаке
                 _snc_dir.child(sencor.name).remove(self.token)
@@ -167,7 +168,10 @@ class fireBase():
                 log.exception(e)
 
     def set_strm(self, handler, gr_name):
+        """ Установить поток прослушки команд устройств угруппы """
+        # Директория
         _dvc_dir = self.root.child('groups').child(gr_name).child('devices')
+        # Экземпляр потока прослушки
         stream = _dvc_dir.stream(handler, stream_id=gr_name, token=self.token)
         return stream
 
@@ -212,58 +216,81 @@ class fireBase():
 
     def update_time(self):
         """ Обновление UNIX-времени в топике последнего сообщения """
+        # Данные (unixtime)
         __data = {"last_upd": time()}
         try:
+            # Обновление данных в базе
             self.root.update(__data, self.token)
         except Exception as e:
             log.exception(e)
 
     def init_warden(self, handler=None):
+        """ Метод инициализирования потока для статистики """
         if not self.wd_handler:
+            # Забрать обработчик, если он не сохранен
             self.wd_handler = handler
 
         try:
+            # Установить экземпляр потока прослушки в корне директории /stats
             self.wd_stream = self.root.child('stats').stream(self.wd_handler,
-                                                      stream_id="stats",
-                                                      token=self.token)
+                                                             stream_id="stats",
+                                                             token=self.token)
+            # Обновить статус статистики (Ожидание)
             self.update_stats(status="AWAIT")
-            # return stream
+
         except Exception as e:
             log.exception(e)
             # TODO: XXX: return something?
 
     def update_stats(self, status=None, data=None):
+        """ Метод обновления статуса и/или данных статистики """
+        # Если обновляется статус
         if status:
             try:
+                # Обновить значение статуса
                 self.root.child('stats').update({'status': status}, self.token)
             except Exception as e:
                 log.exception(e)
+        # Если обновляются данные
         if data:
             try:
-                self.root.child('stats').child('calcs').remove(self.token)
-                self.root.child('stats').child('calcs').update(data, self.token)
+                # Установить query-путь к данным статистики
+                __calc_path = self.root.child('stats').child('calcs')
+                # Удалить старые данные
+                __calc_path.remove(self.token)
+                # Установить новые данные
+                __calc_path.update(data, self.token)
             except Exception as e:
                 log.exception(e)
 
     def read_stats(self):
+        """ Метод чтения параметров подсчета статистики """
+        # Начальные значения выходного словаря
         stats = {
             'id': "None",
             'date': "None"
         }
         try:
-            __raw_id = self.root.child('stats').child('id').get(self.token).val()
-            __raw_date = self.root.child('stats').child('date').get(self.token).val()
+            # Корневой query-путь статистики
+            __stats_root = self.root.child('stats')
+            # Считать идентификатор датчика
+            __raw_id = __stats_root.child('id').get(self.token).val()
+            # Считать запрашиваемую дату
+            __raw_date = __stats_root.child('date').get(self.token).val()
+            # Записать считанные значения в выходной словарь
             stats['id'] = __raw_id
             stats['date'] = __raw_date
         except Exception as e:
             log.exception(e)
 
+        # Вернуть выходной словарь
         return stats
 
     def upd_token(self, group_list, handler):
         """ Обновить токен доступа """
-        __t_diff = time() - self.last_token_upd
+        # Разница времени между текущим моментом и последним обновлением токена
         # NOTE: токен работает не больше часа
+        __t_diff = time() - self.last_token_upd
         # Если после последнего обновления токена прошло больше 55 минут
         if __t_diff > 3300 and self.is_auth:
             log.info("Token expired")
