@@ -3,7 +3,7 @@
 # Author: Antipin S.O. @RLDA
 
 import pyrebase
-from requests.exception import ConnectionError as ConnErr
+from requests.exceptions import ConnectionError as ConnErr
 
 from time import sleep, time
 import threading
@@ -334,6 +334,7 @@ class fireBase():
             if self.email is not None and self.password is not None:
                 self.is_auth = self.authorize(self.email, self.password)
                 if self.is_auth:
+                    self.wd_stream = self.init_warden()
                     for group in group_list:
                         try:
                             # Закрыть поток
