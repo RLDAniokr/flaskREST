@@ -2,7 +2,6 @@
 # -*- coding: utf8 -*-
 # Author: Antipin S.O. @RLDA
 
-# TODO: import stuff
 import threading
 from time import sleep, time
 
@@ -12,6 +11,7 @@ from .firebase import fireBase
 from . import sql
 from .rfm69_lib.rfm69 import RFM69 as rfm69
 from .rfm69_lib.configuration import RFM69Configuration as rfm_config
+from .sencor_logging import Warden
 
 import logging
 log = logging.getLogger(__name__)
@@ -58,6 +58,11 @@ class rpiHub(object):
                          spi_channel=0,
                          config=__config)
         self.rfm.set_rssi_threshold(-114)
+        # Инициализировать объект-логгер показаний датчиков
+        self.warden = Warden(update_fb_fn=self.firebase.update_stats,
+                             read_fb_fn=self.firebase.read_stats)
+        # Инициализировать поток прослушки для статистики
+        self.firebase.init_warden(handler=self.warden.stream_handler)
         # Инициализировать поток прослушки радиоканала
         self.init_read_sencors()
 
@@ -76,13 +81,13 @@ class rpiHub(object):
         return response
 
     def restore_settings_from_db(self):
-        # 1: Get and initiate groups
+        """ Мтод восстановления устройств и групп из БД """
+        # 1: Инициализировать группы
         __raw_groups = sql.getGroupNames()
-        log.critical(str(__raw_groups))
         for raw_group in __raw_groups:
             self.add_group(raw_group[0])
 
-        # 2: Get and initiate sencors
+        # 2: Инициализировать датчики
         __raw_sencors = sql.getSencorsSettings()
         log.info(__raw_sencors)
         for raw_snc in __raw_sencors:
@@ -94,7 +99,7 @@ class rpiHub(object):
                 restore=True
             )
 
-        # 3: Get and initiate devices
+        # 3: Инициализировать управляемые устройства
         __raw_devices = sql.getDevicesSettings()
         log.info(__raw_devices)
         for raw_dvc in __raw_devices:
@@ -109,9 +114,6 @@ class rpiHub(object):
                 restore=True
             )
 
-        for gr in self.group_list:
-            log.info(gr.name)
-
     def loop(self):
         """ Loop-worker для потока чтения/записи """
         try:
@@ -119,6 +121,7 @@ class rpiHub(object):
                 # Проверить, жив ли основной поток
                 assert(threading.main_thread().is_alive())
                 # Проверить таймаут токена и обновить его при необходимости
+                # TODO: set token-updater to diff thread with rLock
                 self.firebase.upd_token(self.group_list, self.device_handler)
                 # Если установлено событие отправки команд
                 if self.rfm.wrt_event.is_set():
@@ -141,7 +144,7 @@ class rpiHub(object):
                 log.info("===ITER===")
         except Exception as e:
             """Обработка непредвиденных исключений"""
-            log.exception(e)
+            log.exception("message")
         finally:
             """ Убить потоки чтения устройств для чистого выхода """
             for group in self.group_list:
@@ -172,10 +175,21 @@ class rpiHub(object):
             if __sencor is not None:
                 # Сконвертировать принятые данные
                 __sencor.convert_data(income[0])
+                __sencor.convert_battery(income[0])
                 # Вывести информацию в лог
                 log.info(__sencor.name + ":" + __sencor.value)
+                # Записать данные датчика в лог (если он нужного типа)
+                self.warden.parse_n_write(snc_id=__sencor.sencor_id,
+                                          snc_type=__sencor.type,
+                                          snc_val=__sencor.value,
+                                          snc_time=__sencor.last_response)
                 # Обновить данные датчика в Firebase
-                self.firebase.update_sencor_value(__sencor)
+                try:
+                    self.firebase.update_sencor_value(__sencor)
+                except Exception as e:
+                    log.error("Error occured during sencor update")
+                    log.error("Internet might be unavailable")
+                    log.exception("message")
             else:
                 # Поиск экземпляра устройства
                 __device = self.get_device_by_id(__payload[1])
@@ -184,6 +198,7 @@ class rpiHub(object):
                     # Обносить данные в памяти
                     __device.update_device(income[0])
                     # TODO: update data on FB
+                    # TODO: try/exc to prevent failure
 
     def write(self):
         """ Метод отправки комманд из очереди в радиоканал """
@@ -410,14 +425,17 @@ class rpiHub(object):
         if self.get_group_by_name(group_name) is not None:
             return "FAIL"
 
-        __new_group = Group(group_name)
-        self.group_list.append(__new_group)
-        # TODO: subscribe devices
-        log.info("Type in set: %s" % type(group_name))
-        __devices = self.firebase.root(group_name).child('devices')
-        __new_group.dvc_stream = __devices.stream(self.device_handler,
-                                                  stream_id=__new_group.name,
-                                                  token=self.firebase.token)
+        _new_grp = Group(group_name)
+        self.group_list.append(_new_grp)
+        try:
+            _new_grp.dvc_stream = self.firebase.set_strm(self.device_handler,
+                                                         _new_grp.name)
+        except Exception as e:
+            log.error("Error in group appending")
+            log.error("Internet might be unavailable")
+            log.exception("message")
+            return("FAIL")
+
         return("OK")
 
     def remove_group(self, group_name):
@@ -491,6 +509,10 @@ class rpiHub(object):
             new_sencor = PulseSencor(snc_id=snc_id,
                                      group_name=snc_group,
                                      name=snc_name)
+        elif snc_type == "Water":
+            new_sencor = WaterCounter(snc_id=snc_id,
+                                      group_name=snc_group,
+                                      name=snc_name)
         else:
             log.error("Unknown sencor type")
             return "FAIL"
@@ -605,7 +627,6 @@ class rpiHub(object):
         self.dvc_list.append(new_device)
         __group.devices.append(new_device)
         # TODO: init stuff in first/recover send
-        self.firebase.set_device_type(new_device)
         self.firebase.update_device_value(new_device)
         return "OK"
 
@@ -630,7 +651,6 @@ class rpiHub(object):
                 __device_for_edit.ch0name = new_ch0name
                 __device_for_edit.ch1name = new_ch1name
             __new_group.devices.append(__device_for_edit)
-            self.firebase.set_device_type(__device_for_edit)
             self.firebase.update_device_value(__device_for_edit)
             __dvc_settings = (new_dvc_group,
                               new_dvc_name,
