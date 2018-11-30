@@ -33,12 +33,12 @@ def setFirebaseCredentials(email, password):
     with sqlite3.connect('rlda.db') as db:
         cursor = db.cursor()
         __setEmailSQL = """ UPDATE fbSettings
-                            SET value = ?
+                            SET val = ?
                             WHERE keyName = 'email' """
         cursor.execute(__setEmailSQL, (email,))
 
         __setPasswordSQL = """ UPDATE fbSettings
-                               SET value = ?
+                               SET val = ?
                                WHERE keyName = 'password' """
         cursor.execute(__setPasswordSQL, (password,))
 
