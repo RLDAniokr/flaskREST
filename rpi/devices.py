@@ -75,6 +75,14 @@ class Relay(Device):
         }
         return response
 
+    def form_data(self):
+        data = {
+            self.name + '/dvc_type': self.type,
+            self.name + '/' + self.ch0name: self.ch0val,
+            self.name + '/' + self.ch1name: self.ch1val,
+        }
+        return data
+
     def update_device(self, income):
         self.last_response = time()
         # TODO: update device values on ram & FB
@@ -164,6 +172,19 @@ class Conditioner(Device):
 
         # Откат занчений параметров управления
         self.rollback()
+
+    def form_data(self):
+        data = {
+            self.name + '/id': self.device_id,
+            self.name + '/dvc_type': self.type,
+            self.name + "/power": self.power,
+            self.name + "/mode": self.mode,
+            self.name + "/temp": self.temp,
+            self.name + "/speed": self.speed,
+            self.name + "/angle": str(self.angle),
+        }
+        return data
+
 
     def update_device(self, income):
         """ Обновление данных """

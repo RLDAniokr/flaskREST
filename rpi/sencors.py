@@ -3,6 +3,7 @@
 # Author: Antipin S.O. @RLDA
 
 from time import time
+from datetime import datetime
 
 # TEMP: # DEBUG: # XXX:
 from random import randint
@@ -23,6 +24,9 @@ class Sencor(object):
         self.name = name
         # Значение по умолчанию
         self.value = '-'
+        # Заряд батареи
+        self.battery = '-'
+        # Время последнего ответа
         self.last_response = time()
 
     def get_info(self):
@@ -35,13 +39,60 @@ class Sencor(object):
         }
         return response
 
+    def form_data(self):
+        """ Метод формирования пакета данных для передачи в облако """
+        # Формат даты/времени
+        _format = '%d-%m-%Y %H:%M'
+        # Сформировать строковое представление времени последнего ответа
+        _time = datetime.fromtimestamp(self.last_response).strftime(_format)
+        # Формирование выходного словаря
+        data = {
+            self.name + '/snc_type': self.type,
+            self.name + '/id': self.sencor_id,
+            self.name + '/value': self.value,
+            self.name + '/battery': self.battery,
+            self.name + '/last_response': _time
+        }
+        # Вернуть выходной пакет данных
+        return data
+
     def check_timeout(self):
         """ Метод проверки таймаута ответа """
+        # Если время последнего ответа больше чем текущее на период таймаута
         if (time() - self.last_response >= self.timeout):
+            # Установить данные в Таймаут
             self.value = "Таймаут"
+            # Вернуть истину
             return True
         else:
             return False
+
+    def convert_battery(self, income):
+        """ Метод вычисления процента заряда батареи """
+        # Если длина массива достаточная
+        if len(income) >= 5:
+            # Непосредственное значение напряжения из принятого пакета данных
+            __volt_raw = income[4] + 150
+            # Номинальное напряжение полного заряда батареи
+            __volt_full = 330
+            # Номинальное напряжения разряда батареи
+            __volt_low = 260
+            # Разница полного заряда-разряда
+            __volt_range = __volt_full - __volt_low
+            # Вычисление процентного соотношения текущего заряда к номиналам
+            _volt_calc = int(((__volt_raw - __volt_low)*100)/__volt_range)
+            # NOTE: ацп или формула вычисления на устройствах барахлит,
+            # поэтому не исключены случаи выхода за границы номиналов,
+            # поэтому нужно зафиксировать минимальное и максимальное значения
+            if _volt_calc > 100:
+                _volt_calc = 100
+            elif _volt_calc < 0:
+                _volt_calc = 0
+
+            # Вывести значение процента напряжения в лог
+            log.info("Battery level of %s: %s" % (self.name, _volt_calc))
+            # Установить значение заряда для экземпляра объекта
+            self.battery = str(_volt_calc) + " %"
 
 
 class TemperatureSencor(Sencor):
@@ -55,7 +106,6 @@ class TemperatureSencor(Sencor):
 
         # Таймаут ответа датчика
         self.timeout = 1080
-
 
     def convert_data(self, income_array):
         """
@@ -80,10 +130,6 @@ class TemperatureSencor(Sencor):
             # Строковая конкатенация показаний датчика и единиц измерения
             self.value = str(__data_sum/10.00) + " °C"
 
-    def get_random_state(self):
-        """ Debug-метод со случайными занчениями """
-        self.value = str(randint(15, 30)) + " °C"
-
 
 class HumiditySencor(Sencor):
     """ Класс датчиков температуры """
@@ -95,7 +141,6 @@ class HumiditySencor(Sencor):
 
         # Таймаут ответа
         self.timeout = 1080
-
 
     def convert_data(self, income_array):
         # TBD
@@ -116,7 +161,6 @@ class LuminositySencor(Sencor):
 
         # Таймаут ответа
         self.timeout = 1080
-
 
     def convert_data(self, income_array):
         """
@@ -140,10 +184,6 @@ class LuminositySencor(Sencor):
             # Строковая конкатенация данных датчика и единиц измерения
             self.value = str(__data_sum) + " люкс"
 
-    def get_random_state(self):
-        """ Debug-метод со случайными занчениями """
-        self.value = str(randint(150, 300)) + " люкс"
-
 
 class DoorSencor(Sencor):
     """ Класс датчиков открытия двери """
@@ -155,7 +195,6 @@ class DoorSencor(Sencor):
 
         # Таймаут ответа
         self.timeout = 1080
-
 
     def convert_data(self, data):
         # Обновить время последнего ответа от датчика
@@ -183,13 +222,31 @@ class PulseSencor(Sencor):
         # Таймаут ответа
         self.timeout = 3605
 
-
         # Предыдущее значение количества импульсов
         self.prev_pulses = 0
         # Мощность
         self.pow = 0.0
         # КВт*ч
         self.kwt = 0.0
+
+    # @override
+    def form_data(self):
+        """ Перегрузка метода формирования пакета для передачи в Firebase """
+        # Формат даты
+        _format = '%d-%m-%Y %H:%M'
+        # Значение реального времни последнего ответа
+        _time = datetime.fromtimestamp(self.last_response).strftime(_format)
+        # Формирование выходного словаря
+        data = {
+            self.name + '/snc_type': self.type,
+            self.name + '/id': self.sencor_id,
+            self.name + "/КВт*ч": self.kwt,
+            self.name + "/Мощность": self.pow,
+            self.name + '/battery': self.battery,
+            self.name + '/last_response': _time
+        }
+        # Вернуть сформированный словарь
+        return data
 
     def convert_data(self, data):
         """
@@ -203,7 +260,7 @@ class PulseSencor(Sencor):
         # Количество импульсов
         __pulses = 0
         try:
-            # Побитовая конкатенация показаний количества импульсов
+            # Побитовая конкатенация количества импульсов
             for i in range(0, 4):
                 # Текущий бит со смещением
                 __tmp = data[5+i] << (8*i)
@@ -215,7 +272,7 @@ class PulseSencor(Sencor):
             log.info("Data length: %s" % len(data))
             return
         finally:
-            # Строковое представление КВТ*ч с точность до 2 знаков после зпт
+            # Строковое представление КВТ*ч с точностью до 2 знаков после зпт
             self.kwt = "%.2f" % (__pulses/3200.00)
             log.info("kwt: %s" % self.kwt)
 
@@ -233,3 +290,37 @@ class PulseSencor(Sencor):
             # Запомнить последнее значения количества импульсов
             self.prev_pulses = __pulses
             log.info("pow: %s" % self.pow)
+
+
+class WaterCounter(Sencor):
+    """ Клас импульсных счетчиков потребления воды """
+    def __init__(self, snc_id, group_name, name):
+        super(WaterCounter, self).__init__(snc_id, group_name, name)
+        # Тип датчика
+        self.type = "Water"
+
+        # Таймаут ответа
+        self.timeout = 3605
+
+    def convert_data(self, data):
+        """
+            Конвертация принятых данных
+        """
+
+        # Обновить время последнего ответа
+        self.last_response = time()
+
+        # Инициализация значения числа импульсов
+        __pulses = 0
+        try:
+            # Побитовая конкатенация показаний количества импульсов
+            for i in range(0, 4):
+                # Текущий бит со смещением
+                __tmp = data[5+i] << (8*i)
+                # Конкатенация с предыдущими показаниями
+                __pulses = __pulses | __tmp
+        except Exception as e:
+            log.error("Cant calculate pulses on water counter: %s" % self.name)
+
+        # Записать строковое значение датчика
+        self.value = str(__pulses * 10) + " л"

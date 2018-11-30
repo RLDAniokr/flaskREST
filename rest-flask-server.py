@@ -28,7 +28,7 @@ LOG = logging.getLogger()
 LOG.setLevel(logging.DEBUG)
 
 RFH = TimedRotatingFileHandler(LOG_FILE,
-                               when="D",
+                               when="midnight",
                                interval=1,
                                backupCount=5)
 RFH.setLevel(logging.INFO)
