@@ -3,7 +3,7 @@
 # Author: Antipin S.O. @RLDA
 
 import pyrebase
-import requests
+from requests.exception import ConnectionError as ConnErr
 
 from time import sleep, time
 import threading
@@ -25,7 +25,6 @@ def singleton(class_):
     return getinstance
 
 
-# TODO: # XXX: # NOTE: change CRUD groups path
 @singleton
 class fireBase():
     """
@@ -54,12 +53,19 @@ class fireBase():
         self.wd_stream = None
         self.wd_handler = None
 
+        # Резервирование переменных дл времени последнего ответа и
+        # пользовательского идентификатора
+        self.last_token_upd = time()
+        self.uid = ""
+
         # Если данные не пустые (Пользователь зарегистрировался)
         if self.email is not None and self.password is not None:
             log.info("GOT FB CREDS")
-            self.authorize(self.email, self.password)
+            self.is_auth = self.authorize(self.email, self.password)
 
         # TODO: set new thread for internet connection check
+        # TODO: setup method for email approval
+        # TODO: setup method for credentials reset
 
     def register_new_user(self, email, password):
         """ Зарегистрировать нового пользователя """
@@ -68,42 +74,18 @@ class fireBase():
             self.auth.create_user_with_email_and_password(email, password)
             # Подождать регистрации на облаке
             sleep(2)
-        except Exception as e:
-            # Обработка ошибки регистрации
-            # TODO: Обработать статус наличия пользователя с указанной почтой
-            log.error("Error during new user register")
-            log.exception(e)
-            return "FAIL"
-        finally:
             # Записать данные в базу
             sql.setFirebaseCredentials(email, password)
             # Авторизоваться
             self.authorize(email, password)
             # Вернуть статус успешной регистрации
             return "OK"
-
-    def check_connection(self):
-        """ Worker-метод для проверки интернет соединения """
-        while True:
-            # URL для пинга
-            __url = 'http://www.google.com'
-            # Таймаут ответа от URL
-            __timeout = 3
-            try:
-                # Выполнить запрос на заданный URl
-                _ = requests.get(__url, timeout=__timeout)
-                # Если при предыдущей итерации соединения не было
-                if not self.prev_inet_state:
-                    # Провести повторную авторизацию
-                    self.authorize()
-                # Указать состояние для следующей итерации
-                self.prev_inet_state = True
-            except requests.ConnectionError:
-                # Поймать исключение проблемы с соединением
-                # Установить значение для следующей итерации
-                self.prev_inet_state = False
-                # Обнулить флаг аутэнтификации
-                self.is_auth = False
+        except Exception as e:
+            # Обработка ошибки регистрации
+            # TODO: Обработать статус наличия пользователя с указанной почтой
+            log.error("Error during new user register")
+            log.exception(e)
+            return "FAIL"
 
     def authorize(self, email, pswd):
         """ Авторизоваться в системе по почте и паролю """
@@ -119,16 +101,15 @@ class fireBase():
 
             # Зафиксировать время последнего обновления токена
             self.last_token_upd = time()
-            # Установить флаг фхода в систему
-            self.is_auth = True
             # Вывесть статус входа в лог
             log.info("Authorized")
+
+            return True
         except Exception as e:
-            # Установить флаг фхода в систему
-            self.is_auth = False
             # Внести ошибку в лог
             log.exception(e)
             log.info("Unauthorized")
+            return False
 
     @property
     def root(self):
@@ -143,12 +124,17 @@ class fireBase():
         # Если установлен флаг входа
         if self.is_auth:
             _data = sencor.form_data()
-            # Установить query-путь к данным датчика в облаке
-            _group_dir = self.root.child('groups').child(sencor.group_name)
-            _snc_dir = _group_dir.child("sencors")
             try:
+                # Установить query-путь к данным датчика в облаке
+                _group_dir = self.root.child('groups').child(sencor.group_name)
+                _snc_dir = _group_dir.child("sencors")
                 # Обновить данные в облаке
                 _snc_dir.update(_data, self.token)
+            except ConnErr as e:
+                # Ошибка подключения, потеря интернет соединения
+                self.is_auth = False
+                log.error("Internet connection is lost")
+                log.exception(e)
             except Exception as e:
                 # Обработчик ошибки обновления
                 log.error("Error occured while updating sencor value")
@@ -157,34 +143,54 @@ class fireBase():
     def delete_sencor(self, sencor):
         """ Удалить данные сенсора из облачной базы данных """
         if self.is_auth:
-            # Установить query-путь к данным датчика в облаке
-            _group_dir = self.root.child('groups').child(sencor.group_name)
-            _snc_dir = _group_dir.child("sencors")
             try:
+                # Установить query-путь к данным датчика в облаке
+                _group_dir = self.root.child('groups').child(sencor.group_name)
+                _snc_dir = _group_dir.child("sencors")
                 # Удалить query-путь к данным датчика в облаке
                 _snc_dir.child(sencor.name).remove(self.token)
+            except ConnErr as e:
+                # Ошибка подключения, потеря интернет соединения
+                self.is_auth = False
+                log.error("Internet connection is lost")
+                log.exception(e)
             except Exception as e:
                 log.error("Error occured while sencor delete")
                 log.exception(e)
 
     def set_strm(self, handler, gr_name):
         """ Установить поток прослушки команд устройств угруппы """
-        # Директория
-        _dvc_dir = self.root.child('groups').child(gr_name).child('devices')
-        # Экземпляр потока прослушки
-        stream = _dvc_dir.stream(handler, stream_id=gr_name, token=self.token)
+        stream = None
+        try:
+            # Директория
+            _dvc_dir = self.root.child('groups').child(gr_name).child('devices')
+            # Экземпляр потока прослушки
+            stream = _dvc_dir.stream(handler, stream_id=gr_name, token=self.token)
+        except ConnErr as e:
+            # Ошибка подключения, потеря интернет соединения
+            self.is_auth = False
+            log.error("Internet connection is lost")
+            log.exception(e)
+        except Exception as e:
+            log.exception(e)
+
         return stream
 
     def update_device_value(self, device):
         """ Обновить данные устройства в облачной базе данных """
         if self.is_auth:
             _data = device.form_data()
-            # Установить query-путь к данным устройства в облаке
-            _group_dir = self.root.child('groups').child(device.group_name)
-            _dvc_dir = _group_dir.child("devices")
             try:
+                # Установить query-путь к данным устройства в облаке
+                _group_dir = self.root.child('groups').child(device.group_name)
+                _dvc_dir = _group_dir.child("devices")
                 # Обновить данные устройства в облаке
                 _dvc_dir.update(_data, self.token)
+            except ConnErr as e:
+                # Ошибка подключения, потеря интернет соединения
+                self.is_auth = False
+                log.error("Internet connection is lost")
+                log.exception(e)
             except Exception as e:
                 log.error("Error occured while updating device")
                 log.exception(e)
@@ -192,12 +198,17 @@ class fireBase():
     def delete_device(self, device):
         """ Удалить данные устройства из облачной базы данных """
         if self.is_auth:
-            # Установить query-путь к данным устройства в облаке
-            _group_dir = self.root.child('groups').child(device.group_name)
-            _dvc_dir = _group_dir.child("devices")
             try:
+                # Установить query-путь к данным устройства в облаке
+                _group_dir = self.root.child('groups').child(device.group_name)
+                _dvc_dir = _group_dir.child("devices")
                 # Удалить query-путь к данным устройства в облаке
                 _dvc_dir.child(device.name).remove(self.token)
+            except ConnErr as e:
+                # Ошибка подключения, потеря интернет соединения
+                self.is_auth = False
+                log.error("Internet connection is lost")
+                log.exception(e)
             except Exception as e:
                 # Обработка ошибки удаления
                 log.error("Error occured while updating device")
@@ -210,6 +221,11 @@ class fireBase():
         if self.is_auth:
             try:
                 self.root.child('groups').child(group).remove(self.token)
+            except ConnErr as e:
+                # Ошибка подключения, потеря интернет соединения
+                self.is_auth = False
+                log.error("Internet connection is lost")
+                log.exception(e)
             except Exception as e:
                 log.error("Error occured while deleting group")
                 log.exception(e)
@@ -218,15 +234,21 @@ class fireBase():
         """ Обновление UNIX-времени в топике последнего сообщения """
         # Данные (unixtime)
         __data = {"last_upd": time()}
-        try:
-            # Обновление данных в базе
-            self.root.update(__data, self.token)
-        except Exception as e:
-            log.exception(e)
+        if self.is_auth:
+            try:
+                # Обновление данных в базе
+                self.root.update(__data, self.token)
+            except ConnErr as e:
+                # Ошибка подключения, потеря интернет соединения
+                self.is_auth = False
+                log.error("Internet connection is lost")
+                log.exception(e)
+            except Exception as e:
+                log.exception(e)
 
     def init_warden(self, handler=None):
         """ Метод инициализирования потока для статистики """
-        if not self.wd_handler:
+        if handler is not None:
             # Забрать обработчик, если он не сохранен
             self.wd_handler = handler
 
@@ -237,7 +259,11 @@ class fireBase():
                                                              token=self.token)
             # Обновить статус статистики (Ожидание)
             self.update_stats(status="AWAIT")
-
+        except ConnErr as e:
+            # Ошибка подключения, потеря интернет соединения
+            self.is_auth = False
+            log.error("Internet connection is lost")
+            log.exception(e)
         except Exception as e:
             log.exception(e)
             # TODO: XXX: return something?
@@ -249,6 +275,11 @@ class fireBase():
             try:
                 # Обновить значение статуса
                 self.root.child('stats').update({'status': status}, self.token)
+            except ConnErr as e:
+                # Ошибка подключения, потеря интернет соединения
+                self.is_auth = False
+                log.error("Internet connection is lost")
+                log.exception(e)
             except Exception as e:
                 log.exception(e)
         # Если обновляются данные
@@ -260,6 +291,11 @@ class fireBase():
                 __calc_path.remove(self.token)
                 # Установить новые данные
                 __calc_path.update(data, self.token)
+            except ConnErr as e:
+                # Ошибка подключения, потеря интернет соединения
+                self.is_auth = False
+                log.error("Internet connection is lost")
+                log.exception(e)
             except Exception as e:
                 log.exception(e)
 
@@ -280,6 +316,11 @@ class fireBase():
             # Записать считанные значения в выходной словарь
             stats['id'] = __raw_id
             stats['date'] = __raw_date
+        except ConnErr as e:
+            # Ошибка подключения, потеря интернет соединения
+            self.is_auth = False
+            log.error("Internet connection is lost")
+            log.exception(e)
         except Exception as e:
             log.exception(e)
 
@@ -288,6 +329,31 @@ class fireBase():
 
     def upd_token(self, group_list, handler):
         """ Обновить токен доступа """
+        # Проверка подключения
+        if not self.is_auth:
+            if self.email is not None and self.password is not None:
+                self.is_auth = self.authorize(self.email, self.password)
+                if self.is_auth:
+                    for group in group_list:
+                        try:
+                            # Закрыть поток
+                            group.dvc_stream.close()
+                        except AttributeError:
+                            # NOTE: Иногда закрытие стрима может вывалится с
+                            # ошибкой аттрибута (косяк библиотеки)
+                            pass
+                        # Установить query-путь для устройств группы
+                        _gr = self.root.child('groups').child(group.name)
+                        _dvc_dir = _gr.child("devices")
+
+                        # Создать новый поток для прослушки канала устройств
+                        group.dvc_stream = _dvc_dir.stream(handler,
+                                                           stream_id=group.name,
+                                                           token=self.token)
+                        # Установить время последнего обновления токена
+                        self.last_token_upd = time()
+                        return
+
         # Разница времени между текущим моментом и последним обновлением токена
         # NOTE: токен работает не больше часа
         __t_diff = time() - self.last_token_upd

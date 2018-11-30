@@ -5,6 +5,8 @@ vnv
 
 *.log
 *.csv
+/logs
+/sencor_logs
 
 *.swp
 *.db

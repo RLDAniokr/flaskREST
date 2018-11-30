@@ -10,6 +10,9 @@ import pandas as pd
 import logging
 from logging.handlers import TimedRotatingFileHandler
 
+
+# TODO: check if log exists and border values of time is today
+
 # Файловый логгер
 log = logging.getLogger(__name__)
 # Уровень INFO
@@ -26,7 +29,7 @@ FORMATTER = logging.Formatter(format, datefmt='%Y-%m-%d %H:%M:%S')
 PATH = './logs/sencor_logs/sencors.csv'
 # Применение настроек для обработчика
 trot_handler = TimedRotatingFileHandler(PATH,
-                                        when="D",
+                                        when="midnight",
                                         interval=1,
                                         backupCount=7)
 
