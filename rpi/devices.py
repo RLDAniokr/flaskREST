@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf8 -*-
 # Author: Antipin S.O. @RLDA
+# test comment for commit
+
 from time import time
 from .sql import saveLast
 
